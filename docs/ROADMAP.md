@@ -35,6 +35,8 @@
   mediante pruebas de sistema QEMU en EL1 y EL2.
 - [x] Escribir operaciones BLT propias, comprobar límites con ASan/UBSan y
   construir las tres bibliotecas con EDK2 para AArch64.
+- [x] Escribir el lector FDT propio en C, contrastarlo con la captura privada y
+  compilar la cuarta biblioteca con EDK2 para AArch64.
 - Revisar el protocolo de entrada de LK, estado ARM64, memoria y reservas.
 - Evaluar la disponibilidad real de un arranque de prueba temporal.
 - Escribir la entrada ARM64 de la propia plataforma EDK2, sin BootShim,

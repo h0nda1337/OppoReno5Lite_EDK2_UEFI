@@ -7,7 +7,7 @@
   "edk2_headers": {
     "url": "https://github.com/tianocore/edk2.git",
     "commit": "b03a21a63e3bd001f52c527e5a57feddb53a690b",
-    "use": "Core headers and BaseTools for original platform/BGRT/framebuffer libraries; three libraries built with EDK2 AARCH64 RELEASE GCC; no complete UEFI firmware built",
+    "use": "Core headers and BaseTools for four original platform/BGRT/framebuffer/FDT libraries; built with EDK2 AARCH64 RELEASE GCC; no complete UEFI firmware built",
     "metadata_required_mipisyst_submodule": "370b5944c046bab043dd8b133727b2135af7747a"
   },
   "oppo_kernel_reference": {

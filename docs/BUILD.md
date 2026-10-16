@@ -96,7 +96,7 @@ Las pruebas usan ASan/UBSan, guardas, colores conocidos, la geometría medida
 del OPPO y todas las copias de rectángulos válidas de una superficie pequeña.
 Después se compila el objeto AArch64. Ninguna prueba usa memoria del teléfono.
 
-Las tres bibliotecas también se construyen con el sistema de EDK2:
+Las cuatro bibliotecas también se construyen con el sistema de EDK2:
 
 ```bash
 EDK2_SOURCE=/ruta/edk2 bash scripts/build_edk2_libraries.sh
@@ -106,7 +106,27 @@ Se requiere BaseTools compilado y los submódulos que exige el núcleo EDK2. La
 revisión utilizada emplea el perfil `GCC`, no el antiguo `GCC5`. El DSC de
 validación solo genera archivos de biblioteca, sin FD/FV ni imagen arrancable.
 La salida del build se comprueba además por su marca de finalización y por los
-tres archivos producidos.
+cuatro archivos producidos.
 
 La entrada ARM64 original tiene pruebas independientes de sistema QEMU en EL1
 y EL2, descritas en [NATIVE_ENTRY.md](NATIVE_ENTRY.md).
+
+## Lector FDT propio
+
+`OppoFdtLib` interpreta cabecera, tokens, rutas de propiedades y tabla de
+reservas con lecturas byte a byte. No incorpora libfdt ni implementaciones
+externas al proyecto. Valida límites, bloques separados, profundidad, orden de
+propiedades y terminación; rechaza propiedades o nodos seleccionados ambiguos.
+
+```bash
+EDK2_HEADERS=/ruta/edk2 bash scripts/build_fdt_lib.sh
+EDK2_HEADERS=/ruta/edk2 bash scripts/build_fdt_lib.sh /ruta/privada/runtime.dtb
+```
+
+El segundo comando opcional contrasta el archivo privado de esta captura con
+los hechos públicos esperados: MT6779, banco de 6 GiB y método PSCI `smc`. Solo
+lee el archivo; no ejecuta SMC ni usa el teléfono. Las pruebas sintéticas cubren
+todos los truncamientos, propiedades duplicadas, reservas superpuestas y 4096
+alteraciones deterministas bajo ASan/UBSan. El objeto AArch64 no tiene símbolos
+externos pendientes. Esto prepara la inspección de la entrega de LK; no construye
+un mapa UEFI ni valida acceso físico.

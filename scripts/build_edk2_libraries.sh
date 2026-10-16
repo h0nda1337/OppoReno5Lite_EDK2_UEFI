@@ -23,9 +23,9 @@ if ! grep -q '^- Done -' "$log"; then
   tail -n 20 "$log"
   exit 1
 fi
-for name in OppoPlatformLib OppoBgrtLib OppoFrameBufferLib; do
+for name in OppoPlatformLib OppoBgrtLib OppoFrameBufferLib OppoFdtLib; do
   archive="$edk2/.build/OppoLibraryValidation/RELEASE_GCC/AARCH64/OppoReno5LitePkg/Library/$name/$name/OUTPUT/$name.lib"
   test -s "$archive"
   aarch64-linux-gnu-ar t "$archive" | grep -q "$name.obj"
 done
-printf '%s\n' 'Three original libraries built with EDK2/AARCH64/GCC RELEASE. No firmware volume generated.'
+printf '%s\n' 'Four original libraries built with EDK2/AARCH64/GCC RELEASE. No firmware volume generated.'

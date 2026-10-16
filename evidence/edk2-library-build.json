@@ -16,12 +16,17 @@
     "OppoFrameBufferLib": {
       "size": 23828,
       "sha256": "c7dcf6233526854e0365c430f69dc279b1cf3959df0b100159f17436078154f8"
+    },
+    "OppoFdtLib": {
+      "size": 30064,
+      "sha256": "e31ba9bc58711abe2b4ad73fad4f3c02dbd8672120c214e6e516eaf695a0bb21"
     }
   },
   "firmware_volume_generated": false,
   "phone_operation_performed": false,
   "source_sha256": {
-    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "c2dc7d907615f7691bf7c3ceb1f059b0fe75d83e858b0124a7b32f0326431d19",
-    "scripts/build_edk2_libraries.sh": "2b210d65142d0d24468aed840ed2b51bedfba98dcaafec67c7f994cc20fa589b"
-  }
+    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "03c947d724d74051646e264eb874c7267dace59e522a0edf54d8958f097e9722",
+    "scripts/build_edk2_libraries.sh": "177fa8f42eb3ccea9fed1a610d47d3d996f238694b27a9bf3f9a37e57ed0b7fd"
+  },
+  "library_count": 4
 }

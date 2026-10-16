@@ -46,9 +46,14 @@
     "scripts/test_sec_header.S": "cb1abcc53312e42275af6d546c7752c449a34a40ebd55f5c017b72ffe611c115",
     "scripts/test_sec_entry.c": "e60f8d1bde86be48514546b2d39bc3741c3d291c822a137568e8e97fb55bada7",
     "scripts/test_sec_entry.sh": "55269af3147ebee9af12cb8693be6f9cda1ef63b0f93070813c359b9d866cd1a",
-    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "c2dc7d907615f7691bf7c3ceb1f059b0fe75d83e858b0124a7b32f0326431d19",
-    "scripts/build_edk2_libraries.sh": "2b210d65142d0d24468aed840ed2b51bedfba98dcaafec67c7f994cc20fa589b",
-    "OppoReno5LitePkg/OppoReno5LitePkg.dec": "30c8cf2bee1b22273a27160bf34c82c70e9f280b5ef2cc27a3b3dbb2a6891fd6"
+    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "03c947d724d74051646e264eb874c7267dace59e522a0edf54d8958f097e9722",
+    "scripts/build_edk2_libraries.sh": "177fa8f42eb3ccea9fed1a610d47d3d996f238694b27a9bf3f9a37e57ed0b7fd",
+    "OppoReno5LitePkg/OppoReno5LitePkg.dec": "9514945eae29e895fac7ca3bee3bb5d99bea77e821c212fb1687f7f2c78f03a3",
+    "OppoReno5LitePkg/Include/Library/OppoFdtLib.h": "b118fc0b0798982dd14304ee33105ee69a77fbb4f5ed18f34e8102255fec09a8",
+    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.c": "1c527c6ab0a5ba11e07d2ecc9560a8ff2204d8dddecfe3a98e022b2b6a152cc0",
+    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf": "8373e0a316219f85fb4c7fd50ad71fde398846af4d5d947b8c8927355cfbdaed",
+    "scripts/test_fdt.c": "8d5192a506cf7f53cba056e2c2450dbba91bae0d0355b0fff4cad826f7860aa0",
+    "scripts/build_fdt_lib.sh": "fa21e93d4186593226437393b035fcbf7d7affcc1894e746aa41743d0ca9fec2"
   },
   "source_review_date_local": "2026-10-16",
   "bgrt_host_checks_passed": true,
@@ -73,5 +78,8 @@
   "qemu_system_entry_el1_fixture_passed": true,
   "qemu_system_entry_el2_fixture_passed": true,
   "native_sec_entry_execution_on_phone_verified": false,
-  "qemu_system_boot_scope": "Original SEC entry with test C routine only; no complete UEFI boot"
+  "qemu_system_boot_scope": "Original SEC entry with test C routine only; no complete UEFI boot",
+  "edk2_libraries_built": 4,
+  "fdt_reader_host_asan_ubsan_passed": true,
+  "private_linux_capture_read_by_original_c_parser": true
 }

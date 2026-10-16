@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "validation_date_local": "2026-10-16",
+  "scope": "original FDT reader tested in PC, including an existing private Linux capture",
+  "external_parser_implementation_imported": false,
+  "host_asan_ubsan_passed": true,
+  "every_synthetic_truncation_rejected": true,
+  "selected_duplicate_property_rejected": true,
+  "overlapping_memreserve_entries_rejected": true,
+  "deterministic_corruptions_checked": 4096,
+  "private_capture_model_ram_psci_values_confirmed_by_c": true,
+  "smc_call_executed": false,
+  "native_phone_execution_verified": false,
+  "arm64_object": {
+    "size": 4496,
+    "sha256": "95487a99c9c79489408c17863acc36bdba8d3a00deeae69dfc4938ea024a7032"
+  },
+  "undefined_symbols_in_standalone_object": 0,
+  "source_sha256": {
+    "OppoReno5LitePkg/Include/Library/OppoFdtLib.h": "b118fc0b0798982dd14304ee33105ee69a77fbb4f5ed18f34e8102255fec09a8",
+    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.c": "1c527c6ab0a5ba11e07d2ecc9560a8ff2204d8dddecfe3a98e022b2b6a152cc0",
+    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf": "8373e0a316219f85fb4c7fd50ad71fde398846af4d5d947b8c8927355cfbdaed",
+    "scripts/test_fdt.c": "8d5192a506cf7f53cba056e2c2450dbba91bae0d0355b0fff4cad826f7860aa0",
+    "scripts/build_fdt_lib.sh": "fa21e93d4186593226437393b035fcbf7d7affcc1894e746aa41743d0ca9fec2"
+  }
+}

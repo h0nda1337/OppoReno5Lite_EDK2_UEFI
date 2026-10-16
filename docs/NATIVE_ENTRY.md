@@ -16,6 +16,14 @@ El contrato de entrada se basa en la
 Esto describe el contrato que se espera de LK; su cumplimiento en la entrada
 nativa del OPPO todavía debe medirse.
 
+`OppoFdtLib` aporta un lector original para la estructura que entrega LK. El
+formato se consulta en la
+[especificación de Devicetree, capítulo 5](https://devicetree-specification.readthedocs.io/en/latest/chapter5-flattened-format.html).
+No se copió un parser externo. La implementación limita el blob a 2 MiB,
+32 niveles, 4096 nodos, nombres de 127 bytes y rutas de 1023 bytes. Examina
+bloques y tokens, consulta propiedades por ruta absoluta y lee reservas de
+64 bits big-endian; no interpreta todavía sus valores como un mapa asignable.
+
 ## Qué se comprobó
 
 `scripts/test_sec_entry.sh` enlaza esa misma entrada con una cabecera y una
