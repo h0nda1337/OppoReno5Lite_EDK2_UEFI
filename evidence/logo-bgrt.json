@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "source_logo_sha256": "d5c4b6bf475ba5ce6515d194e1f6e4dc7d186615439a55549a9e38e9a3dd9793",
+  "container_frames": 166,
+  "frame_index": 0,
+  "source_resolution": [
+    1080,
+    2400
+  ],
+  "content_bands_y": [
+    [
+      827,
+      977
+    ],
+    [
+      2061,
+      2101
+    ],
+    [
+      2114,
+      2180
+    ]
+  ],
+  "selected_band": 0,
+  "bitmap_resolution": [
+    620,
+    150
+  ],
+  "source_origin_xy": [
+    230,
+    827
+  ],
+  "bitmap_sha256": "3d111a7ecef5a8f9b7457edeea59deed8d6d6121a704f6ab5f5c813f5e5442cc",
+  "bitmap_format": "24-bit-BI_RGB-bottom-up",
+  "uefi_rendering_verified": false,
+  "bgrt_installed": false,
+  "windows_boot_verified": false,
+  "phone_operations_performed": false,
+  "bgrt_library_host_tests_passed": true,
+  "bgrt_library_arm64_object_compiled": true,
+  "bgrt_table_installed_on_phone": false
+}

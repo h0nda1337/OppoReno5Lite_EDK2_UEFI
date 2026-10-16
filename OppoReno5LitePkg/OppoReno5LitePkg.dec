@@ -12,3 +12,4 @@
 
 [LibraryClasses]
   OppoPlatformLib|Include/Library/OppoPlatformLib.h
+  OppoBgrtLib|Include/Library/OppoBgrtLib.h

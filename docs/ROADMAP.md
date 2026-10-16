@@ -1,5 +1,15 @@
 # Etapas del port
 
+## Prioridad actual: recuperar Android
+
+- [x] Restaurar recovery original y comprobar sus 64 MiB mediante lectura.
+- [x] Confirmar boot y recovery originales en una nueva sesión MediaTek.
+- [x] Documentar las actualizaciones de claves hechas por el recovery durante
+  el diagnóstico y suspender nuevas instalaciones experimentales.
+- [x] Verificar de nuevo Android tras el restablecimiento autorizado: arranque
+  completo, bootloader desbloqueado y batería cargando por encima del mínimo.
+- [ ] Revisar servicios, montajes y propiedades AVB antes de reanudar pruebas.
+
 ## 1. Inventario y preparación — en curso
 
 - [x] Registrar modelo, SoC, proyecto y firmware de referencia.
@@ -48,3 +58,13 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
 
 El protocolo Fastbootd y la interfaz gráfica del recovery son componentes
 distintos. Añadir una etiqueta al menú no proporciona por sí mismo el arranque.
+
+## 5. Logo original y arranque de Windows — preparación en PC
+
+- [x] Extraer de un firmware propio la marca OPPO y convertirla a BMP.
+- [x] Construir y comprobar metadatos BGRT en PC y compilar la biblioteca ARM64.
+- [ ] Dibujar el logo mediante GOP, reservar su BMP e instalar BGRT.
+- [ ] Validar visibilidad y transición al cargador de Windows en el teléfono.
+
+Esta etapa no implica que Windows ya pueda arrancar. Véase
+[LOGO_BGRT.md](LOGO_BGRT.md).

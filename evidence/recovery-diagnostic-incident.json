@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "review_date_local": "2026-10-16",
+  "scope": "stock-kernel recovery diagnostics, not native UEFI",
+  "diagnostic_image_versions": 2,
+  "diagnostic_recovery_writes": 3,
+  "observed_recovery_menu": true,
+  "added_service_execution_verified": false,
+  "runtime_hardware_capture_valid": false,
+  "observed_boot_reasons": [
+    "init_user0_failed",
+    "phenix.data_to_recovery"
+  ],
+  "recovery_log_records_key_upgrades": true,
+  "exact_keymaster_incompatibility_cause_proven": false,
+  "stock_recovery_restored": true,
+  "full_stock_recovery_readback_verified": true,
+  "stock_boot_and_recovery_reverified_next_day": true,
+  "other_boot_chain_comparisons_match_previous_backups": true,
+  "normal_android_boot_recovered": true,
+  "new_diagnostic_installation_suspended": true,
+  "minimal_linux_diagnostic_executed_on_phone": false,
+  "uefi_execution_observed": false,
+  "factory_reset_authorized_by_owner": true,
+  "factory_reset_completion_verified": true,
+  "lock_unlock_commands_sent": false,
+  "raw_device_logs_or_key_material_included": false,
+  "post_reset_battery_percent": 28,
+  "post_reset_usb_charging": true,
+  "post_reset_lock_state": "unlocked",
+  "post_reset_ota": "CPH2205_11.F.72_2720_202604151915"
+}

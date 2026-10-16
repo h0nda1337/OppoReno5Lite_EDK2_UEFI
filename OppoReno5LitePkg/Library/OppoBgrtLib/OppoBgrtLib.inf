@@ -1,0 +1,17 @@
+## @file
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  INF_VERSION    = 0x0001001B
+  BASE_NAME      = OppoBgrtLib
+  FILE_GUID      = 21d2b767-ffcc-4ff6-ac28-ab28431752b8
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 0.1
+  LIBRARY_CLASS  = OppoBgrtLib
+
+[Sources]
+  OppoBgrtLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec

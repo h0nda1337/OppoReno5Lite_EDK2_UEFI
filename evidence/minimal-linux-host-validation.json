@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "validation_date_local": "2026-10-16",
+  "artifact_kind": "stock-kernel minimal Linux PID 1 recovery candidate",
+  "candidate_sha256": "2b3636b1d2175ec5a6e57494f0f35a0e1507d6f61f7d971577fc3fb01f8e1a18",
+  "init_sha256": "a630ebd5e8d5f70d7287c2e77835fb081fa85053a0200d8d85d849f219689f40",
+  "init_source_sha256": "808683761db0d1c74e1df36d1f8c2d873f9944eaac0946a2324cdf2ad770bb4a",
+  "ramdisk_paths": [
+    "dev",
+    "proc",
+    "sys",
+    "tmp",
+    "config",
+    "init"
+  ],
+  "stock_non_ramdisk_components_preserved": true,
+  "stock_avb_property_count_preserved": 5,
+  "avb_hash_footer_host_verified": true,
+  "oem_signature_valid": false,
+  "host_candidate_validation_passed": true,
+  "physical_execution_verified": false,
+  "uefi_firmware": false,
+  "firmware_images_included_in_repository": false
+}

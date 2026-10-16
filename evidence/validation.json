@@ -1,8 +1,8 @@
 {
-  "validation_date_local": "2026-10-15",
+  "validation_date_local": "2026-10-16",
   "host_checks_passed": true,
   "c_assertion_checks": 14,
-  "python_tests_passed": 9,
+  "python_tests_passed": 32,
   "arm64_object_compiled": true,
   "object_machine": "AArch64",
   "object_sha256": "a6ff9ee20b1f9a4400607429154b7135edecf6b97a6bc30f635dc65382a111d7",
@@ -19,6 +19,30 @@
     "OppoReno5LitePkg/Include/Library/OppoPlatformLib.h": "94b7e43f10e793884991d2f0a9fc04cfac45fe86c26859a46d904140a232eb27",
     "scripts/test_platform.c": "bcc8819cca075a9a02898b9e54670b10826e5c8aa9f24b6d4519949a4e7b9295",
     "scripts/test_device_session.py": "127851f8c3dda1c7ee66ba038eaef3cdbca05657493f75500334a948aaec6e20",
-    "scripts/test_platform_inventory.py": "0f91acb6edd439a92c94964b713a865e439502f7bc84101f0477fc128b558f96"
-  }
+    "scripts/test_platform_inventory.py": "0f91acb6edd439a92c94964b713a865e439502f7bc84101f0477fc128b558f96",
+    "scripts/capture_init.c": "808683761db0d1c74e1df36d1f8c2d873f9944eaac0946a2324cdf2ad770bb4a",
+    "scripts/receive_diagnostic.py": "3cafa48a14267820c2eaea4b9495abf406aa82c4af6d6ecc7a1930e83da7d904",
+    "scripts/recovery_image.py": "83258d9c098cd0fdf3fc66e7751fef18659f429bd2a9d8412b5e6f21fe781211",
+    "scripts/recovery_diagnostic_session.py": "1b26370a3bb751467529cec6976cdd0b011a233d091579195d1adf4dec57c18d",
+    "OppoReno5LitePkg/Library/OppoBgrtLib/OppoBgrtLib.c": "3904548b1db907f761ce5ac5a5dc63a29420731d1fe6fa19f4a791005aee4e81",
+    "OppoReno5LitePkg/Include/Library/OppoBgrtLib.h": "fe1283e59c9d3f679a583f14a54e8c6874227a2adc6145211efbccdf192ec9d9",
+    "scripts/test_bgrt.c": "2f6e56f4f6410da8a5527f85ef49b0d8c969e48b87d03f118ff1d6c7b7f956aa",
+    "scripts/recovery_avb.py": "1b04d4c5caccefb8ff7d2905bceb44fce50355383bf23bf7fb93cf17dd88e93e",
+    "scripts/test_recovery_avb.py": "b84c7dd1eda4fa3083e4cc79e9554d078fce01aecd623c413a7a09e3adcb5274",
+    "scripts/prepare_minimal_diagnostic.py": "247cd8aafa74af26fe5f675d80df343733c1b17b725dea36372c1cc6af031351",
+    "scripts/prepare_recovery_diagnostic.py": "88327258efb77a2d2b02250b0dfef830a1fd7fcc4ba6f7b805bdb4f35aa0d272"
+  },
+  "source_review_date_local": "2026-10-16",
+  "bgrt_host_checks_passed": true,
+  "bgrt_arm64_object_compiled": true,
+  "linux_diagnostic_init_arm64_static_compiled": true,
+  "qemu_user_mode_non_pid1_guard_passed": true,
+  "qemu_system_boot_tested": false,
+  "linux_diagnostic_execution_on_phone_verified": false,
+  "uefi_firmware_image_built": false,
+  "firmware_scope": "EDK2 UEFI",
+  "runtime_memory_map_verified": false,
+  "bgrt_object_sha256": "ccda6516c4ed03da735f8d7d2ba2aca772433c4d67460c0df4c728ad7a5b608e",
+  "linux_diagnostic_init_sha256": "a630ebd5e8d5f70d7287c2e77835fb081fa85053a0200d8d85d849f219689f40",
+  "avb_property_preservation_host_verified": true
 }

@@ -7,13 +7,14 @@
   "edk2_headers": {
     "url": "https://github.com/tianocore/edk2.git",
     "commit": "b03a21a63e3bd001f52c527e5a57feddb53a690b",
-    "use": "Unmodified MdePkg include files for host checks and ARM64 object compilation"
+    "use": "Unmodified MdePkg headers for platform/BGRT host checks and ARM64 objects; BaseTools compiled, no complete UEFI image built"
   },
   "oppo_kernel_reference": {
     "url": "https://github.com/oppo-source/android_kernel_oppo_mt6779",
     "commit": "0e1e01b9fb281b02d1f50f12ea475d881f3fafd5",
     "file": "drivers/misc/mediatek/video/mt6779/videox/mtkfb.c",
-    "use": "Inspected framebuffer handoff definitions; not compiled or imported into the platform library"
+    "use": "Inspected framebuffer handoff definitions; not compiled or imported into the platform library",
+    "additional_inspected_file": "drivers/watchdog/mtk_wdt.c"
   },
   "firmware_image_built": false,
   "uefi_execution_observed": false

@@ -39,3 +39,30 @@ una captura vacía o con errores no se acepta como evidencia de hardware.
 originales con SHA-256 fijado. No debe ejecutarse en automatizaciones. El fallo
 de LK observado deja esa vía pendiente de investigación; no se debe considerar
 un mecanismo de arranque temporal ya disponible para el port.
+
+## BGRT y diagnósticos de Linux
+
+La biblioteca BGRT tiene una compilación independiente, con las mismas
+cabeceras revisadas de EDK2:
+
+```bash
+EDK2_HEADERS=/ruta/a/edk2 bash scripts/build_bgrt_lib.sh
+```
+
+Compila un ejecutable de comprobación para el PC y un objeto AArch64 en
+`.build/bgrt/`. Se puede pasar al script la ruta de un BMP privado para validar
+también la salida del extractor local. No instala ACPI ni utiliza el teléfono.
+Los detalles de integración pendiente están en [LOGO_BGRT.md](LOGO_BGRT.md).
+
+El PID 1 de diagnóstico se construye como ejecutable estático de Linux:
+
+```bash
+bash scripts/build_capture_init.sh
+```
+
+Requiere además `qemu-aarch64`. La prueba de QEMU comprueba exclusivamente el
+rechazo de una invocación que no sea PID 1; no arranca un sistema emulado. La
+salida se guarda en `.build/diagnostic/`. Los preparadores de recovery generan
+archivos privados en PC y no producen una imagen EDK2. Su instalación está
+suspendida por el incidente descrito en
+[RECOVERY_DIAGNOSTICS.md](RECOVERY_DIAGNOSTICS.md).
