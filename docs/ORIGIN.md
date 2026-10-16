@@ -10,8 +10,9 @@ compilación son dependencias externas identificadas, con sus propias licencias.
 El kernel original solo se empleó como firmware privado para el inventario
 Linux; no se publica ni se presenta como código propio.
 
-Las bibliotecas de plataforma y BGRT, el PID 1 mínimo y las herramientas Python
-de este repositorio son implementaciones originales del proyecto. Las fuentes
+Las bibliotecas de plataforma, BGRT y framebuffer, la entrada SEC ARM64, sus
+pruebas, el PID 1 mínimo y las herramientas Python de este repositorio son
+implementaciones originales del proyecto. Las fuentes
 de OPPO, AOSP, Linux y edk2-mtk consultadas sirven para investigar formatos e
 interfaces. Consultar una referencia no autoriza copiar su implementación.
 

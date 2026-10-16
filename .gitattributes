@@ -6,3 +6,8 @@
 *.c text eol=lf
 *.h text eol=lf
 *.S text eol=lf
+*.inf text eol=lf
+*.dsc text eol=lf
+*.fdf text eol=lf
+*.dec text eol=lf
+*.inc text eol=lf

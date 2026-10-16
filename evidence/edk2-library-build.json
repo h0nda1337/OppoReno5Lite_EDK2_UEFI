@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "validation_date_local": "2026-10-16",
+  "edk2_commit": "b03a21a63e3bd001f52c527e5a57feddb53a690b",
+  "profile": "AARCH64 RELEASE GCC",
+  "build_completion_and_archives_verified": true,
+  "libraries": {
+    "OppoPlatformLib": {
+      "size": 12876,
+      "sha256": "76e718235c759db4a5bc28da14db3bf803fef43a83aba25a2b0e94758df39317"
+    },
+    "OppoBgrtLib": {
+      "size": 18514,
+      "sha256": "2cc8cb1afbeddeb0f8d8d1dfd2d1645865ad1030583a03ba59ed34d121e0ff3d"
+    },
+    "OppoFrameBufferLib": {
+      "size": 23828,
+      "sha256": "c7dcf6233526854e0365c430f69dc279b1cf3959df0b100159f17436078154f8"
+    }
+  },
+  "firmware_volume_generated": false,
+  "phone_operation_performed": false,
+  "source_sha256": {
+    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "c2dc7d907615f7691bf7c3ceb1f059b0fe75d83e858b0124a7b32f0326431d19",
+    "scripts/build_edk2_libraries.sh": "2b210d65142d0d24468aed840ed2b51bedfba98dcaafec67c7f994cc20fa589b"
+  }
+}

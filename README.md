@@ -4,8 +4,9 @@ Port experimental de EDK2 para **OPPO Reno5 Lite CPH2205 / OP4F43L1**, proyecto
 20295, MediaTek MT6779 (Helio P95). El objetivo es conseguir una UEFI Shell nativa
 y después ofrecer una opción **UEFI Shell** en el recovery que muestra Fastbootd.
 
-**Estado, 16 de octubre de 2026: bibliotecas de plataforma y BGRT compiladas para
-ARM64 y comprobadas en PC; diagnóstico Linux mínimo ejecutado en el OPPO con
+**Estado, 16 de octubre de 2026: bibliotecas propias de plataforma, BGRT y
+framebuffer compiladas con EDK2 para ARM64; entrada ARM64 propia probada en
+QEMU EL1/EL2; diagnóstico Linux mínimo ejecutado en el OPPO con
 captura USB de memoria y pantalla. Todavía no hay una imagen UEFI completa ni un
 arranque UEFI observado en este OPPO.**
 
@@ -26,9 +27,11 @@ Véase
 | Android de referencia | Android 13, ColorOS F.72, México libre NV7B |
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
 | EDK2 específico para MT6779 | Pendiente de desarrollo y validación |
+| Entrada ARM64 propia | Pila, vectores y argumentos comprobados en QEMU EL1/EL2; sin prueba nativa en el OPPO |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. Mapa UEFI y pantalla antes de Linux pendientes |
 | Pantalla y entrada para la Shell | Pendientes |
+| Operaciones de framebuffer propias | Cuatro BLT comprobadas en PC con sanitizadores y compilación EDK2; GOP nativo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; pantalla UEFI y Windows pendientes |
@@ -73,6 +76,12 @@ Describe registros del SoC y valida propuestas de región de carga, rechazando
 mapas no verificados, desbordamientos y solapamientos con regiones reservadas.
 Compila como objeto ARM64; no constituye una imagen arrancable ni inicializa
 todavía el hardware. Véase [docs/BUILD.md](docs/BUILD.md).
+
+La biblioteca de framebuffer propia proporciona las operaciones de píxeles
+para un futuro GOP. La entrada SEC propia conserva el FDT y prepara el entorno
+inicial; su validación actual usa una rutina C de prueba en QEMU. Todavía faltan
+los HOBs, la inicialización de memoria y el núcleo DXE. Véase
+[docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md).
 
 La planificación y fuentes están en [docs/ROADMAP.md](docs/ROADMAP.md) y
 [docs/RESEARCH.md](docs/RESEARCH.md).

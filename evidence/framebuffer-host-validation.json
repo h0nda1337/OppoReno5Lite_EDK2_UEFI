@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "validation_date_local": "2026-10-16",
+  "scope": "original software framebuffer primitives, not a live GOP driver",
+  "four_blt_operations_host_verified": true,
+  "all_valid_small_surface_overlap_moves_checked": true,
+  "asan_passed": true,
+  "ubsan_passed": true,
+  "synthetic_storage_with_measured_pitch_checked": true,
+  "arm64_object": {
+    "size": 3160,
+    "sha256": "cc8fe7282681f651bc305be2d8b7b478bbf83100a893f4fec3ed805887838e2c"
+  },
+  "native_gop_installed": false,
+  "physical_execution_verified": false,
+  "source_sha256": {
+    "OppoReno5LitePkg/Include/Library/OppoFrameBufferLib.h": "b35e2af1a9b4a19f3e67f060ff113174dea7c39f98d9622848c019bd57bc6489",
+    "OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.c": "45520c34d714d60ac9f5ff59c6ad648d31a24096e02d58cf8053bb4b03c3a804",
+    "OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.inf": "81ea0decf2b8885afceeca1606f0bc5fa93fec1b76bf3223755a25442bf5bfef",
+    "scripts/build_framebuffer_lib.sh": "11b1ae974aa6b74271243e90fb2ca4650425f7548594d206645dc3833bc9b93c",
+    "scripts/test_framebuffer.c": "26b5c9f9a158c959fcdcc0b185f6457a59335750970ae77c8d4e6e222aa89394"
+  },
+  "small_surface_overlap_moves_checked": 7700
+}

@@ -31,6 +31,10 @@
 
 ## 2. Primera ejecución nativa — pendiente
 
+- [x] Escribir una entrada ARM64 propia y comprobar argumentos, pila y vectores
+  mediante pruebas de sistema QEMU en EL1 y EL2.
+- [x] Escribir operaciones BLT propias, comprobar límites con ASan/UBSan y
+  construir las tres bibliotecas con EDK2 para AArch64.
 - Revisar el protocolo de entrada de LK, estado ARM64, memoria y reservas.
 - Evaluar la disponibilidad real de un arranque de prueba temporal.
 - Escribir la entrada ARM64 de la propia plataforma EDK2, sin BootShim,

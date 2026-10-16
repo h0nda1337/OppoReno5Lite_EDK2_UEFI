@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "validation_date_local": "2026-10-16",
+  "scope": "original SEC entry with QEMU-only C harness",
+  "bootshim_used": false,
+  "entry_relocates_or_copies_an_appended_payload": false,
+  "entry_arm64_object": {
+    "size": 5992,
+    "sha256": "1f66e9f96870393654e2e98615a8729247491813c87a18e86428b02393ce881b"
+  },
+  "runs": [
+    {
+      "exception_level": 1,
+      "qemu_system_fixture_passed": true,
+      "test_image": {
+        "size": 6560,
+        "sha256": "c24c354ba7cab42dfa856e06cc548268e71f452d390af1569f871a7a047c23c0"
+      },
+      "handoff_registers_stack_vectors_daif_checked": true
+    },
+    {
+      "exception_level": 2,
+      "qemu_system_fixture_passed": true,
+      "test_image": {
+        "size": 6560,
+        "sha256": "cde90a47e8d896a8841dffcb5c5e7e707d4608954733d3070679c829504110ae"
+      },
+      "handoff_registers_stack_vectors_daif_checked": true
+    }
+  ],
+  "physical_execution_verified": false,
+  "real_platform_sec_main_implemented": false,
+  "complete_uefi_firmware_built": false,
+  "dxe_or_shell_executed": false,
+  "source_sha256": {
+    "OppoReno5LitePkg/Include/OppoSecEntry.h": "8af12b605c749964b2c094f66667413bf79032005a6d7056a42d70f6e5d86ecd",
+    "OppoReno5LitePkg/Sec/AArch64/Entry.S": "e011ca2543fb8fa68bae666a5e580b36bc62078c1f6647ac924565943eec1515",
+    "scripts/test_sec_header.S": "cb1abcc53312e42275af6d546c7752c449a34a40ebd55f5c017b72ffe611c115",
+    "scripts/test_sec_entry.c": "e60f8d1bde86be48514546b2d39bc3741c3d291c822a137568e8e97fb55bada7",
+    "scripts/test_sec_entry.sh": "55269af3147ebee9af12cb8693be6f9cda1ef63b0f93070813c359b9d866cd1a"
+  }
+}

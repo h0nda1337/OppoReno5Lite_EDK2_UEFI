@@ -78,3 +78,35 @@ python scripts/analyze_diagnostic.py --private-capture /ruta/privada/captura --o
 El analizador publica únicamente campos de hardware permitidos. Contrasta el
 framebuffer activo con el FDT y sus reservas; conserva las declaraciones
 contradictorias sin utilizarlas como prueba de un GOP nativo.
+
+## Framebuffer propio y bibliotecas EDK2
+
+`OppoFrameBufferLib` implementa las cuatro operaciones BLT sobre un búfer ya
+mapeado: relleno, búfer a vídeo, vídeo a búfer y copia de vídeo solapada. Valida
+límites y tamaños, convierte BGR de BLT a RGBX/BGRX y conserva el padding del
+stride. Permite escribir alfa opaca para el canal que declara el ioctl de Linux.
+El llamador deberá validar y mapear el framebuffer y tratar las cachés. La
+biblioteca no programa la pantalla ni instala por sí misma un protocolo GOP.
+
+```bash
+EDK2_HEADERS=/ruta/edk2 bash scripts/build_framebuffer_lib.sh
+```
+
+Las pruebas usan ASan/UBSan, guardas, colores conocidos, la geometría medida
+del OPPO y todas las copias de rectángulos válidas de una superficie pequeña.
+Después se compila el objeto AArch64. Ninguna prueba usa memoria del teléfono.
+
+Las tres bibliotecas también se construyen con el sistema de EDK2:
+
+```bash
+EDK2_SOURCE=/ruta/edk2 bash scripts/build_edk2_libraries.sh
+```
+
+Se requiere BaseTools compilado y los submódulos que exige el núcleo EDK2. La
+revisión utilizada emplea el perfil `GCC`, no el antiguo `GCC5`. El DSC de
+validación solo genera archivos de biblioteca, sin FD/FV ni imagen arrancable.
+La salida del build se comprueba además por su marca de finalización y por los
+tres archivos producidos.
+
+La entrada ARM64 original tiene pruebas independientes de sistema QEMU en EL1
+y EL2, descritas en [NATIVE_ENTRY.md](NATIVE_ENTRY.md).
