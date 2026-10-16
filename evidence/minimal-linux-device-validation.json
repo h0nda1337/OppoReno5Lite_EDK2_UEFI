@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "validation_date_local": "2026-10-16",
+  "target_model": "CPH2205",
+  "target_platform": "MT6779",
+  "scope": "stock-kernel minimal Linux PID 1, not native UEFI",
+  "runs": [
+    {
+      "candidate_sha256": "2b3636b1d2175ec5a6e57494f0f35a0e1507d6f61f7d971577fc3fb01f8e1a18",
+      "init_sha256": "a630ebd5e8d5f70d7287c2e77835fb081fa85053a0200d8d85d849f219689f40",
+      "init_source_sha256": "808683761db0d1c74e1df36d1f8c2d873f9944eaac0946a2324cdf2ad770bb4a",
+      "usb_enumeration_observed": true,
+      "binary_capture_completed": false,
+      "return_to_android_verified": true,
+      "stock_recovery_flash_acknowledged": true,
+      "android_after_stock_restoration_verified": true,
+      "battery_after_restoration_percent": 44.0,
+      "stock_recovery_readback_in_this_run": false
+    },
+    {
+      "candidate_sha256": "4890158bc8ab8fa926dcdca56d39e0f57d957f7d7f8ba01c075d2d199dddb1eb",
+      "init_sha256": "3be844ea519438c4cf97c2ede6d9b9a4e6ffc50789663621c2c016237d3a79c3",
+      "init_source_sha256": "28a0830568f1ed3a0340bc549098fa5959a34d2641cb5f12aa9d0be6cc161329",
+      "usb_enumeration_observed": true,
+      "binary_capture_completed": true,
+      "return_to_android_verified": true,
+      "stock_recovery_flash_acknowledged": true,
+      "android_after_stock_restoration_verified": true,
+      "battery_after_restoration_percent": 46.0,
+      "stock_recovery_readback_in_this_run": false
+    }
+  ],
+  "raw_capture_analysis_verified": true,
+  "initial_receiver_analysis_result": "Conflicting MediaTek framebuffer handoffs",
+  "initial_receiver_failure_record_preserved_privately": true,
+  "raw_files_reanalyzed_offline_without_another_phone_operation": true,
+  "uefi_execution_observed": false,
+  "additional_factory_reset_required": false,
+  "raw_files_or_owner_photographs_published": false,
+  "lock_unlock_commands_sent": false
+}

@@ -39,7 +39,7 @@ def reservations(raw):
     raise ValueError('Excessive or unterminated FDT memory reservation table')
 
 
-def framebuffer_tag(chosen):
+def framebuffer_tag(chosen, allow_conflicts=False):
     results = []
     raw = chosen.get('atag,videolfb')
     if raw is not None:
@@ -57,9 +57,14 @@ def framebuffer_tag(chosen):
             raise ValueError('Incomplete MediaTek split videolfb properties')
         high, low, size = (u32(chosen[key]) for key in keys)
         results.append(dict(memory_range(high << 32 | low, size), encoding='big-endian-cells'))
-    if len(results) > 1 and any(results[0][key] != results[1][key] for key in ('address', 'size')):
+    if not allow_conflicts and not framebuffer_tags_agree(results):
         raise ValueError('Conflicting MediaTek framebuffer handoffs')
     return results
+
+
+def framebuffer_tags_agree(tags):
+    return all(item[key] == tags[0][key] for item in tags[1:]
+               for key in ('address', 'size'))
 
 
 def inspect(raw):
@@ -80,10 +85,15 @@ def inspect(raw):
             raise ValueError('Invalid initrd handoff')
         start, end = (int.from_bytes(value, 'big') for value in values)
         initrd = memory_range(start, end - start)
+    # Inventory contradictory firmware metadata without selecting an address.
+    # A consumer must resolve it against an independent active-driver readout.
+    tags = framebuffer_tag(chosen, allow_conflicts=True)
     return {'schema_version': 1, 'source': 'supplied-runtime-dtb',
             'source_dtb_sha256': hashlib.sha256(raw).hexdigest(),
             'hardware': hardware, 'reservation_table': reservations(raw),
-            'initrd': initrd, 'framebuffer_handoffs': framebuffer_tag(chosen),
+            'initrd': initrd, 'framebuffer_handoffs': tags,
+            'framebuffer_handoffs_consistent': framebuffer_tags_agree(tags),
+            'framebuffer_address_selected': False,
             'uefi_execution_observed': False, 'phone_operations_performed': False}
 
 

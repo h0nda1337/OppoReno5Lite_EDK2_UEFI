@@ -2,7 +2,7 @@
 import struct
 import unittest
 
-from inspect_runtime import framebuffer_tag, memory_range, reservations
+from inspect_runtime import framebuffer_tag, framebuffer_tags_agree, memory_range, reservations
 
 
 class RuntimeTests(unittest.TestCase):
@@ -22,6 +22,10 @@ class RuntimeTests(unittest.TestCase):
         chosen['atag,videolfb'] = struct.pack('<QIII', 0x80000000, 1, 6000, 0x2000000)
         with self.assertRaises(ValueError):
             framebuffer_tag(chosen)
+        observed = framebuffer_tag(chosen, allow_conflicts=True)
+        self.assertEqual(len(observed), 2)
+        self.assertFalse(framebuffer_tags_agree(observed))
+        self.assertTrue(framebuffer_tags_agree(observed[:1]))
         with self.assertRaises(ValueError):
             framebuffer_tag({'atag,videolfb': b'short'})
 

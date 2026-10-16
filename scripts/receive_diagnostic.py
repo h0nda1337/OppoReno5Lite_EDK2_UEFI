@@ -13,7 +13,8 @@ import time
 
 from inspect_runtime import inspect
 
-USB_IDENTITY = 'OPPO-UEFI-DIAG'
+# Keep this alphanumeric for pyserial's Windows USB-parent serial parser.
+USB_IDENTITY = 'OPPOUEFIDIAG'
 NAMES = ('runtime.dtb', 'iomem.txt', 'framebuffer.json', 'battery.txt')
 FILE_LIMIT = 2 * 1024**2
 
@@ -108,16 +109,20 @@ def main():
             received, level = receive(connection)
             for name, data in received.items():
                 (args.private_dir / name).write_bytes(data)
+            state.update(protocol_transfer_complete=True, battery_percent=level,
+                         files={name: {'size': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+                                for name, data in received.items()})
+            save()
             runtime = inspect(received['runtime.dtb'])
             compatible = runtime['hardware']['compatible']
             if not any('mt6779' in value.lower() for value in compatible):
                 raise ValueError('Runtime DTB is not the expected MT6779 platform')
             (args.private_dir / 'filtered-runtime.json').write_text(
                 json.dumps(runtime, indent=2) + '\n', encoding='utf-8')
-            state.update(phase='capture_complete', battery_percent=level,
+            state.update(phase='capture_complete',
                          linux_diagnostic_execution_verified=True,
-                         files={name: {'size': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
-                                for name, data in received.items()})
+                         framebuffer_handoffs_consistent=runtime['framebuffer_handoffs_consistent'],
+                         framebuffer_address_selected=False)
             save()
             if args.return_android:
                 connection.write(b'REBOOT\n')

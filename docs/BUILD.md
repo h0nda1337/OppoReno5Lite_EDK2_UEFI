@@ -63,6 +63,18 @@ bash scripts/build_capture_init.sh
 Requiere además `qemu-aarch64`. La prueba de QEMU comprueba exclusivamente el
 rechazo de una invocación que no sea PID 1; no arranca un sistema emulado. La
 salida se guarda en `.build/diagnostic/`. Los preparadores de recovery generan
-archivos privados en PC y no producen una imagen EDK2. Su instalación está
-suspendida por el incidente descrito en
+archivos privados en PC y no producen una imagen EDK2. Solo se permite el PID 1
+mínimo revisado, con selección explícita y entrada directa al recovery; los
+candidatos que conservan el ramdisk OEM siguen suspendidos por el incidente en
 [RECOVERY_DIAGNOSTICS.md](RECOVERY_DIAGNOSTICS.md).
+
+El receptor selecciona VID/PID e identidad de desarrollo alfanumérica. La captura
+se guarda fuera de Git. Para analizar una captura propia sin operar el teléfono:
+
+```console
+python scripts/analyze_diagnostic.py --private-capture /ruta/privada/captura --output /ruta/resumen.json
+```
+
+El analizador publica únicamente campos de hardware permitidos. Contrasta el
+framebuffer activo con el FDT y sus reservas; conserva las declaraciones
+contradictorias sin utilizarlas como prueba de un GOP nativo.

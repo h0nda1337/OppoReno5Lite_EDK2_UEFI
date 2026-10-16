@@ -26,7 +26,8 @@
 #include <unistd.h>
 
 #define GADGET "/config/usb_gadget/oppo_diag"
-#define USB_IDENTITY "OPPO-UEFI-DIAG"
+/* pyserial's Windows USB-parent traversal accepts word characters only. */
+#define USB_IDENTITY "OPPOUEFIDIAG"
 #define FILE_LIMIT (2 * 1024 * 1024)
 
 static const char *files[] = {"runtime.dtb", "iomem.txt", "framebuffer.json", "battery.txt"};

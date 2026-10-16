@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "review_date_local": "2026-10-16",
-  "scope": "stock-kernel recovery diagnostics, not native UEFI",
+  "scope": "historical OEM-ramdisk diagnostic incident, not the subsequent minimal Linux test",
   "diagnostic_image_versions": 2,
   "diagnostic_recovery_writes": 3,
   "observed_recovery_menu": true,
@@ -19,7 +19,7 @@
   "other_boot_chain_comparisons_match_previous_backups": true,
   "normal_android_boot_recovered": true,
   "new_diagnostic_installation_suspended": true,
-  "minimal_linux_diagnostic_executed_on_phone": false,
+  "minimal_linux_diagnostic_executed_on_phone": true,
   "uefi_execution_observed": false,
   "factory_reset_authorized_by_owner": true,
   "factory_reset_completion_verified": true,
@@ -28,5 +28,7 @@
   "post_reset_battery_percent": 28,
   "post_reset_usb_charging": true,
   "post_reset_lock_state": "unlocked",
-  "post_reset_ota": "CPH2205_11.F.72_2720_202604151915"
+  "post_reset_ota": "CPH2205_11.F.72_2720_202604151915",
+  "suspension_scope": "OEM-ramdisk diagnostics",
+  "subsequent_minimal_linux_test_evidence": "minimal-linux-device-validation.json"
 }

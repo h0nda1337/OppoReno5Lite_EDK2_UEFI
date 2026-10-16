@@ -7,9 +7,10 @@ Never changes boot, LK, preloader or lock state. Android may restore stock
 recovery automatically; use direct recovery entry when testing the candidate.
 Not for unattended automation. Keep the stock backup available until restored.
 
-Diagnostic installation is currently suspended following an unresolved return-
-to-recovery incident. Offline validation and verified stock restoration remain
-available. See docs/RECOVERY_DIAGNOSTICS.md.
+OEM-ramdisk diagnostics remain suspended after the encryption-key incident.
+An explicitly selected minimal Linux readout may run after candidate validation;
+it contains no OEM recovery service or persistent-filesystem mounts.
+See docs/RECOVERY_DIAGNOSTICS.md.
 """
 import argparse
 import hashlib
@@ -25,7 +26,10 @@ from prepare_minimal_diagnostic import minimal_entries
 from recovery_image import AndroidV2, inflate_ramdisk, parse_newc
 from recovery_avb import properties as avb_properties
 
-DIAGNOSTIC_INSTALLATION_SUSPENDED = True
+def require_minimal_readout(manifest, explicit_minimal, direct_entry):
+    if (manifest.get('purpose') != 'minimal-linux-readout' or
+            not explicit_minimal or not direct_entry):
+        raise ValueError('Only an explicit minimal Linux readout with direct entry is permitted; OEM-ramdisk diagnostics remain suspended')
 
 
 def partition_size(value):
@@ -71,6 +75,7 @@ def main():
     parser.add_argument('--candidate-dir', type=Path)
     parser.add_argument('--restore-stock', action='store_true')
     parser.add_argument('--boot-recovery-direct', action='store_true')
+    parser.add_argument('--execute-minimal-linux-readout', action='store_true')
     parser.add_argument('--private-report', type=Path, required=True)
     parser.add_argument('--execute-recovery-phase', action='store_true')
     args = parser.parse_args()
@@ -78,8 +83,6 @@ def main():
         parser.error('Explicit execution flag and candidate directory or restore mode required')
     if args.restore_stock and args.boot_recovery_direct:
         parser.error('Stock restoration returns to Android')
-    if not args.restore_stock and DIAGNOSTIC_INSTALLATION_SUSPENDED:
-        parser.error('Diagnostic installation suspended: investigate recovery incident first')
     repo = Path(__file__).resolve().parents[1]
     if args.private_report.exists() or args.private_report.resolve().is_relative_to(repo):
         parser.error('Choose a new report path outside the public repository')
@@ -90,8 +93,10 @@ def main():
         image = args.stock_recovery
     else:
         image = args.candidate_dir / 'recovery.img'
-        validate_candidate(stock, image.read_bytes(),
-                           json.loads((args.candidate_dir / 'build.json').read_text()))
+        manifest = json.loads((args.candidate_dir / 'build.json').read_text())
+        require_minimal_readout(manifest, args.execute_minimal_linux_readout,
+                                args.boot_recovery_direct)
+        validate_candidate(stock, image.read_bytes(), manifest)
     session = ReadOnlyAdb(args.serial)
     state = {'phase': 'preflight', 'operation': 'restore-stock' if args.restore_stock else 'diagnostic',
              'image_sha256': hashlib.sha256(image.read_bytes()).hexdigest(),

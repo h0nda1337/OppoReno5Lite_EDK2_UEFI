@@ -20,5 +20,7 @@
   "host_candidate_validation_passed": true,
   "physical_execution_verified": false,
   "uefi_firmware": false,
-  "firmware_images_included_in_repository": false
+  "firmware_images_included_in_repository": false,
+  "scope": "host validation before physical tests",
+  "subsequent_physical_evidence": "minimal-linux-device-validation.json"
 }

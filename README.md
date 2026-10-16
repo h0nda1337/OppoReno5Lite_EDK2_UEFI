@@ -5,15 +5,19 @@ Port experimental de EDK2 para **OPPO Reno5 Lite CPH2205 / OP4F43L1**, proyecto
 y después ofrecer una opción **UEFI Shell** en el recovery que muestra Fastbootd.
 
 **Estado, 16 de octubre de 2026: bibliotecas de plataforma y BGRT compiladas para
-ARM64 y comprobadas en PC. Todavía no hay una imagen UEFI completa ni un arranque
-UEFI observado en este OPPO.**
+ARM64 y comprobadas en PC; diagnóstico Linux mínimo ejecutado en el OPPO con
+captura USB de memoria y pantalla. Todavía no hay una imagen UEFI completa ni un
+arranque UEFI observado en este OPPO.**
 
-La última prueba de recovery terminó en un retorno repetido al recovery, con
+Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
 y su lectura completa se verificó. Android volvió a arrancar tras un
 restablecimiento autorizado por el propietario; se verificaron arranque completo,
-28 % de batería cargando y bootloader desbloqueado. La instalación de nuevos
-diagnósticos sigue suspendida mientras se revisa la secuencia. Véase
+28 % de batería cargando y bootloader desbloqueado. Los diagnósticos que retienen
+el ramdisk del fabricante siguen suspendidos. El diagnóstico mínimo posterior
+usa un PID 1 propio y no inicia esos servicios: capturó el FDT, iomem y framebuffer,
+volvió a Android y se restauró de nuevo el recovery original, con 46 % de batería.
+Véase
 [docs/RECOVERY_DIAGNOSTICS.md](docs/RECOVERY_DIAGNOSTICS.md).
 
 | Componente | Estado comprobado |
@@ -23,7 +27,7 @@ diagnósticos sigue suspendida mientras se revisa la secuencia. Véase
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
 | EDK2 específico para MT6779 | Pendiente de desarrollo y validación |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
-| Memoria utilizable y framebuffer al arrancar | Pendientes de obtener y validar en ejecución |
+| RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. Mapa UEFI y pantalla antes de Linux pendientes |
 | Pantalla y entrada para la Shell | Pendientes |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
@@ -39,6 +43,11 @@ comprueban el nivel y detienen la operación si es inferior o no puede leerse.
 Identificar una entrada de arranque y un mapa de memoria válidos, producir una
 imagen de diagnóstico específica para este hardware y observar su ejecución.
 Después se incorporarán consola, Shell e integración con el recovery.
+
+La entrada ARM64 y los controladores específicos serán código original del
+proyecto o código del propietario con autoría comprobada. No se usará BootShim
+ni se incorporarán implementaciones de terceros adicionales al núcleo EDK2.
+Véase [docs/ORIGIN.md](docs/ORIGIN.md).
 
 El trabajo [Moto G20 EDK2 UEFI](https://github.com/h0nda1337/Moto-G20_EDK2_UEFI)
 aporta experiencia y componentes genéricos. Su plataforma Unisoc requiere otras
@@ -86,8 +95,12 @@ La entrada directa al segundo candidato fue seguida por el fallo de Android.
 Los registros muestran que el proceso de recovery actualizó archivos de claves;
 que el script añadido solo escriba en `/tmp` no convierte al recovery completo
 en una herramienta de solo lectura. No se obtuvo un inventario válido de RAM o
-framebuffer. El diagnóstico mínimo con PID 1 propio se compiló, pero no se ejecutó
-en el teléfono. El incidente y sus límites se documentan en el enlace anterior.
+framebuffer en esas pruebas. Más tarde, el PID 1 mínimo propio sí se ejecutó y
+transfirió las cuatro observaciones por USB. El framebuffer activo coincide con
+el tag nativo de LK y su reserva, aunque contradice las propiedades divididas del
+árbol. Se conservan ambas descripciones; el análisis no convierte ninguna en una
+configuración GOP ya validada. Los resultados filtrados están en
+[evidence/runtime-linux-observations.json](evidence/runtime-linux-observations.json).
 
 ## Logo de OPPO durante el arranque de Windows
 

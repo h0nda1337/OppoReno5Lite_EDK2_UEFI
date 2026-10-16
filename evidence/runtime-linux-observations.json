@@ -1,0 +1,833 @@
+{
+  "schema_version": 1,
+  "source": "private-minimal-linux-diagnostic-capture",
+  "battery_percent_during_capture": 46,
+  "linux_diagnostic_execution_verified": true,
+  "uefi_execution_observed": false,
+  "raw_files_included": false,
+  "files": {
+    "runtime.dtb": {
+      "size": 241358,
+      "sha256": "15b90220d0658920d37b7756d20c58cd4933190b186cb1e0e099ba18408fddf4"
+    },
+    "iomem.txt": {
+      "size": 9671,
+      "sha256": "73059125926ace72dd876d382bf41d2a7f2e527a89745f0e8ea3e0aa0a4af273"
+    },
+    "framebuffer.json": {
+      "size": 288,
+      "sha256": "d95ccb8bfb70bc1f4e58a9b133c210b04efc8712a14b087547e3e1547affac1d"
+    },
+    "battery.txt": {
+      "size": 3,
+      "sha256": "a5331f18877e9e1543361e44b4cb0a1f5f0ed5f8297d850bf1fcc68bd7a3ab5f"
+    }
+  },
+  "framebuffer": {
+    "schema_version": 1,
+    "source": "linux-fb-ioctl-corroborated-by-runtime-fdt",
+    "physical_base": "0x76520000",
+    "memory_size": 31334400,
+    "stride_bytes": 4352,
+    "width": 1080,
+    "height": 2400,
+    "virtual_width": 1088,
+    "virtual_height": 7200,
+    "xoffset": 0,
+    "yoffset": 0,
+    "bits_per_pixel": 32,
+    "red": [
+      0,
+      8
+    ],
+    "green": [
+      8,
+      8
+    ],
+    "blue": [
+      16,
+      8
+    ],
+    "alpha": [
+      24,
+      8
+    ],
+    "visible_physical_base": "0x76520000",
+    "matching_runtime_tags": [
+      "native-little-endian-struct"
+    ],
+    "matching_reservations": [
+      "/reserved-memory/mblock-16-framebuffer"
+    ],
+    "runtime_tags_disagree": true,
+    "linux_driver_framebuffer_verified": true,
+    "native_gop_execution_verified": false
+  },
+  "runtime": {
+    "schema_version": 1,
+    "source": "supplied-runtime-dtb",
+    "source_dtb_sha256": "15b90220d0658920d37b7756d20c58cd4933190b186cb1e0e099ba18408fddf4",
+    "hardware": {
+      "model": [
+        "MT6779V/CV"
+      ],
+      "compatible": [
+        "mediatek,MT6779"
+      ],
+      "cpus": [
+        {
+          "path": "/cpus/cpu@0",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x0",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@001",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x100",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@002",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x200",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@003",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x300",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@100",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x400",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@101",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x500",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@102",
+          "compatible": [
+            "arm,cortex-a75"
+          ],
+          "reg": [
+            {
+              "address": "0x600",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@103",
+          "compatible": [
+            "arm,cortex-a75"
+          ],
+          "reg": [
+            {
+              "address": "0x700",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        }
+      ],
+      "peripherals": [
+        {
+          "path": "/timer",
+          "compatible": [
+            "arm,armv8-timer"
+          ],
+          "reg": [],
+          "interrupt_cells": [
+            1,
+            13,
+            65288,
+            1,
+            14,
+            65288,
+            1,
+            11,
+            65288,
+            1,
+            10,
+            65288
+          ]
+        },
+        {
+          "path": "/soc/interrupt-controller@0c000000",
+          "compatible": [
+            "arm,gic-v3"
+          ],
+          "reg": [
+            {
+              "address": "0xc000000",
+              "size": "0x40000"
+            },
+            {
+              "address": "0xc040000",
+              "size": "0x200000"
+            },
+            {
+              "address": "0xc53a650",
+              "size": "0x50"
+            }
+          ],
+          "interrupt_cells": [
+            1,
+            9,
+            4
+          ]
+        },
+        {
+          "path": "/soc/toprgu@10007000",
+          "compatible": [
+            "mediatek,mt6779-wdt",
+            "mediatek,mt6589-wdt",
+            "mediatek,toprgu",
+            "syscon",
+            "simple-mfd"
+          ],
+          "reg": [
+            {
+              "address": "0x10007000",
+              "size": "0x1000"
+            }
+          ],
+          "interrupt_cells": [
+            0,
+            139,
+            8
+          ]
+        },
+        {
+          "path": "/soc/serial@11002000",
+          "compatible": [
+            "mediatek,mt6779-uart",
+            "mediatek,mt6577-uart"
+          ],
+          "reg": [
+            {
+              "address": "0x11002000",
+              "size": "0x1000"
+            }
+          ],
+          "interrupt_cells": [
+            0,
+            115,
+            8
+          ]
+        },
+        {
+          "path": "/soc/serial@11003000",
+          "compatible": [
+            "mediatek,mt6779-uart",
+            "mediatek,mt6577-uart"
+          ],
+          "reg": [
+            {
+              "address": "0x11003000",
+              "size": "0x1000"
+            }
+          ],
+          "interrupt_cells": [
+            0,
+            116,
+            8
+          ]
+        },
+        {
+          "path": "/mtkfb",
+          "compatible": [
+            "mediatek,mtkfb"
+          ],
+          "reg": []
+        }
+      ],
+      "memory_nodes": [
+        {
+          "path": "/memory",
+          "reg": [
+            {
+              "address": "0x40000000",
+              "size": "0x180000000"
+            }
+          ]
+        }
+      ],
+      "reserved_memory": [
+        {
+          "path": "/reserved-memory/mblock-16-framebuffer",
+          "reg": [
+            {
+              "address": "0x76520000",
+              "size": "0x22e0000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-15-minirdump",
+          "reg": [
+            {
+              "address": "0x47d70000",
+              "size": "0x10000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-14-pstore",
+          "reg": [
+            {
+              "address": "0x47c90000",
+              "size": "0xe0000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-13-aee_debug_kinfo",
+          "reg": [
+            {
+              "address": "0x47c80000",
+              "size": "0x10000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-12-tee-reserved",
+          "reg": [
+            {
+              "address": "0x78800000",
+              "size": "0x5800000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-11-SSPM-reserved",
+          "reg": [
+            {
+              "address": "0x7fac0000",
+              "size": "0x100000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-10-tee-secmem",
+          "reg": [
+            {
+              "address": "0x7f800000",
+              "size": "0x200000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-9-atf-log-reserved",
+          "reg": [
+            {
+              "address": "0xbff00000",
+              "size": "0x40000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-8-atf-ramdump-reserved",
+          "reg": [
+            {
+              "address": "0xbff70000",
+              "size": "0x80000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-7-atf-reserved",
+          "reg": [
+            {
+              "address": "0x48a00000",
+              "size": "0x200000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-6-log_store",
+          "reg": [
+            {
+              "address": "0x7fbc0000",
+              "size": "0x40000"
+            }
+          ],
+          "no_map": false,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-5-gz-md-shm",
+          "reg": [
+            {
+              "address": "0x7e000000",
+              "size": "0x10000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-4-gz-log",
+          "reg": [
+            {
+              "address": "0x7fa00000",
+              "size": "0x41000"
+            }
+          ],
+          "no_map": false,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-3-gz",
+          "reg": [
+            {
+              "address": "0x7fc00000",
+              "size": "0x400000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-2-dramc-rk1",
+          "reg": [
+            {
+              "address": "0x1bffff000",
+              "size": "0x1000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/mblock-1-dramc-rk0",
+          "reg": [
+            {
+              "address": "0xbffff000",
+              "size": "0x1000"
+            }
+          ],
+          "no_map": true,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/zone-movable-cma-memory",
+          "reg": [],
+          "no_map": false,
+          "reusable": false
+        },
+        {
+          "path": "/reserved-memory/reserve-memory-sspm_share",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x510000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x10000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x60000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/consys-reserve-memory",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x400000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x1000000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x80000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/reserve-memory-adsp_share",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x1000000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x10000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x40000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/reserve-memory-scp_share",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x380000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x1000000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x50000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/wifi-reserve-memory",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x600000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x1000000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x80000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/ssmr-reserved-cma_memory",
+          "reg": [],
+          "no_map": false,
+          "reusable": true,
+          "size": [
+            "0x0",
+            "0x19000000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x1000000"
+          ]
+        }
+      ]
+    },
+    "reservation_table": [],
+    "initrd": {
+      "address": "0x51c00000",
+      "size": "0x5130c"
+    },
+    "framebuffer_handoffs": [
+      {
+        "address": "0x76520000",
+        "size": "0x22e0000",
+        "lcm_found": true,
+        "fps_raw": 6032,
+        "encoding": "native-little-endian-struct"
+      },
+      {
+        "address": "0x5e605000",
+        "size": "0x17bb000",
+        "encoding": "big-endian-cells"
+      }
+    ],
+    "framebuffer_handoffs_consistent": false,
+    "framebuffer_address_selected": false,
+    "uefi_execution_observed": false,
+    "phone_operations_performed": false
+  },
+  "linux_iomem_ranges": [
+    {
+      "address": "0x40000000",
+      "size": "0x7c80000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0x40080000",
+      "size": "0x2080000",
+      "kind": "Kernel code",
+      "nested": true
+    },
+    {
+      "address": "0x42100000",
+      "size": "0x190000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x42290000",
+      "size": "0xa1a000",
+      "kind": "Kernel data",
+      "nested": true
+    },
+    {
+      "address": "0x47d80000",
+      "size": "0xc80000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0x48c00000",
+      "size": "0x2d920000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0x51c00000",
+      "size": "0x52000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x57300000",
+      "size": "0x3b000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x7e010000",
+      "size": "0x7f0000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0x7fa00000",
+      "size": "0xc0000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0x7fa00000",
+      "size": "0x41000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x7fbc0000",
+      "size": "0x40000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0x7fbc0000",
+      "size": "0x40000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x80000000",
+      "size": "0xf000000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0x8f380000",
+      "size": "0x10770000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0xa0000000",
+      "size": "0x1e000000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0xbe400000",
+      "size": "0xc00000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0xbf600000",
+      "size": "0x900000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0xbff40000",
+      "size": "0x30000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0xbfff0000",
+      "size": "0xf000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0xc0000000",
+      "size": "0xfffff000",
+      "kind": "System RAM",
+      "nested": false
+    },
+    {
+      "address": "0xffff6000",
+      "size": "0x9000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0xfffff000",
+      "size": "0x1000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x1a0000000",
+      "size": "0x1f000000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x1bf044000",
+      "size": "0xc01000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x1bfc45000",
+      "size": "0x202000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x1bfe47000",
+      "size": "0x1000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x1bfe48000",
+      "size": "0x2000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x1bfe4a000",
+      "size": "0x2000",
+      "kind": "reserved",
+      "nested": true
+    },
+    {
+      "address": "0x1bfe4c000",
+      "size": "0x1b3000",
+      "kind": "reserved",
+      "nested": true
+    }
+  ],
+  "uefi_memory_map_complete": false,
+  "limits": [
+    "Linux observations are not a pre-Linux display validation",
+    "Dynamic size-only FDT reservations require separate treatment",
+    "Conflicting framebuffer tags are retained; no native address is selected"
+  ]
+}

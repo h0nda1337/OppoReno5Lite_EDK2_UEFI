@@ -1,14 +1,17 @@
 # Etapas del port
 
-## Prioridad actual: recuperar Android
+## Recuperación de Android — completada; precauciones vigentes
 
 - [x] Restaurar recovery original y comprobar sus 64 MiB mediante lectura.
 - [x] Confirmar boot y recovery originales en una nueva sesión MediaTek.
 - [x] Documentar las actualizaciones de claves hechas por el recovery durante
-  el diagnóstico y suspender nuevas instalaciones experimentales.
+  el diagnóstico y suspender instalaciones que retengan el ramdisk OEM.
 - [x] Verificar de nuevo Android tras el restablecimiento autorizado: arranque
   completo, bootloader desbloqueado y batería cargando por encima del mínimo.
-- [ ] Revisar servicios, montajes y propiedades AVB antes de reanudar pruebas.
+- [x] Revisar servicios, montajes y propiedades AVB. El nuevo PID 1 no retiene
+  servicios OEM ni monta sistemas de archivos persistentes.
+- [x] Ejecutar el inventario mínimo, recibirlo por USB, volver a Android y
+  restaurar de nuevo el recovery original; batería final 46 %.
 
 ## 1. Inventario y preparación — en curso
 
@@ -20,15 +23,18 @@
 - [x] Extraer del DTB base CPU, GIC, UART, watchdog y reservas estáticas.
 - [x] Compilar una biblioteca inicial de plataforma para ARM64 y comprobar
   propuestas de región de carga en PC.
-- [ ] Capturar, mediante lectura, el device tree activo, reservas de memoria,
-  datos de pantalla, parámetros de arranque y mecanismos de reinicio.
+- [x] Capturar el device tree activo, reservas declaradas, iomem y datos de
+  pantalla mediante el diagnóstico Linux propio.
+- [ ] Completar la interpretación de reservas dinámicas y el mapa propio de
+  UEFI; validar estado de entrada y mecanismos de reinicio antes de Linux.
 - [ ] Fijar revisiones y revisar las licencias de los componentes que se reutilicen.
 
 ## 2. Primera ejecución nativa — pendiente
 
 - Revisar el protocolo de entrada de LK, estado ARM64, memoria y reservas.
 - Evaluar la disponibilidad real de un arranque de prueba temporal.
-- Adaptar un BootShim y una plataforma mínima con diagnóstico observable.
+- Escribir la entrada ARM64 de la propia plataforma EDK2, sin BootShim,
+  conservando el FDT que entrega LK y con diagnóstico observable.
 - Validar cachés, MMU, temporizador, interrupciones y watchdog en el teléfono.
 
 Las dos primeras pruebas de transferencia de imágenes originales mediante
@@ -45,11 +51,15 @@ sí sola no demuestra que el payload se haya ejecutado.
 - Integrar el núcleo EDK2 y Shell con una descripción de plataforma coherente.
 - Validar arranque repetible y salida mediante reinicio controlado.
 
+El código específico se escribe aquí o se reutiliza de repositorios del
+propietario tras comprobar autoría. Véase [ORIGIN.md](ORIGIN.md).
+
 La primera prueba puede limitarse a RAM y consola. UFS, microSD y USB tendrán
 validación independiente; su funcionamiento no se presumirá por compartir SoC.
 
 ## 4. Opción en Fastbootd — pendiente
 
+- Avisar al propietario antes de iniciar esta fase: quiere cambiar a Astra.
 - Estudiar cómo el recovery OPPO construye el menú y despacha sus acciones.
 - Evaluar adaptación del recovery o una interfaz personalizada con Fastbootd.
 - Implementar un mecanismo real de transferencia a EDK2. Kexec requeriría un

@@ -15,6 +15,7 @@ import struct
 from recovery_avb import add_footer
 from prepare_recovery_diagnostic import PARTITION_SIZE, STOCK_SHA256
 from recovery_image import AndroidV2, Entry, pack_newc, parse_newc
+from receive_diagnostic import USB_IDENTITY
 
 
 def minimal_entries(binary):
@@ -64,7 +65,7 @@ def prepare(stock, binary, output, avbtool):
               'avb_algorithm': 'NONE', 'oem_signature_valid': False,
               'stock_avb_properties_preserved': retained,
               'persistent_block_writes_in_init': False,
-              'usb_transport': 'CDC-ACM', 'usb_identity': 'OPPO-UEFI-DIAG',
+              'usb_transport': 'CDC-ACM', 'usb_identity': USB_IDENTITY,
               'timeout_return_to_android_seconds': 180,
               'phone_operations_performed': False, 'physical_execution_verified': False}
     (output / 'build.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
