@@ -1,0 +1,21 @@
+## @file
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  INF_VERSION    = 0x0001001B
+  BASE_NAME      = OppoHandoffLib
+  FILE_GUID      = b698bb32-5123-49ac-b223-127b94737d47
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 0.1
+  LIBRARY_CLASS  = OppoHandoffLib
+
+[Sources]
+  OppoHandoffLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+
+[LibraryClasses]
+  OppoFdtLib
+  OppoPlatformLib

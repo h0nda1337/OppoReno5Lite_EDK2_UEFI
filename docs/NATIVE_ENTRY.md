@@ -24,6 +24,14 @@ No se copió un parser externo. La implementación limita el blob a 2 MiB,
 bloques y tokens, consulta propiedades por ruta absoluta y lee reservas de
 64 bits big-endian; no interpreta todavía sus valores como un mapa asignable.
 
+`OppoHandoffLib` interpreta los valores de plataforma usando ese lector propio.
+El análisis de la captura detecta 17 reservas explícitas, seis dinámicas y un
+nodo reservado vacío. Informa esos casos por separado y conserva los tags de
+framebuffer contradictorios. La presencia de una reserva que contiene el
+framebuffer no valida por sí sola una escritura al panel. Tampoco leer
+`method = "smc"` demuestra una llamada PSCI: siguen pendientes la política del
+mapa UEFI y la inicialización física.
+
 ## Qué se comprobó
 
 `scripts/test_sec_entry.sh` enlaza esa misma entrada con una cabecera y una

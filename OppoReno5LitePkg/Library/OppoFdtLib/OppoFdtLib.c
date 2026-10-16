@@ -95,7 +95,8 @@ STATIC BOOLEAN Header (IN CONST VOID *Buffer, UINTN Bytes, OUT OPPO_FDT_VIEW *Vi
 STATIC BOOLEAN Scan (
   IN CONST OPPO_FDT_VIEW *V, IN CONST CHAR8 *WantedPath OPTIONAL,
   IN CONST CHAR8 *WantedName OPTIONAL, OUT CONST VOID **Value OPTIONAL,
-  OUT UINT32 *Bytes OPTIONAL
+  OUT UINT32 *Bytes OPTIONAL, IN OPPO_FDT_NODE_VISITOR Visitor OPTIONAL,
+  IN OUT VOID *Context OPTIONAL, OUT EFI_STATUS *VisitorStatus OPTIONAL
   )
 {
   UINT32 Position = V->StructureOffset, End = Position + V->StructureBytes;
@@ -126,6 +127,10 @@ STATIC BOOLEAN Scan (
       for (Index = 0; Index < Length; Index++) Path[PathLength++] = (CHAR8)V->Data[Position + Index];
       Path[PathLength] = 0;
       if (WantedPath != NULL && TextEquals (Path, WantedPath) && ++Matches > 1) return FALSE;
+      if (Visitor != NULL) {
+        *VisitorStatus = Visitor (Path, Context);
+        if (*VisitorStatus != EFI_SUCCESS) return FALSE;
+      }
       Position = (Position + Length + 4) & ~3U;
       if (Position > End) return FALSE;
       Depth++;
@@ -157,7 +162,7 @@ BOOLEAN EFIAPI OppoFdtOpen (IN CONST VOID *Data, IN UINTN Bytes, OUT OPPO_FDT_VI
 {
   OPPO_FDT_VIEW Candidate;
   if (View == NULL || !Header (Data, Bytes, &Candidate) ||
-      !Scan (&Candidate, NULL, NULL, NULL, NULL)) return FALSE;
+      !Scan (&Candidate, NULL, NULL, NULL, NULL, NULL, NULL, NULL)) return FALSE;
   *View = Candidate;
   return TRUE;
 }
@@ -173,7 +178,7 @@ EFI_STATUS EFIAPI OppoFdtProperty (
   if (View == NULL || Path == NULL || Name == NULL || Path[0] != '/' || Name[0] == 0)
     return EFI_INVALID_PARAMETER;
   if (!Header (View->Data, View->TotalBytes, &Checked) ||
-      !Scan (&Checked, Path, Name, Value, Bytes)) {
+      !Scan (&Checked, Path, Name, Value, Bytes, NULL, NULL, NULL)) {
     *Value = NULL; *Bytes = 0;
     return EFI_COMPROMISED_DATA;
   }
@@ -189,4 +194,18 @@ BOOLEAN EFIAPI OppoFdtReservation (IN CONST OPPO_FDT_VIEW *View, IN UINT32 Index
   Entry = Checked.Data + Checked.ReserveOffset + Index * 16;
   Range->Base = Be64 (Entry); Range->Length = Be64 (Entry + 8);
   return TRUE;
+}
+
+EFI_STATUS EFIAPI OppoFdtVisitNodes (
+  IN CONST OPPO_FDT_VIEW *View, IN OPPO_FDT_NODE_VISITOR Visitor,
+  IN OUT VOID *Context
+  )
+{
+  OPPO_FDT_VIEW Checked;
+  EFI_STATUS Status = EFI_SUCCESS;
+  if (View == NULL || Visitor == NULL) return EFI_INVALID_PARAMETER;
+  if (!OppoFdtOpen (View->Data, View->TotalBytes, &Checked)) return EFI_COMPROMISED_DATA;
+  if (!Scan (&Checked, NULL, NULL, NULL, NULL, Visitor, Context, &Status))
+    return Status == EFI_SUCCESS ? EFI_COMPROMISED_DATA : Status;
+  return EFI_SUCCESS;
 }

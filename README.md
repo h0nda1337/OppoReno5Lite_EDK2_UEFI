@@ -5,7 +5,7 @@ Port experimental de EDK2 para **OPPO Reno5 Lite CPH2205 / OP4F43L1**, proyecto
 y después ofrecer una opción **UEFI Shell** en el recovery que muestra Fastbootd.
 
 **Estado, 16 de octubre de 2026: bibliotecas propias de plataforma, BGRT,
-framebuffer y FDT compiladas con EDK2 para ARM64; entrada ARM64 propia probada en
+framebuffer, FDT y handoff compiladas con EDK2 para ARM64; entrada ARM64 propia probada en
 QEMU EL1/EL2; diagnóstico Linux mínimo ejecutado en el OPPO con
 captura USB de memoria y pantalla. Todavía no hay una imagen UEFI completa ni un
 arranque UEFI observado en este OPPO.**
@@ -33,6 +33,7 @@ Véase
 | Pantalla y entrada para la Shell | Pendientes |
 | Operaciones de framebuffer propias | Cuatro BLT comprobadas en PC con sanitizadores y compilación EDK2; GOP nativo pendiente |
 | Lector FDT propio en C | Límites y alteraciones comprobados con sanitizadores; confirma RAM y PSCI sobre la captura privada; ejecución nativa pendiente |
+| Interpretación de la entrega de LK | C propio; reservas fijas, dinámicas e incompletas diferenciadas; política del mapa UEFI pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; pantalla UEFI y Windows pendientes |

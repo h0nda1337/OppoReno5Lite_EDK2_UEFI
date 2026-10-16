@@ -37,6 +37,10 @@
   construir las tres bibliotecas con EDK2 para AArch64.
 - [x] Escribir el lector FDT propio en C, contrastarlo con la captura privada y
   compilar la cuarta biblioteca con EDK2 para AArch64.
+- [x] Interpretar RAM, reservas, initrd, tags y PSCI con C propio y contrastar
+  la quinta biblioteca contra esa captura sin operar el teléfono.
+- [ ] Resolver la política de las reservas dinámicas y el nodo reservado vacío
+  antes de construir el mapa y HOBs de memoria de la plataforma.
 - Revisar el protocolo de entrada de LK, estado ARM64, memoria y reservas.
 - Evaluar la disponibilidad real de un arranque de prueba temporal.
 - Escribir la entrada ARM64 de la propia plataforma EDK2, sin BootShim,

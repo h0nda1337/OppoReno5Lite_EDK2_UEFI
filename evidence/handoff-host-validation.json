@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "validation_date_local": "2026-10-16",
+  "scope": "original read-only C interpretation of an existing private Linux capture",
+  "host_asan_ubsan_passed": true,
+  "synthetic_corruptions_checked": 512,
+  "failure_leaves_output_unchanged_verified": true,
+  "resource_status_and_reserved_region_exclusion_checked": true,
+  "private_capture_summary": {
+    "ram_banks": 1,
+    "explicit_reservations_including_initrd": 17,
+    "dynamic_reservations": 6,
+    "unresolved_reserved_nodes": 1,
+    "native_framebuffer_matches_known_linux_capture": true,
+    "native_and_split_framebuffer_tags_disagree": true,
+    "psci_smc_declared": true
+  },
+  "arm64_object": {
+    "size": 9184,
+    "sha256": "bafb1f824843c60c222b6dc4ea740658467e1695a93a3d0eb0239cd095e2d2ac"
+  },
+  "non_project_undefined_symbols": 0,
+  "native_phone_execution_verified": false,
+  "smc_calls_executed": false,
+  "uefi_memory_map_or_hobs_generated": false,
+  "source_sha256": {
+    "OppoReno5LitePkg/Include/Library/OppoHandoffLib.h": "c65148d95003aa98c565f2c87b56ada2ca5905f3820cf510de9a68660315acc2",
+    "OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.c": "e5e4c4679131287dbe5cf70f9566b2532a37ba6dec3fecc6721729fb17fae743",
+    "OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.inf": "c7f9c02bea6304abe7429508ee42747da79f16e33b214c72cfc3a562364d4b66",
+    "scripts/test_handoff.c": "689258a40e6ea0c6cc29dceb5a2f9f4bd2ee71f096a8ecf82a485484821f4ab9",
+    "scripts/build_handoff_lib.sh": "33f388fc971f7d69202891b0e67b78cef0bef3b5d3470ac317a3da459642bf80"
+  }
+}

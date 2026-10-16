@@ -46,14 +46,19 @@
     "scripts/test_sec_header.S": "cb1abcc53312e42275af6d546c7752c449a34a40ebd55f5c017b72ffe611c115",
     "scripts/test_sec_entry.c": "e60f8d1bde86be48514546b2d39bc3741c3d291c822a137568e8e97fb55bada7",
     "scripts/test_sec_entry.sh": "55269af3147ebee9af12cb8693be6f9cda1ef63b0f93070813c359b9d866cd1a",
-    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "03c947d724d74051646e264eb874c7267dace59e522a0edf54d8958f097e9722",
-    "scripts/build_edk2_libraries.sh": "177fa8f42eb3ccea9fed1a610d47d3d996f238694b27a9bf3f9a37e57ed0b7fd",
-    "OppoReno5LitePkg/OppoReno5LitePkg.dec": "9514945eae29e895fac7ca3bee3bb5d99bea77e821c212fb1687f7f2c78f03a3",
-    "OppoReno5LitePkg/Include/Library/OppoFdtLib.h": "b118fc0b0798982dd14304ee33105ee69a77fbb4f5ed18f34e8102255fec09a8",
-    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.c": "1c527c6ab0a5ba11e07d2ecc9560a8ff2204d8dddecfe3a98e022b2b6a152cc0",
+    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "08cd76525abde255fd5e8b80415378dad0c023d44c2f4b8afd69bbe7048b1c60",
+    "scripts/build_edk2_libraries.sh": "94e8d8d19f57b6dd45fa9548776f40fa0b4e449053b7be3845185fb56107807f",
+    "OppoReno5LitePkg/OppoReno5LitePkg.dec": "fd127835f936ed1444b15ac7b8e06f2ce680e25c4274ac4a8d406ff3ff1a5b98",
+    "OppoReno5LitePkg/Include/Library/OppoFdtLib.h": "6a443332488d6666a2237818fa4e54243ad7fc8fb4c49a32e0f11383059c397b",
+    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.c": "92fb7526edd02519c473d6f32ae35fd6605521bd853a9a26b465a7a6cf3cb572",
     "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf": "8373e0a316219f85fb4c7fd50ad71fde398846af4d5d947b8c8927355cfbdaed",
-    "scripts/test_fdt.c": "8d5192a506cf7f53cba056e2c2450dbba91bae0d0355b0fff4cad826f7860aa0",
-    "scripts/build_fdt_lib.sh": "fa21e93d4186593226437393b035fcbf7d7affcc1894e746aa41743d0ca9fec2"
+    "scripts/test_fdt.c": "7c731252db3603c80ba32d35a3e6ecc004cfac17068dc4635b168bda2c1699a3",
+    "scripts/build_fdt_lib.sh": "fa21e93d4186593226437393b035fcbf7d7affcc1894e746aa41743d0ca9fec2",
+    "OppoReno5LitePkg/Include/Library/OppoHandoffLib.h": "c65148d95003aa98c565f2c87b56ada2ca5905f3820cf510de9a68660315acc2",
+    "OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.c": "e5e4c4679131287dbe5cf70f9566b2532a37ba6dec3fecc6721729fb17fae743",
+    "OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.inf": "c7f9c02bea6304abe7429508ee42747da79f16e33b214c72cfc3a562364d4b66",
+    "scripts/test_handoff.c": "689258a40e6ea0c6cc29dceb5a2f9f4bd2ee71f096a8ecf82a485484821f4ab9",
+    "scripts/build_handoff_lib.sh": "33f388fc971f7d69202891b0e67b78cef0bef3b5d3470ac317a3da459642bf80"
   },
   "source_review_date_local": "2026-10-16",
   "bgrt_host_checks_passed": true,
@@ -79,7 +84,8 @@
   "qemu_system_entry_el2_fixture_passed": true,
   "native_sec_entry_execution_on_phone_verified": false,
   "qemu_system_boot_scope": "Original SEC entry with test C routine only; no complete UEFI boot",
-  "edk2_libraries_built": 4,
+  "edk2_libraries_built": 5,
   "fdt_reader_host_asan_ubsan_passed": true,
-  "private_linux_capture_read_by_original_c_parser": true
+  "private_linux_capture_read_by_original_c_parser": true,
+  "handoff_host_asan_ubsan_passed": true
 }

@@ -19,6 +19,10 @@ typedef struct {
   UINT32 ReserveCount;
 } OPPO_FDT_VIEW;
 
+typedef EFI_STATUS (EFIAPI *OPPO_FDT_NODE_VISITOR)(
+  IN CONST CHAR8 *Path, IN OUT VOID *Context
+  );
+
 /**
   Validate an FDT compatible with v17, at most 2 MiB, with bounded depth/names.
   No property value is interpreted and no physical memory is accessed beyond the
@@ -39,6 +43,16 @@ EFI_STATUS EFIAPI OppoFdtProperty (
 
 BOOLEAN EFIAPI OppoFdtReservation (
   IN CONST OPPO_FDT_VIEW *View, IN UINT32 Index, OUT OPPO_MEMORY_RANGE *Range
+  );
+
+/**
+  Validate the whole immutable tree, then visit its nodes in preorder. Path is
+  valid only during the callback. A non-success callback status stops traversal
+  and is returned to the caller; no later node callback runs after that error.
+**/
+EFI_STATUS EFIAPI OppoFdtVisitNodes (
+  IN CONST OPPO_FDT_VIEW *View, IN OPPO_FDT_NODE_VISITOR Visitor,
+  IN OUT VOID *Context
   );
 
 #endif

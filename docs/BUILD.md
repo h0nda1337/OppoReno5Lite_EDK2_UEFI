@@ -96,7 +96,7 @@ Las pruebas usan ASan/UBSan, guardas, colores conocidos, la geometría medida
 del OPPO y todas las copias de rectángulos válidas de una superficie pequeña.
 Después se compila el objeto AArch64. Ninguna prueba usa memoria del teléfono.
 
-Las cuatro bibliotecas también se construyen con el sistema de EDK2:
+Las cinco bibliotecas también se construyen con el sistema de EDK2:
 
 ```bash
 EDK2_SOURCE=/ruta/edk2 bash scripts/build_edk2_libraries.sh
@@ -106,7 +106,7 @@ Se requiere BaseTools compilado y los submódulos que exige el núcleo EDK2. La
 revisión utilizada emplea el perfil `GCC`, no el antiguo `GCC5`. El DSC de
 validación solo genera archivos de biblioteca, sin FD/FV ni imagen arrancable.
 La salida del build se comprueba además por su marca de finalización y por los
-cuatro archivos producidos.
+cinco archivos producidos.
 
 La entrada ARM64 original tiene pruebas independientes de sistema QEMU en EL1
 y EL2, descritas en [NATIVE_ENTRY.md](NATIVE_ENTRY.md).
@@ -130,3 +130,23 @@ todos los truncamientos, propiedades duplicadas, reservas superpuestas y 4096
 alteraciones deterministas bajo ASan/UBSan. El objeto AArch64 no tiene símbolos
 externos pendientes. Esto prepara la inspección de la entrega de LK; no construye
 un mapa UEFI ni valida acceso físico.
+
+## Interpretación propia de la entrega de LK
+
+`OppoHandoffLib` utiliza únicamente las bibliotecas propias de FDT y plataforma.
+Interpreta bancos RAM, reservas fijas, initrd, tags de framebuffer y la interfaz
+PSCI declarada. Distingue reservas dinámicas y nodos sin dirección resuelta; no
+los presenta como memoria disponible. Una dirección física de FDT suministrada
+por el llamador se comprueba contra RAM y se añade a las exclusiones.
+
+```bash
+EDK2_HEADERS=/ruta/edk2 bash scripts/build_handoff_lib.sh
+EDK2_HEADERS=/ruta/edk2 bash scripts/build_handoff_lib.sh /ruta/privada/runtime.dtb
+```
+
+La prueba opcional usa la captura privada existente: un banco de 6 GiB,
+17 reservas explícitas —incluido initrd—, seis dinámicas y un nodo vacío sin
+dirección. Conserva la discrepancia entre los dos tags de pantalla. Las pruebas
+con ASan/UBSan comprueban exclusiones, estados de recursos, argumentos inválidos,
+512 alteraciones y que un fallo deje intacta la salida. La biblioteca no ejecuta
+SMC, no crea HOBs y no programa cachés, memoria física ni pantalla.

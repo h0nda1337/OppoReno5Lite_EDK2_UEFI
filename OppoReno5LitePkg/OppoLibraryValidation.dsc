@@ -12,8 +12,13 @@
   BUILD_TARGETS           = DEBUG|RELEASE
   SKUID_IDENTIFIER        = DEFAULT
 
+[LibraryClasses]
+  OppoFdtLib|OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf
+  OppoPlatformLib|OppoReno5LitePkg/Library/OppoPlatformLib/OppoPlatformLib.inf
+
 [Components]
   OppoReno5LitePkg/Library/OppoPlatformLib/OppoPlatformLib.inf
   OppoReno5LitePkg/Library/OppoBgrtLib/OppoBgrtLib.inf
   OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.inf
   OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf
+  OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.inf

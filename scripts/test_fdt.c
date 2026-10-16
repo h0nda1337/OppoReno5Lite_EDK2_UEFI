@@ -28,6 +28,19 @@ static UINT8 *load(const char *path, UINTN *size)
   return data;
 }
 
+typedef struct { OPPO_FDT_VIEW *View; UINTN Count; BOOLEAN Abort; } VISIT_STATE;
+
+static EFI_STATUS EFIAPI visit(CONST CHAR8 *path, VOID *context)
+{
+  VISIT_STATE *state = context;
+  CONST VOID *value;
+  UINT32 bytes;
+  EFI_STATUS status = OppoFdtProperty(state->View, path, "reg", &value, &bytes);
+  assert(status == EFI_SUCCESS || status == EFI_NOT_FOUND);
+  state->Count++;
+  return state->Abort && state->Count == 2 ? EFI_ABORTED : EFI_SUCCESS;
+}
+
 static void synthetic_checks(UINT8 *data, UINTN size)
 {
   OPPO_FDT_VIEW view, changed;
@@ -36,6 +49,10 @@ static void synthetic_checks(UINT8 *data, UINTN size)
   UINT32 bytes, compatible_bytes;
   UINT8 *mutation = malloc(size + 32);
   assert(mutation && OppoFdtOpen(data, size, &view));
+  VISIT_STATE visitor = {&view, 0, FALSE};
+  assert(OppoFdtVisitNodes(&view, visit, &visitor) == EFI_SUCCESS && visitor.Count == 3);
+  visitor.Count = 0; visitor.Abort = TRUE;
+  assert(OppoFdtVisitNodes(&view, visit, &visitor) == EFI_ABORTED && visitor.Count == 2);
   assert(OppoFdtProperty(&view, "/", "model", &value, &bytes) == EFI_SUCCESS);
   assert(bytes == sizeof("Example board") && memcmp(value, "Example board", bytes) == 0);
   UINTN model_property = (CONST UINT8 *)value - data - 12;
