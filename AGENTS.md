@@ -1,6 +1,9 @@
 # Instrucciones del proyecto
 
 - Mantener las fuentes, dependencias y compilaciones voluminosas en G:.
+- El propietario fijó 20 % como batería mínima para operar sobre el teléfono.
+  Comprobar el nivel antes de cada fase y detener las operaciones del teléfono
+  si está por debajo; se puede continuar el trabajo de PC mientras carga.
 - Distinguir resultados de inspección, compilación, simulación y ejecución física.
   No declarar que UEFI arranca sin evidencia del OPPO.
 - Reutilizar direcciones de hardware solo con evidencia específica de MT6779/CPH2205.

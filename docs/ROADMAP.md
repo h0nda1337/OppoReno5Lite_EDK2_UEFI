@@ -6,6 +6,10 @@
 - [x] Extraer del respaldo la configuración real del kernel del recovery.
 - [x] Confirmar que el recovery stock no tiene `CONFIG_KEXEC` habilitado.
 - [x] Separar el repositorio público de los respaldos privados.
+- [x] Fijar 20 % como batería mínima y comprobar sus límites en PC.
+- [x] Extraer del DTB base CPU, GIC, UART, watchdog y reservas estáticas.
+- [x] Compilar una biblioteca inicial de plataforma para ARM64 y comprobar
+  propuestas de región de carga en PC.
 - [ ] Capturar, mediante lectura, el device tree activo, reservas de memoria,
   datos de pantalla, parámetros de arranque y mecanismos de reinicio.
 - [ ] Fijar revisiones y revisar las licencias de los componentes que se reutilicen.
@@ -16,6 +20,11 @@
 - Evaluar la disponibilidad real de un arranque de prueba temporal.
 - Adaptar un BootShim y una plataforma mínima con diagnóstico observable.
 - Validar cachés, MMU, temporizador, interrupciones y watchdog en el teléfono.
+
+Las dos primeras pruebas de transferencia de imágenes originales mediante
+`fastboot boot` no demostraron ejecución desde RAM. Tras la prueba de recovery
+se observó `lk_crash` y retorno automático a Android. Se debe investigar el
+manejo del comando en LK o preparar una vía alternativa de diagnóstico.
 
 El éxito de esta etapa requiere evidencia física. Una compilación correcta por
 sí sola no demuestra que el payload se haya ejecutado.

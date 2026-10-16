@@ -1,0 +1,20 @@
+{
+  "edk2_mtk": {
+    "url": "https://github.com/linux-mediatek/edk2-mtk.git",
+    "commit": "fdb0ef928ac70ff0f2725b4cb302db4d25a55c47",
+    "use": "Inspected platform, BootShim and driver architecture; no upstream driver imported into this platform library"
+  },
+  "edk2_headers": {
+    "url": "https://github.com/tianocore/edk2.git",
+    "commit": "b03a21a63e3bd001f52c527e5a57feddb53a690b",
+    "use": "Unmodified MdePkg include files for host checks and ARM64 object compilation"
+  },
+  "oppo_kernel_reference": {
+    "url": "https://github.com/oppo-source/android_kernel_oppo_mt6779",
+    "commit": "0e1e01b9fb281b02d1f50f12ea475d881f3fafd5",
+    "file": "drivers/misc/mediatek/video/mt6779/videox/mtkfb.c",
+    "use": "Inspected framebuffer handoff definitions; not compiled or imported into the platform library"
+  },
+  "firmware_image_built": false,
+  "uefi_execution_observed": false
+}

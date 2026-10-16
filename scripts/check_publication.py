@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ALLOWED_ROOT_FILES = {'README.md', 'LICENSE', 'AGENTS.md', '.gitignore', '.gitattributes'}
 ALLOWED_DIRS = {'docs', 'scripts', 'evidence', 'OppoReno5LitePkg', '.github'}
 ALLOWED_SUFFIXES = {'.md', '.py', '.json', '.c', '.h', '.s', '.asm', '.inf',
-                    '.dsc', '.fdf', '.dec', '.inc', '.yml', '.yaml', '.txt', '.patch'}
+                    '.dsc', '.fdf', '.dec', '.inc', '.yml', '.yaml', '.txt', '.patch', '.sh'}
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),
     re.compile(rb'gh[pousr]_[A-Za-z0-9]{30,}'),

@@ -1,0 +1,18 @@
+{
+  "state": "completed_android_returned",
+  "profile": "recovery",
+  "stock_image_sha256": "ac989e3009148792101a764a82fca8ca6212ec0afdd84e13d3b85e87364903b1",
+  "persistent_flash_commands_sent": false,
+  "lock_unlock_commands_sent": false,
+  "ram_boot_execution_verified": false,
+  "android_boot_completed": true,
+  "user_observation": "USB transfer banner followed by automatic reboot into Android; recovery UI not observed",
+  "boot_reasons_after": {
+    "ro.boot.bootreason": "lk_crash",
+    "sys.boot.reason": "bootloader",
+    "sys.boot.reason.last": "bootloader",
+    "sys.boot_completed": "1",
+    "vendor.oplus.boot.bootreason": "lk_crash"
+  },
+  "battery_minimum_percent": 20
+}

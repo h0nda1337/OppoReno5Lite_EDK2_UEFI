@@ -1,0 +1,14 @@
+## @file
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  DEC_SPECIFICATION = 0x0001001B
+  PACKAGE_NAME      = OppoReno5LitePkg
+  PACKAGE_GUID      = 8e7c61c0-c0e9-4a11-9e94-2ebd8dadbb5e
+  PACKAGE_VERSION   = 0.1
+
+[Includes]
+  Include
+
+[LibraryClasses]
+  OppoPlatformLib|Include/Library/OppoPlatformLib.h

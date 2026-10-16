@@ -1,0 +1,15 @@
+{
+  "state": "complete_with_unconfirmed_ram_boot",
+  "android_boot_completed": true,
+  "transport_disconnected_before_ack": true,
+  "ram_boot_execution_verified": false,
+  "persistent_flash_commands_sent": false,
+  "lock_unlock_commands_sent": false,
+  "battery_minimum_percent": 20,
+  "battery_range_observed_percent": [
+    23.0,
+    24.0
+  ],
+  "display_size_reported_by_android": "Physical size: 1080x2400",
+  "stock_image_sha256": "1aed5bb3e2f6ebb2b822a65499b967d2a23397d666d528a90392dcac460aaa51"
+}

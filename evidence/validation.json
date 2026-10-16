@@ -1,0 +1,24 @@
+{
+  "validation_date_local": "2026-10-15",
+  "host_checks_passed": true,
+  "c_assertion_checks": 14,
+  "python_tests_passed": 9,
+  "arm64_object_compiled": true,
+  "object_machine": "AArch64",
+  "object_sha256": "a6ff9ee20b1f9a4400607429154b7135edecf6b97a6bc30f635dc65382a111d7",
+  "firmware_image_built": false,
+  "uefi_execution_observed": false,
+  "phone_commands_in_host_checks": false,
+  "battery_policy": {
+    "minimum_percent": 20,
+    "exact_minimum_allowed": true,
+    "below_minimum_stops_device_operations": true
+  },
+  "source_sha256": {
+    "OppoReno5LitePkg/Library/OppoPlatformLib/OppoPlatformLib.c": "f4046eb4b83d24bf047987c14946091a2b2265e5ba6a5877caa4b5d772a5ca75",
+    "OppoReno5LitePkg/Include/Library/OppoPlatformLib.h": "94b7e43f10e793884991d2f0a9fc04cfac45fe86c26859a46d904140a232eb27",
+    "scripts/test_platform.c": "bcc8819cca075a9a02898b9e54670b10826e5c8aa9f24b6d4519949a4e7b9295",
+    "scripts/test_device_session.py": "127851f8c3dda1c7ee66ba038eaef3cdbca05657493f75500334a948aaec6e20",
+    "scripts/test_platform_inventory.py": "0f91acb6edd439a92c94964b713a865e439502f7bc84101f0477fc128b558f96"
+  }
+}

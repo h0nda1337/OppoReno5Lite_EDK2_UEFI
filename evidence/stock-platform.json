@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "source": "stock-boot-dtb-before-bootloader-fixups",
+  "source_image_sha256": "1aed5bb3e2f6ebb2b822a65499b967d2a23397d666d528a90392dcac460aaa51",
+  "container": {
+    "format": "android-dt-table",
+    "image_offset": 18702336,
+    "entries": 1
+  },
+  "inventories": [
+    {
+      "model": [
+        "MT6779"
+      ],
+      "compatible": [
+        "mediatek,MT6779"
+      ],
+      "cpus": [
+        {
+          "path": "/cpus/cpu@0",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x0",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@001",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x100",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@002",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x200",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@003",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x300",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@100",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x400",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@101",
+          "compatible": [
+            "arm,cortex-a55"
+          ],
+          "reg": [
+            {
+              "address": "0x500",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@102",
+          "compatible": [
+            "arm,cortex-a75"
+          ],
+          "reg": [
+            {
+              "address": "0x600",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        },
+        {
+          "path": "/cpus/cpu@103",
+          "compatible": [
+            "arm,cortex-a75"
+          ],
+          "reg": [
+            {
+              "address": "0x700",
+              "size": "0x0"
+            }
+          ],
+          "enable_method": [
+            "psci"
+          ]
+        }
+      ],
+      "peripherals": [
+        {
+          "path": "/timer",
+          "compatible": [
+            "arm,armv8-timer"
+          ],
+          "reg": [],
+          "interrupt_cells": [
+            1,
+            13,
+            65288,
+            1,
+            14,
+            65288,
+            1,
+            11,
+            65288,
+            1,
+            10,
+            65288
+          ]
+        },
+        {
+          "path": "/soc/interrupt-controller@0c000000",
+          "compatible": [
+            "arm,gic-v3"
+          ],
+          "reg": [
+            {
+              "address": "0xc000000",
+              "size": "0x40000"
+            },
+            {
+              "address": "0xc040000",
+              "size": "0x200000"
+            },
+            {
+              "address": "0xc53a650",
+              "size": "0x50"
+            }
+          ],
+          "interrupt_cells": [
+            1,
+            9,
+            4
+          ]
+        },
+        {
+          "path": "/soc/toprgu@10007000",
+          "compatible": [
+            "mediatek,mt6779-wdt",
+            "mediatek,mt6589-wdt",
+            "mediatek,toprgu",
+            "syscon",
+            "simple-mfd"
+          ],
+          "reg": [
+            {
+              "address": "0x10007000",
+              "size": "0x1000"
+            }
+          ],
+          "interrupt_cells": [
+            0,
+            139,
+            8
+          ]
+        },
+        {
+          "path": "/soc/serial@11002000",
+          "compatible": [
+            "mediatek,mt6779-uart",
+            "mediatek,mt6577-uart"
+          ],
+          "reg": [
+            {
+              "address": "0x11002000",
+              "size": "0x1000"
+            }
+          ],
+          "interrupt_cells": [
+            0,
+            115,
+            8
+          ]
+        },
+        {
+          "path": "/soc/serial@11003000",
+          "compatible": [
+            "mediatek,mt6779-uart",
+            "mediatek,mt6577-uart"
+          ],
+          "reg": [
+            {
+              "address": "0x11003000",
+              "size": "0x1000"
+            }
+          ],
+          "interrupt_cells": [
+            0,
+            116,
+            8
+          ]
+        },
+        {
+          "path": "/mtkfb",
+          "compatible": [
+            "mediatek,mtkfb"
+          ],
+          "reg": []
+        }
+      ],
+      "memory_nodes": [],
+      "reserved_memory": [
+        {
+          "path": "/reserved-memory/reserve-memory-sspm_share",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x510000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x10000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x60000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/consys-reserve-memory",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x400000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x1000000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x80000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/reserve-memory-adsp_share",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x1000000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x10000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x40000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/reserve-memory-scp_share",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x380000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x1000000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x50000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/wifi-reserve-memory",
+          "reg": [],
+          "no_map": true,
+          "reusable": false,
+          "size": [
+            "0x0",
+            "0x600000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x1000000"
+          ],
+          "alloc-ranges": [
+            "0x0",
+            "0x40000000",
+            "0x0",
+            "0x80000000"
+          ]
+        },
+        {
+          "path": "/reserved-memory/ssmr-reserved-cma_memory",
+          "reg": [],
+          "no_map": false,
+          "reusable": true,
+          "size": [
+            "0x0",
+            "0x10000000"
+          ],
+          "alignment": [
+            "0x0",
+            "0x1000000"
+          ]
+        }
+      ]
+    }
+  ],
+  "runtime_memory_map_verified": false,
+  "runtime_framebuffer_verified": false,
+  "phone_operations_performed": false
+}
