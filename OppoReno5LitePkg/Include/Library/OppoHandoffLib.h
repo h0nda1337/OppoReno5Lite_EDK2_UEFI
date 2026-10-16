@@ -10,14 +10,19 @@
 
 #define OPPO_MAX_RAM_BANKS 8
 #define OPPO_MAX_BOOT_RESERVATIONS 64
+#define OPPO_RESERVATION_NO_MAP 1U
+#define OPPO_RESERVATION_MEMRESERVE 2U
+#define OPPO_RESERVATION_BOOT_DATA 4U
 
 typedef struct {
   OPPO_MEMORY_RANGE Ram[OPPO_MAX_RAM_BANKS];
   OPPO_MEMORY_RANGE Reserved[OPPO_MAX_BOOT_RESERVATIONS];
+  UINT32 ReservedFlags[OPPO_MAX_BOOT_RESERVATIONS];
   UINTN RamCount;
   UINTN ReservedCount;
   UINT32 DynamicReservationCount;
   UINT32 UnresolvedReservationCount;
+  UINT32 EmptyReservationNodeCount;
   BOOLEAN FdtPhysicalAddressRecorded;
   BOOLEAN PsciSmcDeclared;
   BOOLEAN NativeFramebufferPresent;

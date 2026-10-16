@@ -18,19 +18,23 @@
       "sha256": "c7dcf6233526854e0365c430f69dc279b1cf3959df0b100159f17436078154f8"
     },
     "OppoFdtLib": {
-      "size": 32454,
-      "sha256": "55c36b9dfbfb7de81ce2b6e7e321c3b6e69f45caf16fe9ddc87cf83785bb4431"
+      "size": 34558,
+      "sha256": "f7d10bc0871673acbff0fe73bc729186a7fbce3d380d624b26a6cb10ee9226b2"
     },
     "OppoHandoffLib": {
-      "size": 45564,
-      "sha256": "2f21b6b1ee78524ee513fcb7dc6573845c64cebd8280bdf3f3cca2369f0d15c5"
+      "size": 46980,
+      "sha256": "ef796465879ea4a94a8501f0f161260344dfbe05d0a0e8c0135ab8240273e4f5"
+    },
+    "OppoMemoryPlanLib": {
+      "size": 18784,
+      "sha256": "9a0c0c668bd61f61d17929a6bb943e48bb13d85be57fb183aab11dc5f45f6da8"
     }
   },
   "firmware_volume_generated": false,
   "phone_operation_performed": false,
   "source_sha256": {
-    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "08cd76525abde255fd5e8b80415378dad0c023d44c2f4b8afd69bbe7048b1c60",
-    "scripts/build_edk2_libraries.sh": "94e8d8d19f57b6dd45fa9548776f40fa0b4e449053b7be3845185fb56107807f"
+    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "e54ed88f9f283f882267530a576f8f30e35c7eb23023b3bf0caa85b7416a3d94",
+    "scripts/build_edk2_libraries.sh": "610f257d28a2cbfef91b381eaad621cd99ef46c0e3b615fc0b575bec28abae3e"
   },
-  "library_count": 5
+  "library_count": 6
 }

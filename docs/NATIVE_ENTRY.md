@@ -26,11 +26,16 @@ bloques y tokens, consulta propiedades por ruta absoluta y lee reservas de
 
 `OppoHandoffLib` interpreta los valores de plataforma usando ese lector propio.
 El análisis de la captura detecta 17 reservas explícitas, seis dinámicas y un
-nodo reservado vacío. Informa esos casos por separado y conserva los tags de
+nodo reservado que se comprobó vacío mediante recuento de propiedades. Informa esos casos por separado y conserva los tags de
 framebuffer contradictorios. La presencia de una reserva que contiene el
 framebuffer no valida por sí sola una escritura al panel. Tampoco leer
-`method = "smc"` demuestra una llamada PSCI: siguen pendientes la política del
-mapa UEFI y la inicialización física.
+`method = "smc"` demuestra una llamada PSCI.
+
+La política inicial propia ya se comprueba en PC: protege imagen y datos fijos,
+redondea exclusiones a páginas y difiere las reservas dinámicas al OS como exige
+DTSpec 3.5.4. Solo propone un pool inicial de 64 MiB. Faltan su materialización
+en HOBs, el mapa MMU y la inicialización física; no se debe usar como mapa final
+de un sistema operativo.
 
 ## Qué se comprobó
 

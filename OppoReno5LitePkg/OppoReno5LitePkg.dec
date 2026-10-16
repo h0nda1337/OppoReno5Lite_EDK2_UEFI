@@ -16,3 +16,4 @@
   OppoFrameBufferLib|Include/Library/OppoFrameBufferLib.h
   OppoFdtLib|Include/Library/OppoFdtLib.h
   OppoHandoffLib|Include/Library/OppoHandoffLib.h
+  OppoMemoryPlanLib|Include/Library/OppoMemoryPlanLib.h

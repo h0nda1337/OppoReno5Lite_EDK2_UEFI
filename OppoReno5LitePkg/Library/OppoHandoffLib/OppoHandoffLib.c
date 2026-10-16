@@ -56,7 +56,7 @@ STATIC BOOLEAN RangeValid (UINT64 Base, UINT64 Length)
   return (BOOLEAN)(Length != 0 && Base <= MAX_UINT64 - Length);
 }
 
-STATIC EFI_STATUS AppendRange (OPPO_BOOT_HANDOFF *Info, UINT64 Base, UINT64 Length, BOOLEAN Ram)
+STATIC EFI_STATUS AppendRange (OPPO_BOOT_HANDOFF *Info, UINT64 Base, UINT64 Length, BOOLEAN Ram, UINT32 Flags)
 {
   OPPO_MEMORY_RANGE *Ranges = Ram ? Info->Ram : Info->Reserved;
   UINTN *Count = Ram ? &Info->RamCount : &Info->ReservedCount;
@@ -68,7 +68,9 @@ STATIC EFI_STATUS AppendRange (OPPO_BOOT_HANDOFF *Info, UINT64 Base, UINT64 Leng
       if (Base < Ranges[Index].Base + Ranges[Index].Length && Ranges[Index].Base < Base + Length)
         return EFI_COMPROMISED_DATA;
   }
-  Ranges[*Count].Base = Base; Ranges[*Count].Length = Length; (*Count)++;
+  Ranges[*Count].Base = Base; Ranges[*Count].Length = Length;
+  if (!Ram) Info->ReservedFlags[*Count] = Flags;
+  (*Count)++;
   return EFI_SUCCESS;
 }
 
@@ -104,7 +106,7 @@ STATIC EFI_STATUS RegisterRanges (WALK_CONTEXT *Context, CONST CHAR8 *Path, BOOL
   UINTN Length = 0, LastSlash = 0;
   CONST UINT8 *Reg;
   CONST VOID *Value;
-  UINT32 Bytes, AddressCells, SizeCells, Width, Position;
+  UINT32 Bytes, AddressCells, SizeCells, Width, Position, Flags = 0;
   EFI_STATUS Status;
   while (Length < sizeof (Parent) - 1 && Path[Length]) {
     if (Path[Length] == '/') LastSlash = Length;
@@ -115,6 +117,15 @@ STATIC EFI_STATUS RegisterRanges (WALK_CONTEXT *Context, CONST CHAR8 *Path, BOOL
     Status = OppoFdtProperty (Context->View, Parent, "ranges", &Value, &Bytes);
     if (Status == EFI_SUCCESS && Bytes != 0) return EFI_UNSUPPORTED;
     if (Status != EFI_SUCCESS && Status != EFI_NOT_FOUND) return Status;
+    Status = OppoFdtProperty (Context->View, Path, "no-map", &Value, &Bytes);
+    if (Status == EFI_SUCCESS) {
+      if (Bytes != 0) return EFI_COMPROMISED_DATA;
+      Flags = OPPO_RESERVATION_NO_MAP;
+    } else if (Status != EFI_NOT_FOUND) return Status;
+    Status = OppoFdtProperty (Context->View, Path, "reusable", &Value, &Bytes);
+    if (Status == EFI_SUCCESS) {
+      if (Bytes != 0 || Flags != 0) return EFI_COMPROMISED_DATA;
+    } else if (Status != EFI_NOT_FOUND) return Status;
   }
   Status = CellCount (Context->View, Parent, "#address-cells", 2, &AddressCells);
   if (Status != EFI_SUCCESS) return Status;
@@ -123,7 +134,14 @@ STATIC EFI_STATUS RegisterRanges (WALK_CONTEXT *Context, CONST CHAR8 *Path, BOOL
   Status = OppoFdtProperty (Context->View, Path, "reg", &Value, &Bytes);
   if (Status == EFI_NOT_FOUND && !Ram) {
     Status = OppoFdtProperty (Context->View, Path, "size", &Value, &Bytes);
-    if (Status == EFI_NOT_FOUND) { Context->Info->UnresolvedReservationCount++; return EFI_SUCCESS; }
+    if (Status == EFI_NOT_FOUND) {
+      UINT32 Properties;
+      Status = OppoFdtPropertyCount (Context->View, Path, &Properties);
+      if (Status != EFI_SUCCESS) return Status;
+      if (Properties == 0) Context->Info->EmptyReservationNodeCount++;
+      else Context->Info->UnresolvedReservationCount++;
+      return EFI_SUCCESS;
+    }
     if (Status != EFI_SUCCESS) return Status;
     if (Bytes != SizeCells * 4 || Number (Value, SizeCells) == 0) return EFI_COMPROMISED_DATA;
     Context->Info->DynamicReservationCount++;
@@ -135,7 +153,7 @@ STATIC EFI_STATUS RegisterRanges (WALK_CONTEXT *Context, CONST CHAR8 *Path, BOOL
   Reg = Value;
   for (Position = 0; Position < Bytes; Position += Width) {
     Status = AppendRange (Context->Info, Number (Reg + Position, AddressCells),
-                          Number (Reg + Position + AddressCells * 4, SizeCells), Ram);
+                          Number (Reg + Position + AddressCells * 4, SizeCells), Ram, Flags);
     if (Status != EFI_SUCCESS) return Status;
   }
   return EFI_SUCCESS;
@@ -214,7 +232,7 @@ STATIC EFI_STATUS ReadChosen (CONST OPPO_FDT_VIEW *View, CONST CHAR8 *Path, OPPO
   UINT64 Start = Number (Value, Bytes / 4), End = Number (EndValue, EndBytes / 4);
   if (End <= Start || !OppoLoadRegionIsUsable (TRUE, Start, End - Start,
       Info->Ram, Info->RamCount, NULL, 0)) return EFI_COMPROMISED_DATA;
-  return AppendRange (Info, Start, End - Start, FALSE);
+  return AppendRange (Info, Start, End - Start, FALSE, OPPO_RESERVATION_BOOT_DATA);
 }
 
 EFI_STATUS EFIAPI OppoInspectHandoff (
@@ -242,7 +260,8 @@ EFI_STATUS EFIAPI OppoInspectHandoff (
   for (Index = 0; Index < View.ReserveCount; Index++) {
     OPPO_MEMORY_RANGE Range;
     if (!OppoFdtReservation (&View, (UINT32)Index, &Range)) return EFI_COMPROMISED_DATA;
-    Status = AppendRange (&Candidate, Range.Base, Range.Length, FALSE);
+    Status = AppendRange (&Candidate, Range.Base, Range.Length, FALSE,
+                          OPPO_RESERVATION_NO_MAP | OPPO_RESERVATION_MEMRESERVE);
     if (Status != EFI_SUCCESS) return Status;
   }
   Status = OppoFdtVisitNodes (&View, VisitNode, &Context);
@@ -261,7 +280,7 @@ EFI_STATUS EFIAPI OppoInspectHandoff (
   if (PhysicalFdtBase != 0) {
     if ((PhysicalFdtBase & 7) != 0 || !OppoLoadRegionIsUsable (TRUE, PhysicalFdtBase, View.TotalBytes,
         Candidate.Ram, Candidate.RamCount, NULL, 0)) return EFI_COMPROMISED_DATA;
-    Status = AppendRange (&Candidate, PhysicalFdtBase, View.TotalBytes, FALSE);
+    Status = AppendRange (&Candidate, PhysicalFdtBase, View.TotalBytes, FALSE, OPPO_RESERVATION_BOOT_DATA);
     if (Status != EFI_SUCCESS) return Status;
     Candidate.FdtPhysicalAddressRecorded = TRUE;
   }

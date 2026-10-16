@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "validation_date_local": "2026-10-16",
+  "scope": "offline initial memory proposal, not a live or complete UEFI map",
+  "host_asan_ubsan_passed": true,
+  "fixed_exclusions_page_rounded": true,
+  "no_map_and_memreserve_type": "EfiReservedMemoryType",
+  "other_fixed_data_type": "EfiBootServicesData",
+  "dynamic_requests_deferred_to_os": true,
+  "nonempty_unresolved_nodes_rejected": true,
+  "overlapping_rounded_exclusions_rejected": true,
+  "failure_leaves_output_unchanged_verified": true,
+  "capture_based_proposal": {
+    "image_base": "0x40080000",
+    "image_size": "0x800000",
+    "pool_base": "0x43000000",
+    "pool_size": "0x4000000",
+    "supplied_fdt_base": "0x57300000",
+    "fdt_base_measured_in_native_entry": false,
+    "protected_regions": 19,
+    "dynamic_requests_deferred": 6,
+    "verified_empty_nodes_ignored": 1
+  },
+  "arm64_object": {
+    "size": 2344,
+    "sha256": "7824989c7011de329535126b60a074602963675a76ec2949178f959e711cdb65"
+  },
+  "physical_allocation_performed": false,
+  "hobs_or_page_tables_created": false,
+  "uefi_memory_map_complete": false,
+  "source_sha256": {
+    "OppoReno5LitePkg/Include/Library/OppoMemoryPlanLib.h": "97d12d58753b2dda1852694811f28cc2788757450b528a176bbf68fe19ac8139",
+    "OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.c": "dad25a69cec1a9ba813ba40bb3a4b9aad797492d6596c38898afb7f0d15c8dc5",
+    "OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.inf": "3dbe2576f7d7b1f73fafbb27c3bd75dbb06ffef05c3da762c4f00926800ba3cc",
+    "scripts/build_memory_plan_lib.sh": "41cbe6d38969d16bf5d63160081fd7e8a81a0a8ad5cf8bb3598f35875a7af91a",
+    "scripts/test_memory_plan.c": "c529bbf1f3a91e6ccd1789e08f41605a446e658412224dd541ad41d8612d2d4a"
+  }
+}

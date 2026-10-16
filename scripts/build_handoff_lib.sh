@@ -33,6 +33,7 @@ cat > .build/handoff/synthetic.dts <<'EOF'
     secure@78800000 { reg = <0 0x78800000 0 0x5800000>; no-map; };
     dynamic { size = <0 0x100000>; no-map; };
     unresolved { no-map; };
+    placeholder { };
   };
   psci { compatible = "arm,psci-1.0"; method = "smc"; };
 };

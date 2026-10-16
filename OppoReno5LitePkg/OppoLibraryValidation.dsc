@@ -22,3 +22,4 @@
   OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.inf
   OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf
   OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.inf
+  OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.inf

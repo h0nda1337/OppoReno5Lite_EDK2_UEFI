@@ -55,4 +55,9 @@ EFI_STATUS EFIAPI OppoFdtVisitNodes (
   IN OUT VOID *Context
   );
 
+/** Count a selected node's own properties; child properties are excluded. */
+EFI_STATUS EFIAPI OppoFdtPropertyCount (
+  IN CONST OPPO_FDT_VIEW *View, IN CONST CHAR8 *Path, OUT UINT32 *Count
+  );
+
 #endif

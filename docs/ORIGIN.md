@@ -10,7 +10,8 @@ compilación son dependencias externas identificadas, con sus propias licencias.
 El kernel original solo se empleó como firmware privado para el inventario
 Linux; no se publica ni se presenta como código propio.
 
-Las bibliotecas de plataforma, BGRT, framebuffer, FDT y handoff, la entrada SEC ARM64, sus
+Las bibliotecas de plataforma, BGRT, framebuffer, FDT, handoff y plan de memoria,
+la entrada SEC ARM64, sus
 pruebas, el PID 1 mínimo y las herramientas Python de este repositorio son
 implementaciones originales del proyecto. Las fuentes
 de OPPO, AOSP, Linux y edk2-mtk consultadas sirven para investigar formatos e

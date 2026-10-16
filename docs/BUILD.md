@@ -96,7 +96,7 @@ Las pruebas usan ASan/UBSan, guardas, colores conocidos, la geometría medida
 del OPPO y todas las copias de rectángulos válidas de una superficie pequeña.
 Después se compila el objeto AArch64. Ninguna prueba usa memoria del teléfono.
 
-Las cinco bibliotecas también se construyen con el sistema de EDK2:
+Las seis bibliotecas también se construyen con el sistema de EDK2:
 
 ```bash
 EDK2_SOURCE=/ruta/edk2 bash scripts/build_edk2_libraries.sh
@@ -106,7 +106,7 @@ Se requiere BaseTools compilado y los submódulos que exige el núcleo EDK2. La
 revisión utilizada emplea el perfil `GCC`, no el antiguo `GCC5`. El DSC de
 validación solo genera archivos de biblioteca, sin FD/FV ni imagen arrancable.
 La salida del build se comprueba además por su marca de finalización y por los
-cinco archivos producidos.
+seis archivos producidos.
 
 La entrada ARM64 original tiene pruebas independientes de sistema QEMU en EL1
 y EL2, descritas en [NATIVE_ENTRY.md](NATIVE_ENTRY.md).
@@ -145,8 +145,29 @@ EDK2_HEADERS=/ruta/edk2 bash scripts/build_handoff_lib.sh /ruta/privada/runtime.
 ```
 
 La prueba opcional usa la captura privada existente: un banco de 6 GiB,
-17 reservas explícitas —incluido initrd—, seis dinámicas y un nodo vacío sin
-dirección. Conserva la discrepancia entre los dos tags de pantalla. Las pruebas
+17 reservas explícitas —incluido initrd—, seis dinámicas y un nodo comprobado
+vacío, sin propiedades. Distingue ese marcador vacío de una reserva incompleta
+con propiedades. Conserva la discrepancia entre los dos tags de pantalla. Las pruebas
 con ASan/UBSan comprueban exclusiones, estados de recursos, argumentos inválidos,
 512 alteraciones y que un fallo deje intacta la salida. La biblioteca no ejecuta
 SMC, no crea HOBs y no programa cachés, memoria física ni pantalla.
+
+## Primer plan de memoria propio
+
+`OppoMemoryPlanLib` propone únicamente la imagen y un pool inicial, con exclusiones
+fijas redondeadas a páginas. Los nodos `no-map` y la tabla de reservas se tipan
+como `EfiReservedMemoryType`; los otros datos fijos usan `EfiBootServicesData`.
+Las solicitudes dinámicas se difieren al sistema operativo según
+[DTSpec 3.5.4](https://devicetree-specification.readthedocs.io/en/latest/chapter3-devicenodes.html#reserved-memory-and-uefi).
+No se asignan como reservas UEFI. Los nodos no vacíos sin dirección o tamaño y
+las exclusiones redondeadas superpuestas hacen fallar el plan.
+
+```bash
+EDK2_HEADERS=/ruta/edk2 bash scripts/build_memory_plan_lib.sh /ruta/privada/runtime.dtb
+```
+
+La comprobación de PC contrasta una propuesta de imagen de 8 MiB y pool de
+64 MiB con la captura: resultan 19 regiones protegidas, incluidas imagen, FDT e
+initrd. La dirección FDT de esta prueba es suministrada, no un x0 nativo medido.
+No se reserva memoria física, no se crean HOBs ni tablas MMU y no se describe
+todavía toda la RAM disponible para un sistema operativo.

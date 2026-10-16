@@ -27,6 +27,8 @@ static void fixture_checks(UINT8 *data, UINTN size)
   assert(changed && OppoInspectHandoff(data, size, 0x57300000, &info) == EFI_SUCCESS);
   assert(info.RamCount == 1 && info.Ram[0].Base == 0x40000000 && info.Ram[0].Length == 0x180000000ULL);
   assert(info.ReservedCount == 5 && info.DynamicReservationCount == 1 && info.UnresolvedReservationCount == 1);
+  assert(info.EmptyReservationNodeCount == 1);
+  assert(info.ReservedFlags[0] == (OPPO_RESERVATION_NO_MAP | OPPO_RESERVATION_MEMRESERVE));
   assert(info.FdtPhysicalAddressRecorded && info.PsciSmcDeclared);
   assert(info.NativeFramebufferPresent && info.NativePanelFound && info.NativeFramebufferCoveredByReservation);
   assert(info.NativeFramebuffer.Base == 0x90000000 && info.NativeFramebuffer.Length == 0x2000000);
@@ -84,9 +86,9 @@ int main(int argc, char **argv)
     assert(info.RamCount == 1 && info.Ram[0].Length == 0x180000000ULL);
     assert(info.NativeFramebuffer.Base == 0x76520000 && info.NativeFramebuffer.Length == 0x22e0000);
     assert(info.NativeFramebufferCoveredByReservation && info.FramebufferDeclarationsDisagree && info.PsciSmcDeclared);
-    printf("Private runtime handoff: %zu RAM bank, %zu explicit reservations, %u dynamic and %u unresolved.\n",
+    printf("Private runtime handoff: %zu RAM bank, %zu explicit reservations, %u dynamic, %u empty and %u unresolved.\n",
            (size_t)info.RamCount, (size_t)info.ReservedCount,
-           info.DynamicReservationCount, info.UnresolvedReservationCount);
+           info.DynamicReservationCount, info.EmptyReservationNodeCount, info.UnresolvedReservationCount);
     free(raw);
   }
   puts("Original handoff interpretation, reservation exclusion and 512 corruptions passed with host sanitizers; no hardware operation.");

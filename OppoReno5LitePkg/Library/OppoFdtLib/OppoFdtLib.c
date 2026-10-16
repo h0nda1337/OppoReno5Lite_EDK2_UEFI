@@ -126,7 +126,10 @@ STATIC BOOLEAN Scan (
       if (Length >= PATH_LIMIT - PathLength) return FALSE;
       for (Index = 0; Index < Length; Index++) Path[PathLength++] = (CHAR8)V->Data[Position + Index];
       Path[PathLength] = 0;
-      if (WantedPath != NULL && TextEquals (Path, WantedPath) && ++Matches > 1) return FALSE;
+      if (WantedPath != NULL && TextEquals (Path, WantedPath)) {
+        if (++Matches > 1) return FALSE;
+        if (WantedName == NULL) *Value = V->Data + Position;
+      }
       if (Visitor != NULL) {
         *VisitorStatus = Visitor (Path, Context);
         if (*VisitorStatus != EFI_SUCCESS) return FALSE;
@@ -144,7 +147,9 @@ STATIC BOOLEAN Scan (
       if (!Inside (Position, Length, End) || NameOffset >= V->StringsBytes ||
           !TextLength (V->Data, V->StringsOffset + NameOffset,
                        V->StringsOffset + V->StringsBytes, &NameLength) || NameLength == 0) return FALSE;
-      if (WantedPath != NULL && TextEquals (Path, WantedPath) &&
+      if (WantedPath != NULL && WantedName == NULL && TextEquals (Path, WantedPath)) {
+        (*Bytes)++;
+      } else if (WantedPath != NULL && WantedName != NULL && TextEquals (Path, WantedPath) &&
           TextEquals ((CONST CHAR8 *)V->Data + V->StringsOffset + NameOffset, WantedName)) {
         if (*Value != NULL) return FALSE;
         *Value = V->Data + Position; *Bytes = Length;
@@ -208,4 +213,20 @@ EFI_STATUS EFIAPI OppoFdtVisitNodes (
   if (!Scan (&Checked, NULL, NULL, NULL, NULL, Visitor, Context, &Status))
     return Status == EFI_SUCCESS ? EFI_COMPROMISED_DATA : Status;
   return EFI_SUCCESS;
+}
+
+EFI_STATUS EFIAPI OppoFdtPropertyCount (
+  IN CONST OPPO_FDT_VIEW *View, IN CONST CHAR8 *Path, OUT UINT32 *Count
+  )
+{
+  OPPO_FDT_VIEW Checked;
+  CONST VOID *Node = NULL;
+  if (View == NULL || Path == NULL || Path[0] != '/' || Count == NULL) return EFI_INVALID_PARAMETER;
+  *Count = 0;
+  if (!Header (View->Data, View->TotalBytes, &Checked) ||
+      !Scan (&Checked, Path, NULL, &Node, Count, NULL, NULL, NULL)) {
+    *Count = 0;
+    return EFI_COMPROMISED_DATA;
+  }
+  return Node == NULL ? EFI_NOT_FOUND : EFI_SUCCESS;
 }

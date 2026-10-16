@@ -12,16 +12,17 @@
   "smc_call_executed": false,
   "native_phone_execution_verified": false,
   "arm64_object": {
-    "size": 5008,
-    "sha256": "462c7ef8111e0cb814ce3f46d973d5acb6f7c5e6fc9201869fbf6122a952bace"
+    "size": 5520,
+    "sha256": "a32a4bfc2cca6410ec0c8a42b59cbbf7860cba3154d0675f1fce26e21138dad0"
   },
   "undefined_symbols_in_standalone_object": 0,
   "source_sha256": {
-    "OppoReno5LitePkg/Include/Library/OppoFdtLib.h": "6a443332488d6666a2237818fa4e54243ad7fc8fb4c49a32e0f11383059c397b",
-    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.c": "92fb7526edd02519c473d6f32ae35fd6605521bd853a9a26b465a7a6cf3cb572",
+    "OppoReno5LitePkg/Include/Library/OppoFdtLib.h": "eda50dc17ee572a0de1e0cee47c6503918e11c192f8bf2334d441da34f5f4cc7",
+    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.c": "310f09fe7ae1f0f56076a39743c8974d735eae0f7273fdce500c720f38555058",
     "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf": "8373e0a316219f85fb4c7fd50ad71fde398846af4d5d947b8c8927355cfbdaed",
-    "scripts/test_fdt.c": "7c731252db3603c80ba32d35a3e6ecc004cfac17068dc4635b168bda2c1699a3",
+    "scripts/test_fdt.c": "c77c0b488f38c775919667f795ad6376cce0c8d5d83822461e7c48579653793b",
     "scripts/build_fdt_lib.sh": "fa21e93d4186593226437393b035fcbf7d7affcc1894e746aa41743d0ca9fec2"
   },
-  "node_visitor_and_error_stop_verified": true
+  "node_visitor_and_error_stop_verified": true,
+  "selected_node_property_count_verified": true
 }

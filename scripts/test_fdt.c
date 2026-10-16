@@ -50,6 +50,10 @@ static void synthetic_checks(UINT8 *data, UINTN size)
   UINT8 *mutation = malloc(size + 32);
   assert(mutation && OppoFdtOpen(data, size, &view));
   VISIT_STATE visitor = {&view, 0, FALSE};
+  UINT32 count;
+  assert(OppoFdtPropertyCount(&view, "/", &count) == EFI_SUCCESS && count == 5);
+  assert(OppoFdtPropertyCount(&view, "/chosen", &count) == EFI_SUCCESS && count == 1);
+  assert(OppoFdtPropertyCount(&view, "/absent", &count) == EFI_NOT_FOUND && count == 0);
   assert(OppoFdtVisitNodes(&view, visit, &visitor) == EFI_SUCCESS && visitor.Count == 3);
   visitor.Count = 0; visitor.Abort = TRUE;
   assert(OppoFdtVisitNodes(&view, visit, &visitor) == EFI_ABORTED && visitor.Count == 2);
