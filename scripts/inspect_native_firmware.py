@@ -16,6 +16,8 @@ FD_BASE = 0x40080000
 FD_SIZE = 0x800000
 FV_START = 0x1000
 ENTRY_PROBE_MARKER = b'OPPO_SEC_PROBE_ONLY_V1\0'
+MMU_PROBE_MARKER = b'OPPO_SEC_MMU_PROBE_ONLY_V1\0'
+PROBE_MARKERS = {'handoff': ENTRY_PROBE_MARKER, 'mmu': MMU_PROBE_MARKER}
 REQUIRED = {
     '2bf0a605-3974-4d50-b19b-e0b1a6a4667e': ('original-sec', 3),
     'a9b2bfc1-6e2f-4f4c-9589-c6aa3f851d67': ('original-gop', 7),
@@ -143,13 +145,16 @@ def inspect(raw):
             'uefi_execution_observed': False, 'phone_operations_performed': False}
 
 
-def require_entry_probe(raw):
+def require_entry_probe(raw, phase='handoff'):
+    if phase not in PROBE_MARKERS:
+        raise ValueError('Unknown native probe phase')
     report = inspect(raw)
     sec = next(item for item in report['files'] if item.get('role') == 'original-sec')
     te = next(item for item in sec['sections'] if item['type'] == 0x12)
     payload = raw[te['offset']:te['offset'] + te['size']]
-    if payload.count(ENTRY_PROBE_MARKER) != 1:
-        raise ValueError('Expected the short SEC probe, not the integration firmware')
+    if (payload.count(PROBE_MARKERS[phase]) != 1 or
+            any(marker in payload for name, marker in PROBE_MARKERS.items() if name != phase)):
+        raise ValueError('Expected only the selected short SEC probe, not another mode')
     return report
 
 

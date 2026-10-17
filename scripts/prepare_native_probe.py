@@ -88,6 +88,7 @@ def validate_candidate(stock, candidate, manifest):
     if (manifest.get('purpose') != 'native-sec-entry-probe' or
             manifest.get('probe_only') is not True or
             manifest.get('reset_request_after_seconds') != 10 or
+            manifest.get('probe_stage') not in ('handoff', 'mmu') or
             manifest.get('kernel_transport') != 'gzip' or
             manifest.get('bootshim_used') is not False):
         raise ValueError('Expected a reviewed short SEC probe manifest')
@@ -99,7 +100,7 @@ def validate_candidate(stock, candidate, manifest):
     if digest(changed.components['kernel']) != manifest.get('compressed_kernel_sha256'):
         raise ValueError('Compressed native kernel differs from the reviewed probe')
     fd = inflate_native_kernel(changed.components['kernel'])
-    require_entry_probe(fd)
+    require_entry_probe(fd, manifest['probe_stage'])
     if digest(fd) != manifest['native_fd_sha256']:
         raise ValueError('Native FD differs from the reviewed probe')
     packed = repack(stock, fd)
@@ -111,14 +112,14 @@ def validate_candidate(stock, candidate, manifest):
         raise ValueError('Native probe sources changed after preparation')
 
 
-def prepare(stock_path, fd_path, output, avbtool):
+def prepare(stock_path, fd_path, output, avbtool, probe_stage='handoff'):
     repo = Path(__file__).resolve().parents[1]
     if output.exists() or output.resolve().is_relative_to(repo):
         raise ValueError('Choose a fresh private directory outside the public repository')
     stock, fd = stock_path.read_bytes(), fd_path.read_bytes()
     if len(stock) != PARTITION_SIZE or digest(stock) != STOCK_SHA256:
         raise ValueError('Original recovery backup mismatch')
-    inspected = require_entry_probe(fd)
+    inspected = require_entry_probe(fd, probe_stage)
     output.mkdir(parents=True)
     image = output/'recovery.img'
     image.write_bytes(repack(stock, fd))
@@ -127,6 +128,7 @@ def prepare(stock_path, fd_path, output, avbtool):
         'schema_version': 1, 'purpose': 'native-sec-entry-probe',
         'stock_sha256': STOCK_SHA256, 'candidate_sha256': digest(image.read_bytes()),
         'native_fd_sha256': inspected['fd_sha256'], 'probe_only': True,
+        'probe_stage': probe_stage,
         'kernel_transport': 'gzip',
         'compressed_kernel_sha256': digest(AndroidV2(image.read_bytes()).components['kernel']),
         'reset_request_after_seconds': 10, 'reset_return_path_verified': False,
@@ -148,8 +150,9 @@ def main():
     parser.add_argument('--native-probe-fd', type=Path, required=True)
     parser.add_argument('--private-output-dir', type=Path, required=True)
     parser.add_argument('--avbtool', type=Path, required=True)
+    parser.add_argument('--probe-stage', choices=('handoff', 'mmu'), default='handoff')
     args = parser.parse_args()
-    prepare(args.stock_recovery, args.native_probe_fd, args.private_output_dir, args.avbtool)
+    prepare(args.stock_recovery, args.native_probe_fd, args.private_output_dir, args.avbtool, args.probe_stage)
 
 
 if __name__ == '__main__':

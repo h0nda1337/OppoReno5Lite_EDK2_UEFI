@@ -38,6 +38,7 @@ def require_minimal_readout(manifest, explicit_minimal, direct_entry):
 def require_native_probe(manifest, explicit_native, direct_entry):
     if (manifest.get('purpose') != 'native-sec-entry-probe' or not explicit_native or
             not direct_entry or manifest.get('probe_only') is not True or
+            manifest.get('probe_stage') not in ('handoff', 'mmu') or
             manifest.get('reset_request_after_seconds') != 10):
         raise ValueError('Only the explicit short native SEC probe may use this phase')
 

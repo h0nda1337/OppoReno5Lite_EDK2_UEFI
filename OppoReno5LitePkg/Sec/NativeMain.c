@@ -58,10 +58,17 @@ STATIC VOID Stop (VOID)
 
 STATIC VOID EntryProbe (CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
 {
-  // Present only in the probe SEC. Host packaging rejects an integration FD.
-  STATIC CONST volatile CHAR8 Identity[] = "OPPO_SEC_PROBE_ONLY_V1";
-  if (Identity[0] != 'O' || Entry->CounterFrequency > 1000000000ULL) Stop ();
-  Stage (1, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 255, 255, 0});
+  // Each build retains only its selected marker. Packaging rejects other modes.
+  if (FeaturePcdGet (PcdNativeMmuProbe)) {
+    STATIC CONST volatile CHAR8 Identity[] = "OPPO_SEC_MMU_PROBE_ONLY_V1";
+    if (Identity[0] != 'O') Stop ();
+  } else {
+    STATIC CONST volatile CHAR8 Identity[] = "OPPO_SEC_PROBE_ONLY_V1";
+    if (Identity[0] != 'O') Stop ();
+  }
+  if (Entry->CounterFrequency > 1000000000ULL) Stop ();
+  Stage (FeaturePcdGet (PcdNativeMmuProbe) ? 2 : 1,
+         (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 255, 255, 0});
   UINT64 Start = ArmReadCntPct ();
   UINT64 Ticks = Entry->CounterFrequency * 10;
   while (ArmReadCntPct () - Start < Ticks) CpuPause ();
@@ -139,7 +146,10 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   Status = ArmConfigureMmu (Map, NULL, NULL);
   if (Status != EFI_SUCCESS) Stop ();
   ArmEnableInstructionCache (); ArmEnableDataCache ();
+  if ((ArmReadSctlr () & 0x1005U) != 0x1005U) Stop ();
   Stage (1, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 0, 0, 0});
+  // Observe HOB construction, stack switch and MMU before attempting DXE.
+  if (FeaturePcdGet (PcdNativeMmuProbe)) EntryProbe (State->Entry);
   ZeroMem (&Info, sizeof (Info));
   Info.Signature = OPPO_BOOT_INFO_SIGNATURE; Info.Revision = OPPO_BOOT_INFO_REVISION;
   Info.InitialEl = State->Entry->ExceptionLevel; Info.CounterFrequency = State->Entry->CounterFrequency;
@@ -166,6 +176,7 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   ARM_SMC_ARGS Args;
   UINT64 Fdt = Entry->Fdt;
   EFI_STATUS Status;
+  if (FeaturePcdGet (PcdNativeEntryProbe) && FeaturePcdGet (PcdNativeMmuProbe)) Stop ();
   if ((Entry->ExceptionLevel != 1 && Entry->ExceptionLevel != 2) || Entry->CounterFrequency == 0 ||
       Fdt < OPPO_NATIVE_DRAM_BASE || Fdt > OPPO_NATIVE_DRAM_END - 40 || (Fdt & 7)) Stop ();
   UINT64 Total = BigNumber ((CONST UINT8 *)(UINTN)Fdt + 4, 4);

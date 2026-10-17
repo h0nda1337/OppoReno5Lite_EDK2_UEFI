@@ -29,7 +29,7 @@
   UEFI; validar estado de entrada y mecanismos de reinicio antes de Linux.
 - [ ] Fijar revisiones y revisar las licencias de los componentes que se reutilicen.
 
-## 2. Primera ejecución nativa — SEC observada; MMU y DXE pendientes
+## 2. Primera ejecución nativa — SEC y MMU observadas; DXE pendiente
 
 - [x] Escribir una entrada ARM64 propia y comprobar argumentos, pila y vectores
   mediante pruebas de sistema QEMU en EL1 y EL2.
@@ -44,7 +44,7 @@
 - [x] Contrastar en PC una propuesta de pool inicial e imagen con la captura,
   sin asignar memoria física ni considerarla un mapa completo de RAM.
 - [x] Implementar HOBs y mapa MMU acotado en el prototipo SEC; código compilado,
-  sin validación de su ejecución física.
+  con validación física acotada mediante la variante corta MMU.
 - [x] Componer el primer FD con entrada directa a SEC, núcleo DXE y Shell;
   comprobar cabeceras, módulos y entrada en PC.
 - [x] Construir una variante corta de SEC separada de DXE y Shell y detectar,
@@ -53,6 +53,10 @@
   y la entrada propios. Restaurar y verificar el recovery tras el primer intento.
 - [x] Observar la franja verde de SEC con gzip y confirmar el regreso automático
   a Android con arranque completo y motivo `reboot`; no se midió el reset PSCI.
+- [x] Observar las tres franjas de la variante MMU, que comprueba HOBs, cambio
+  de pila y bits M/C/I de SCTLR, y confirmar arranque completo de Android.
+- [ ] Confirmar el orden de canales del framebuffer antes de Linux; el azul de
+  la prueba se observó rojo.
 - [ ] Medir y validar en el OPPO esa materialización y una vía de restauración
   independiente de los temporizadores del prototipo.
 - Revisar el protocolo de entrada de LK, estado ARM64, memoria y reservas.

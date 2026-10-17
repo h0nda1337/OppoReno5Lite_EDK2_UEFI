@@ -48,3 +48,4 @@
 
 [FeaturePcd]
   gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe
+  gOppoNativeTokenSpaceGuid.PcdNativeMmuProbe

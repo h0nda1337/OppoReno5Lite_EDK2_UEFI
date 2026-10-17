@@ -25,3 +25,4 @@
 
 [PcdsFeatureFlag]
   gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe|FALSE|BOOLEAN|0x00000001
+  gOppoNativeTokenSpaceGuid.PcdNativeMmuProbe|FALSE|BOOLEAN|0x00000002

@@ -7,10 +7,11 @@ edk2="$(cd -- "${EDK2_SOURCE:?Set EDK2_SOURCE to reviewed EDK2 sources}" && pwd)
 mkdir -p "$root/.build/native"
 log="$root/.build/native/build.log"
 extra=()
-case "${NATIVE_ENTRY_PROBE:-0}" in
-  0) mode=integration ;;
-  1) mode=entry-probe; extra=(-D OPPO_ENTRY_PROBE=TRUE) ;;
-  *) printf '%s\n' 'NATIVE_ENTRY_PROBE must be 0 or 1' >&2; exit 1 ;;
+case "${NATIVE_ENTRY_PROBE:-0}:${NATIVE_MMU_PROBE:-0}" in
+  0:0) mode=integration ;;
+  1:0) mode=entry-probe; extra=(-D OPPO_ENTRY_PROBE=TRUE) ;;
+  0:1) mode=mmu-probe; extra=(-D OPPO_MMU_PROBE=TRUE) ;;
+  *) printf '%s\n' 'Select at most one probe; NATIVE_ENTRY_PROBE and NATIVE_MMU_PROBE must be 0 or 1' >&2; exit 1 ;;
 esac
 export WORKSPACE="$edk2" PACKAGES_PATH="$root"
 export GCC_AARCH64_PREFIX="${GCC_AARCH64_PREFIX:-aarch64-linux-gnu-}"

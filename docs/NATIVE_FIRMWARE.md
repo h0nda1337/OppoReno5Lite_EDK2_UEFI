@@ -3,7 +3,8 @@
 `OppoNative.dsc` y `OppoNative.fdf` componen un prototipo para compilar e
 inspeccionar en PC. No son instrucciones de instalación. Una variante corta
 ya mostró su franja verde en el OPPO y volvió a Android; todavía no se observó
-la ejecución física del prototipo integrado con MMU, DXE y Shell.
+la ejecución física del prototipo integrado con DXE y Shell. Una segunda
+variante corta ya superó HOBs, cambio de pila y activación de MMU/cachés.
 
 La imagen tiene 8 MiB y comienza en `0x40080000`. Su cabecera ARM64 salta
 directamente al volumen FV situado en `0x40081000`; el vector de ese volumen
@@ -113,3 +114,18 @@ franja blanca ni se midió el intervalo: el retorno es compatible con la solicit
 PSCI del probe, pero no se atribuye de forma concluyente a esa ruta. La franja
 verde confirma que SEC llegó a validar handoff, PSCI_VERSION, watchdog, reservas,
 plan inicial y framebuffer. Esta variante termina antes de HOBs, MMU y DXE.
+
+La variante siguiente, `NATIVE_MMU_PROBE=1`, conserva un marcador distinto y
+desplaza la parada hasta después de crear HOBs, cambiar a la pila del pool y
+configurar el mapa MMU. Antes de mostrar azul comprueba los bits M, C e I de
+SCTLR; luego intenta mostrar blanco, espera con el contador físico y solicita
+reset. Sigue sin entrar en DXE. La herramienta exige que la fase declarada en
+el manifiesto coincida con el marcador de SEC y rechaza mezclas de variantes.
+En su primera prueba física el propietario observó tres franjas, de arriba
+abajo verde, roja y blanca, y retorno automático a Android. ADB confirmó el
+arranque completo, batería al 81 % y motivo `reboot`. La franja intermedia se
+escribe después de comprobar M/C/I; la blanca pertenece a la espera anterior
+al reset. No se entró en DXE ni Shell. El rojo donde se esperaba azul sugiere
+que el orden de canales antes de Linux difiere de la captura Linux: ese perfil
+de color requiere otra comprobación. No se midió el intervalo ni se atribuye
+concluyentemente el retorno a una ruta PSCI concreta.

@@ -199,6 +199,14 @@ DXE ni la Shell al entrar:
 NATIVE_ENTRY_PROBE=1 EDK2_SOURCE=/ruta/edk2 bash scripts/build_native_firmware.sh
 ```
 
+La siguiente variante usa `NATIVE_MMU_PROBE=1`, con salida en
+`.build/native/mmu-probe/`. Ejecuta cambio de pila, HOBs y mapa inicial y
+comprueba que SCTLR tenga activos MMU, caché de datos y caché de instrucciones.
+Intenta mostrar azul y blanco y solicita reset a los diez segundos, antes de
+DXE. Ambos selectores de prueba son mutuamente excluyentes. El empaquetador
+requiere `--probe-stage mmu` y el marcador correspondiente dentro de SEC;
+rechaza intercambiarlo con la fase `handoff` o el firmware integrado.
+
 El FD y su log se copian a `.build/native/entry-probe/`; la variante normal usa
 `.build/native/integration/`. La salida interna de EDK2 se comparte, por lo que
 las compilaciones deben ejecutarse en secuencia. Estas variantes no se deben

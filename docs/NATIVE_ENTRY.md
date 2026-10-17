@@ -67,3 +67,8 @@ GIC y temporizadores, además de medidas del estado de entrada y del reset PSCI.
 Los errores tempranos pueden aparcarse; el retorno de una prueba corta no
 garantiza una salida en todos los fallos. Véase la evidencia filtrada y las
 limitaciones en [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).
+
+La variante corta posterior sí alcanzó HOBs, cambio de pila y la comprobación
+de los bits de MMU/cachés: se observaron tres franjas y retorno a Android.
+No entró en DXE. El azul esperado se observó rojo, por lo que falta confirmar
+el orden de canales del framebuffer nativo.

@@ -453,5 +453,6 @@
     "scripts/test_native_firmware.py": "ee0cbdb3e871f2abd19994ad0015ba45dab10e8fb4b561c875b4b53d43e5fb65",
     "scripts/test_gop.c": "8f776ce43d2b7de6d6baf631229e488cdc226fbb4d3d75a6acd2a2dbc01c3a59",
     "scripts/test_gop.sh": "5b8cbc045a9538327d8b2db7bb773edcdc795cfc99b72b9c1a4e77c4508818bb"
-  }
+  },
+  "sources_refer_to_commit": "55efadacc3bb537159af619f9d70eabe3ea05e39"
 }

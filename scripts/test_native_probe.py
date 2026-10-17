@@ -63,11 +63,13 @@ class NativeProbeTests(unittest.TestCase):
                     inflate_native_kernel(gzip.compress(bytes(size),mtime=0))
 
     def test_native_and_linux_execution_guards_remain_separate(self):
-        manifest={'purpose':'native-sec-entry-probe','probe_only':True,'reset_request_after_seconds':10}
+        manifest={'purpose':'native-sec-entry-probe','probe_only':True,'reset_request_after_seconds':10,'probe_stage':'handoff'}
         require_native_probe(manifest,True,True)
+        require_native_probe(dict(manifest,probe_stage='mmu'),True,True)
         for explicit,direct in [(False,True),(True,False),(False,False)]:
             with self.assertRaises(ValueError):require_native_probe(manifest,explicit,direct)
         for altered in [dict(manifest,probe_only=False),dict(manifest,reset_request_after_seconds=90),
+                        dict(manifest,probe_stage='dxe'),dict(manifest,probe_stage=None),
                         {'purpose':'minimal-linux-readout'}]:
             with self.assertRaises(ValueError):require_native_probe(altered,True,True)
         with self.assertRaises(ValueError):require_minimal_readout(manifest,True,True)

@@ -55,5 +55,6 @@
     "hobs_mmu_dxe_or_shell_entered": false,
     "original_recovery_fastboot_restoration_acknowledged": true,
     "android_boot_verified_after_restoration": true
-  }
+  },
+  "sources_refer_to_commit": "55efadacc3bb537159af619f9d70eabe3ea05e39"
 }
