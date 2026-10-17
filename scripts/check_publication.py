@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """Inspect staged Git blobs for accidental binary/private publication."""
 from pathlib import Path
+import hashlib
 import re
 import subprocess
 
@@ -10,6 +11,13 @@ ALLOWED_ROOT_FILES = {'README.md', 'LICENSE', 'AGENTS.md', '.gitignore', '.gitat
 ALLOWED_DIRS = {'docs', 'scripts', 'evidence', 'OppoReno5LitePkg', '.github'}
 ALLOWED_SUFFIXES = {'.md', '.py', '.json', '.c', '.h', '.s', '.asm', '.inf',
                     '.dsc', '.fdf', '.dec', '.inc', '.yml', '.yaml', '.txt', '.patch', '.sh'}
+# Owner explicitly requested this photograph. Reviewed visually; camera EXIF
+# and other APP metadata removed, keeping only orientation and its ICC profile.
+# Exact bytes are pinned; this is not a general permission to publish images.
+REVIEWED_IMAGES = {
+    'docs/images/native-mmu-probe.jpg':
+        (2040440, '7f4da2bfba27abeaaf28a5d24612b3fb6cfd338e8530ca42d6af3d815bf63ff0'),
+}
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),
     re.compile(rb'gh[pousr]_[A-Za-z0-9]{30,}'),
@@ -23,6 +31,11 @@ def git(*args):
 
 
 def validate(name, data):
+    if name in REVIEWED_IMAGES:
+        size, expected = REVIEWED_IMAGES[name]
+        if len(data) != size or hashlib.sha256(data).hexdigest() != expected:
+            raise ValueError('Reviewed image changed; inspect it again: ' + name)
+        return
     path = Path(name)
     if name not in ALLOWED_ROOT_FILES:
         if len(path.parts) < 2 or path.parts[0] not in ALLOWED_DIRS:
@@ -41,7 +54,7 @@ def main():
     names = [name.decode('utf-8') for name in entries.split(b'\0') if name]
     for name in names:
         validate(name, git('show', ':' + name))
-    print('Publication check passed for', len(names), 'staged text files.')
+    print('Publication check passed for', len(names), 'staged files.')
 
 
 if __name__ == '__main__':

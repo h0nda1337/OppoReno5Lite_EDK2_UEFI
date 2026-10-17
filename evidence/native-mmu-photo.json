@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-mmu-probe.jpg",
+  "bytes": 2040440,
+  "sha256": "7f4da2bfba27abeaaf28a5d24612b3fb6cfd338e8530ca42d6af3d815bf63ff0",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "f176ccdffe4e2c96e7bb0b3837177f02af5dcff1cdb17548d69320e0f5d83b1b",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photo of the MMU-only probe, before DXE and Shell"
+}

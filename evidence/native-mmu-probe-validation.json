@@ -83,5 +83,7 @@
     "android_boot_verified_after_restoration": true
   },
   "native_sec_execution_observed": true,
-  "uefi_shell_execution_on_phone_verified": false
+  "uefi_shell_execution_on_phone_verified": false,
+  "sources_refer_to_commit": "6f89e043782a68b0a1346c7583b61081cc917c00",
+  "documentation_photo": "docs/images/native-mmu-probe.jpg"
 }

@@ -129,3 +129,12 @@ al reset. No se entró en DXE ni Shell. El rojo donde se esperaba azul sugiere
 que el orden de canales antes de Linux difiere de la captura Linux: ese perfil
 de color requiere otra comprobación. No se midió el intervalo ni se atribuye
 concluyentemente el retorno a una ruta PSCI concreta.
+
+<img src="images/native-mmu-probe.jpg" width="360" alt="OPPO durante la prueba corta de MMU: franjas verde, roja y blanca en la parte superior">
+
+Fotografía del propietario, publicada a petición suya. Las tres franjas
+corresponden a la prueba corta de MMU; el logo OPPO y el aviso Orange State
+permanecen de LK. Esta imagen no muestra DXE ni la Shell. Se retiraron los
+metadatos de cámara y se conservaron orientación, perfil de color y datos
+comprimidos de la imagen sin recomprimirlos. Véase
+[el registro de revisión de la foto](../evidence/native-mmu-photo.json).
