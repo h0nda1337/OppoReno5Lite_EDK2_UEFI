@@ -23,13 +23,14 @@ fuera del repositorio. Los directorios de dependencias y compilación tampoco se
 añaden automáticamente. La herramienta de comprobación reduce errores, pero
 no reemplaza la revisión del contenido.
 
-Las fotografías de la prueba MMU y de los tres primeros intentos integrados solicitadas
+Las fotografías de la prueba MMU y de los cuatro primeros intentos integrados solicitadas
 por el propietario están revisadas y fijadas por ruta, tamaño y SHA-256 en
 `check_publication.py`. Se retiraron los
 metadatos personales de cámara; se conservaron orientación y perfil de color,
 sin recomprimir los datos de imagen. Esa excepción corresponde exclusivamente
-a `docs/images/native-mmu-probe.jpg`, `docs/images/native-dxe-shell-lab-01.jpg`
-`docs/images/native-dxe-shell-lab-02.jpg` y `docs/images/native-dxe-shell-lab-03.jpg`;
+a `docs/images/native-mmu-probe.jpg`, `docs/images/native-dxe-shell-lab-01.jpg`,
+`docs/images/native-dxe-shell-lab-02.jpg`, `docs/images/native-dxe-shell-lab-03.jpg`
+y `docs/images/native-dxe-shell-lab-04.jpg`;
 las demás imágenes y binarios siguen
 requiriendo revisión y no se aceptan automáticamente.
 

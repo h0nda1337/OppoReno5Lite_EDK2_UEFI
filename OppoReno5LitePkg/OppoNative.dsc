@@ -106,7 +106,7 @@
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|FALSE
   gArmTokenSpaceGuid.PcdRemapUnusedMemoryNx|FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdHiiOsRuntimeSupport|FALSE
-  gEfiShellPkgTokenSpaceGuid.PcdShellRequireHiiPlatform|FALSE
+  gEfiShellPkgTokenSpaceGuid.PcdShellRequireHiiPlatform|TRUE
 
 [PcdsFixedAtBuild]
   gArmTokenSpaceGuid.PcdFdBaseAddress|0x40080000
@@ -155,7 +155,10 @@
   MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
   OppoReno5LitePkg/Drivers/OppoRuntimeDxe/OppoRuntimeDxe.inf
   OppoReno5LitePkg/Drivers/OppoGopDxe/OppoGopDxe.inf
-  OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.inf
+  OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.inf {
+    <LibraryClasses>
+      DebugLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoDebugLib.inf
+  }
   ShellPkg/Application/Shell/Shell.inf {
     <LibraryClasses>
       NULL|ShellPkg/Library/UefiShellLevel1CommandsLib/UefiShellLevel1CommandsLib.inf

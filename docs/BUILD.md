@@ -252,6 +252,17 @@ EDK2_HEADERS=/ruta/edk2 bash scripts/test_runtime_services.sh
 Comprueba el orden de registro, los argumentos inválidos y que ninguna solicitud
 consuma o modifique el payload. No emula el CRC del núcleo ni usa el teléfono.
 
+El BDS propio tiene una prueba con servicios sintéticos del PC:
+
+```bash
+EDK2_HEADERS=/ruta/edk2 bash scripts/test_bds.sh
+```
+
+Ejecuta el código real y simula el retorno de una aplicación ya descargada,
+errores del evento y del temporizador, callback y contador con vuelta de rango.
+Comprueba el orden de registro y liberación de temporales bajo ASan/UBSan.
+No ejecuta una Shell real ni interrupciones ARM y no sustituye la prueba física.
+
 El FD y su log se copian a `.build/native/entry-probe/`; la variante normal usa
 `.build/native/integration/`. La salida interna de EDK2 se comparte, por lo que
 las compilaciones deben ejecutarse en secuencia. Estas variantes no se deben

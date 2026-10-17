@@ -29,7 +29,7 @@
   UEFI; validar estado de entrada y mecanismos de reinicio antes de Linux.
 - [ ] Fijar revisiones y revisar las licencias de los componentes que se reutilicen.
 
-## 2. Primera ejecución nativa — SEC y MMU observadas; DXE pendiente
+## 2. Primera ejecución nativa — SEC, MMU y núcleo DXE observados
 
 - [x] Escribir una entrada ARM64 propia y comprobar argumentos, pila y vectores
   mediante pruebas de sistema QEMU en EL1 y EL2.
@@ -59,6 +59,11 @@
   candidatos: el azul dejó de verse rojo.
 - [ ] Medir y validar en el OPPO esa materialización y una vía de restauración
   independiente de los temporizadores del prototipo.
+- [x] Comprobar el reinicio manual con botones desde los diagnósticos detenidos,
+  volver a Android y restaurar recovery original. Ese resultado no garantiza
+  recuperación frente a cualquier fallo de hardware.
+- [x] Observar el núcleo DXE mediante el registro de texto propio y localizar
+  sus protocolos ausentes en fotografías revisadas.
 - Revisar el protocolo de entrada de LK, estado ARM64, memoria y reservas.
 - Evaluar la disponibilidad real de un arranque de prueba temporal.
 - Validar la entrada ARM64 propia, sin BootShim, conservando el FDT que entrega
@@ -79,10 +84,23 @@ sí sola no demuestra que el payload se haya ejecutado.
   propios y variables solo en RAM.
 - [x] Probar el controlador GOP real con servicios simulados y ASan/UBSan.
 - [ ] Conseguir salida de consola visible y un mecanismo de entrada en el OPPO.
-- [ ] Verificar ejecución de DXE y Shell sobre la plataforma física.
+- [x] Verificar ejecución del núcleo DXE y de su diagnóstico sobre la plataforma física.
+- [ ] Verificar ejecución de la Shell sobre la plataforma física.
 - [x] Probar el primer candidato integrado y registrar el bloqueo en las tres
   franjas de SEC; no se observó BDS/Shell ni reset automático en 142 segundos.
-- [ ] Añadir diagnóstico para localizar el bloqueo de carga o ejecución de DXE.
+- [x] Añadir diagnóstico propio para localizar el bloqueo de carga o ejecución de DXE.
+- [x] Corregir el bootstrap PCD y observar físicamente la carga de controladores,
+  dejando Capsule como único protocolo arquitectónico ausente.
+- [x] Compilar servicios Capsule propios que declaran operaciones no compatibles,
+  comprobar el controlador con sanitizadores y verificar su PE generado.
+- [x] Superar la comprobación arquitectónica del núcleo y llegar desde BDS a la
+  carga y entrada de Shell.efi; el retorno Unsupported impidió inicializarla.
+- [ ] Verificar consola UEFI visible y completar la inicialización de la Shell.
+- [x] Corregir el requisito HII y verificar sus valores efectivos en el build.
+- [x] Probar en PC el temporizador temprano del BDS, la consulta del contador al
+  regresar una aplicación y el ciclo de vida de su handle bajo sanitizadores.
+- [ ] Verificar el plazo y retorno de BDS en el teléfono, sin depender de ellos
+  como única vía de recuperación.
 - Validar arranque repetible y salida mediante reinicio controlado.
 
 El código específico se escribe aquí o se reutiliza de repositorios del

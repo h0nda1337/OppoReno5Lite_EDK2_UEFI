@@ -34,8 +34,9 @@ framebuffer no valida por sí sola una escritura al panel. Tampoco leer
 La política inicial propia ya se comprueba en PC: protege imagen y datos fijos,
 redondea exclusiones a páginas y difiere las reservas dinámicas al OS como exige
 DTSpec 3.5.4. Solo propone un pool inicial de 64 MiB. El prototipo SEC ya
-contiene su materialización en HOBs y mapa MMU, pero falta verificar su ejecución
-física; no se debe usar como mapa final de un sistema operativo.
+contiene su materialización en HOBs y mapa MMU. La variante corta alcanzó esas
+etapas y comprobó los bits de cachés/MMU; faltan medidas más completas y no se
+debe usar como mapa final de un sistema operativo.
 
 ## Qué se comprobó
 
@@ -62,8 +63,9 @@ Shell del núcleo EDK2. Véase [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).
 
 La prueba corta con transporte gzip ya mostró la franja verde después de las
 validaciones de handoff, memoria, PSCI_VERSION y watchdog, y volvió a Android.
-No ejecutó HOBs, MMU ni DXE. Todavía requieren validación física esas etapas,
-GIC y temporizadores, además de medidas del estado de entrada y del reset PSCI.
+Esa primera variante no ejecutó HOBs, MMU ni DXE. Las posteriores sí alcanzaron
+HOBs y MMU y ejecutaron el núcleo DXE, como se detalla abajo. Faltan medidas
+específicas de GIC, temporizadores, estado de entrada y reset PSCI.
 Los errores tempranos pueden aparcarse; el retorno de una prueba corta no
 garantiza una salida en todos los fallos. Véase la evidencia filtrada y las
 limitaciones en [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).
@@ -74,3 +76,9 @@ No entró en DXE. El azul esperado se observó rojo, por lo que falta confirmar
 el orden en esa primera variante. El intento integrado posterior contrastó
 rojo=16/azul=0 y mostró azul correcto; permaneció en las tres franjas de SEC,
 sin evidencia de BDS ni de la Shell.
+
+El registro de texto propio del segundo intento integrado confirmó después la
+ejecución del núcleo DXE. La corrección del bootstrap PCD permitió cargar
+controladores en el tercero; quedó únicamente Capsule ausente. La consola UEFI,
+la Shell y la entrada de usuario siguen pendientes de validación física. Véanse
+las fotografías y resultados en [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).

@@ -4,7 +4,7 @@ Port experimental de EDK2 para **OPPO Reno5 Lite CPH2205 / OP4F43L1**, proyecto
 20295, MediaTek MT6779 (Helio P95). El objetivo es conseguir una UEFI Shell nativa
 y después ofrecer una opción **UEFI Shell** en el recovery que muestra Fastbootd.
 
-**Estado, 16 de octubre de 2026: bibliotecas propias de plataforma, BGRT,
+**Estado, 17 de octubre de 2026: bibliotecas propias de plataforma, BGRT,
 framebuffer, FDT, handoff y plan de memoria compiladas con EDK2 para ARM64;
 entrada ARM64 propia probada en QEMU EL1/EL2; primer prototipo integrado de
 firmware compilado e inspeccionado en PC, con SEC, GOP, servicios iniciales y
@@ -12,7 +12,11 @@ BDS propios más núcleo DXE y Shell de EDK2. El diagnóstico Linux mínimo sí 
 ejecutó en el OPPO y capturó memoria y pantalla por USB. La prueba corta de SEC
 nativa ya mostró su franja verde y volvió a Android con transporte gzip.
 La segunda prueba corta alcanzó HOBs, cambio de pila y MMU/cachés y volvió a
-Android. DXE y Shell todavía no se han observado en el teléfono.**
+Android. El registro de texto propio confirmó después la ejecución del núcleo
+DXE. Tras corregir PCD y registrar Capsule se alcanzó BDS y se cargó `Shell.efi`,
+pero su entrada devolvió `EFI_UNSUPPORTED`. Se corrigió el requisito HII y se
+añadió diagnóstico propio del BDS, con compilación ARM64 y pruebas de PC. La
+inicialización completa de la Shell y la entrada de usuario siguen pendientes.**
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -30,11 +34,11 @@ Véase
 | Modelo y plataforma | CPH2205 / OP4F43L1 / proyecto 20295 / MT6779 |
 | Android de referencia | Android 13, ColorOS F.72, México libre NV7B |
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
-| Firmware integrado MT6779 | Primer intento alcanzó tres franjas de SEC; detenido sin marca de BDS ni texto de Shell |
+| Firmware integrado MT6779 | DXE y BDS alcanzados; Shell.efi cargada, pero su entrada devolvió Unsupported; corrección HII verificada en PC |
 | Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; orden nativo rojo=16/azul=0 contrastado con fotos |
-| Pantalla y entrada para la Shell | Pendientes |
+| Pantalla y entrada para la Shell | Registro propio visible desde DXE; consola UEFI y entrada todavía pendientes |
 | GOP y framebuffer propios | BLT comprobados con sanitizadores; franja nativa de SEC observada; controlador GOP en DXE pendiente |
 | Lector FDT propio en C | Comprobado con sanitizadores y captura; la prueba nativa alcanzó su validación de handoff y plan |
 | Interpretación de la entrega de LK | C propio; reservas fijas, dinámicas, vacías e incompletas diferenciadas; primera política comprobada en PC |
@@ -87,7 +91,8 @@ todavía el hardware. Véase [docs/BUILD.md](docs/BUILD.md).
 El primer firmware integrado enlaza la SEC, GOP, servicios iniciales y BDS
 propios con el núcleo DXE y la Shell de EDK2. Las pruebas QEMU de la entrada
 continúan usando una rutina C de prueba; no ejecutan ese firmware completo.
-La imagen permanece privada y no se ha instalado. No hay entrada, USB nativo o
+Las imágenes permanecen privadas; cuatro candidatos integrados ya se probaron
+mediante la partición recovery y después se restauró su original. No hay entrada, USB nativo o
 almacenamiento, y el reinicio de laboratorio no es todavía una vía de retorno
 probada. Véanse [docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md) y
 [docs/NATIVE_FIRMWARE.md](docs/NATIVE_FIRMWARE.md).
@@ -149,6 +154,9 @@ FD están en [el diagnóstico físico](docs/NATIVE_FIRMWARE.md#ejecución-físic
 Tras corregir PCD se cargaron controladores y quedó únicamente `Capsule` ausente.
 La tercera foto y el siguiente ajuste runtime, verificado todavía en PC, están
 en [el tercer intento](docs/NATIVE_FIRMWARE.md#tercer-intento-pcd-corregido-y-cápsulas-pendientes).
+El cuarto alcanzó la carga y entrada de `Shell.efi`, que devolvió
+`EFI_UNSUPPORTED`. Su foto, el requisito HII corregido y el diagnóstico adicional
+del BDS están en [el cuarto intento](docs/NATIVE_FIRMWARE.md#cuarto-intento-carga-de-shell-y-rechazo-unsupported).
 
 ## Logo de OPPO durante el arranque de Windows
 

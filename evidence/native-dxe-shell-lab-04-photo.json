@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-dxe-shell-lab-04.jpg",
+  "bytes": 2545787,
+  "sha256": "6ff6ee24d932261c47b03008fa2d9b2579b4708b2698642faddf25f16e511425",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "772ec917734ef4ec0735c4103e37e0b2b4c4e3bca9135cddd78ade0b9dfc9872",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photo of integrated attempt 04: BDS loads Shell.efi; its entry returns EFI_UNSUPPORTED and the caller attempts to unload an already invalid application handle; Shell UI not observed"
+}

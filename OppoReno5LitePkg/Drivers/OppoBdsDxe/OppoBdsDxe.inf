@@ -15,10 +15,16 @@
   UefiRuntimeServicesTableLib
   MemoryAllocationLib
   DevicePathLib
+  DebugLib
+  TimerLib
+  ArmLib
 [Protocols]
   gEfiBdsArchProtocolGuid
   gEfiGraphicsOutputProtocolGuid
   gEfiSimpleTextOutProtocolGuid
   gEfiFirmwareVolume2ProtocolGuid
+  gEfiHiiDatabaseProtocolGuid
+  gEfiHiiFontProtocolGuid
+  gEfiHiiStringProtocolGuid
 [Depex]
   TRUE

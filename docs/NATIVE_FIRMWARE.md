@@ -2,9 +2,12 @@
 
 `OppoNative.dsc` y `OppoNative.fdf` componen un prototipo para compilar e
 inspeccionar en PC. No son instrucciones de instalación. Una variante corta
-ya mostró su franja verde en el OPPO y volvió a Android; todavía no se observó
-la ejecución física del prototipo integrado con DXE y Shell. Una segunda
-variante corta ya superó HOBs, cambio de pila y activación de MMU/cachés.
+ya mostró su franja verde en el OPPO y volvió a Android. Una segunda variante
+corta superó HOBs, cambio de pila y activación de MMU/cachés. Los intentos
+integrados posteriores sí ejecutaron el núcleo DXE y el registro de texto
+propio. El cuarto intento pasó a BDS, cargó `Shell.efi` e invocó su entrada,
+que devolvió `EFI_UNSUPPORTED`; todavía no se observó su interfaz inicializada.
+Las etapas, sus límites y las fotos se detallan abajo.
 
 La imagen tiene 8 MiB y comienza en `0x40080000`. Su cabecera ARM64 salta
 directamente al volumen FV situado en `0x40081000`; el vector de ese volumen
@@ -21,7 +24,9 @@ del firmware a otra dirección ni un payload concatenado.
   un modo, consultas y las cuatro operaciones BLT mediante la biblioteca
   original de framebuffer. No inicializa el panel ni cambia sus relojes.
 - **Servicios iniciales:** proporciona solicitudes de reinicio y apagado PSCI.
-  Las operaciones RTC devuelven expresamente `EFI_UNSUPPORTED`.
+  Las operaciones RTC y Capsule devuelven expresamente `EFI_UNSUPPORTED`;
+  la ruta física ya superó la comprobación de protocolos arquitectónicos y
+  alcanzó BDS, aunque no se midió el CRC de la tabla runtime.
 - **BDS de laboratorio:** conecta controladores, selecciona la consola gráfica
   y busca la Shell dentro del FV. Solicita un reinicio mediante un evento de
   90 segundos para las primeras pruebas.
@@ -273,4 +278,48 @@ de reinicio frío junto al error. Se instalan las funciones antes de anunciar
 el protocolo. La prueba del controlador real con tablas sintéticas pasó
 ASan/UBSan y la compilación ARM64 conservó sus hashes. Su instalación física,
 el CRC actualizado por el núcleo y el acceso posterior a BDS/Shell siguen
-pendientes. Véase [la validación en PC](../evidence/capsule-runtime-host-validation.json).
+pendientes en ese registro de PC. El cuarto intento posterior se describe a
+continuación. Véase [la validación en PC](../evidence/capsule-runtime-host-validation.json).
+
+## Cuarto intento: carga de Shell y rechazo Unsupported
+
+La foto muestra `Loading driver ... Shell.efi` y `start failed: Unsupported`,
+seguidos del aviso sobre un handle de imagen inválido. La entrada de la imagen
+sí fue invocada y devolvió `EFI_UNSUPPORTED`; no se observó la interfaz de la
+Shell. En esta composición solo el BDS propio carga esa aplicación desde FV.
+Por tanto, la ruta ya superó la comprobación arquitectónica del núcleo, incluido
+Capsule, y llegó a BDS. Esa deducción no demuestra el funcionamiento de las
+operaciones runtime ni un CRC medido de su tabla.
+
+<img src="images/native-dxe-shell-lab-04.jpg" width="480" alt="Shell.efi cargada desde BDS; su entrada devuelve Unsupported y aparece un aviso de handle inválido">
+
+Fotografía publicada a petición del propietario, sin metadatos personales de
+cámara y conservando orientación, perfil ICC y datos comprimidos originales.
+Véanse [su revisión](../evidence/native-dxe-shell-lab-04-photo.json) y
+[el resultado físico](../evidence/native-dxe-shell-lab-04-validation.json).
+El propietario confirmó el reinicio con Encendido y Volumen arriba; luego se
+restauró el recovery original y Android completó el arranque, al 95 %.
+
+La revisión fijada de la Shell devuelve `EFI_UNSUPPORTED` si
+`PcdShellRequireHiiPlatform` es falso. Nuestra composición lo había desactivado,
+aunque incluye HiiDatabaseDxe. También puede devolver el error de `ClearScreen`
+antes de esa condición: la foto por sí sola no distingue ambos retornos. El
+nuevo build activa el requisito HII, conserva desactivado Framework HII y
+comprueba sus valores efectivos en `AutoGen.h`.
+
+El aviso posterior de handle inválido tiene otra causa: el núcleo descarga una
+aplicación al regresar `StartImage`, pero el BDS intentaba descargarla de nuevo.
+Se retiró esa segunda operación. El BDS ahora registra el estado de consola,
+HII, IRQ, frecuencia y temporizador. Inicia el evento de 90 segundos antes de
+conectar controladores y, mientras conserva el control, consulta un contador
+ascendente validado para solicitar reset al agotarse ese plazo. Este respaldo
+por consulta no puede recuperar un controlador bloqueado ni una Shell que no
+regrese; tampoco demuestra entrega de interrupciones.
+
+El controlador BDS real pasó cinco escenarios sintéticos con ASan/UBSan:
+callback del evento, fallo al crear el evento, fallo al armarlo con cierre del
+evento, vuelta del contador y rechazo de un contador descendente. La prueba
+simula que el núcleo ya descargó la aplicación y comprueba que no se reutilice
+su handle, además del orden del temporizador y liberación de temporales.
+La compilación ARM64 conservó las fuentes; el BDS emitido contiene su diagnóstico.
+Véase [la validación de PC](../evidence/bds-hii-host-validation.json).
