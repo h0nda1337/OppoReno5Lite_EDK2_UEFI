@@ -266,6 +266,12 @@ También parte de modo de texto -1, ofrece modos que no incluyen 100×60 y exige
 limpieza, consultas sin modos utilizables y geometrías fuera de los límites.
 No ejecuta una Shell real ni interrupciones ARM y no sustituye la prueba física.
 
+La aplicación Shell desactiva `PcdShellLibAutoInitialize` en su bloque de
+componente: necesita enlazar sus protocolos después de instalarlos en UefiMain.
+Su build también usa el registro de pantalla propio para hacer visibles asserts.
+La inspección de PC contrasta la configuración generada y las ramas de
+reinicialización emitidas en el PE incluido en el FD; no acredita su ejecución.
+
 El FD y su log se copian a `.build/native/entry-probe/`; la variante normal usa
 `.build/native/integration/`. La salida interna de EDK2 se comparte, por lo que
 las compilaciones deben ejecutarse en secuencia. Estas variantes no se deben

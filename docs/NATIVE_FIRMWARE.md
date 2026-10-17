@@ -403,3 +403,12 @@ inicializar. La próxima composición debe desactivar la inicialización automá
 para esta aplicación y comprobar el valor efectivo y la función emitida antes de
 otra prueba. El registro físico y el análisis están en
 [la evidencia 06](../evidence/native-dxe-shell-lab-06-validation.json).
+
+La siguiente composición fija `PcdShellLibAutoInitialize=FALSE` solo para la
+aplicación Shell y enlaza allí el registro propio, sin modificar las fuentes
+genéricas de EDK2. La compilación ARM64 verificó el cero efectivo en `AutoGen.c`
+y la llamada al constructor de nuestro logger. En el PE exacto del FD,
+`ShellInitialize` ahora llama al destructor y salta a
+`ShellLibConstructorWorker`; ya no es una devolución constante de éxito.
+Esto verifica la corrección de composición en PC, no el resultado físico.
+Véase [la validación del binario](../evidence/shell-initialization-host-validation.json).
