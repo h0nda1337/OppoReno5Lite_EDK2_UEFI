@@ -58,5 +58,9 @@
     "scripts/inspect_native_firmware.py": "61906d13c89492cbb80e5a28f95b52c3852b26e3f16dd6da46a8b4c57ccc933e",
     "scripts/prepare_native_lab.py": "e5c6770fb176733d1708a32f54b1126e8fa10c6a3c0facbd52e1c557ec3cc3c2",
     "scripts/prepare_native_probe.py": "3c21b3b5a7170b2be2154aa79b9b7b7a1e8bb170159425070c3a161ffede7414"
-  }
+  },
+  "sources_refer_to_commit": "d4f241812f83dac66ccc37c4ebf6613bf0698ca7",
+  "runtime_pe_sha256": "26b442c3e4b8174ecd09999ab52cf1a9900a906d6cd130cfad79069a8faff002",
+  "capsule_protocol_guid_occurrences_in_runtime_pe": 1,
+  "binary_guid_check_scope": "Capsule GUID present in the bounded original runtime PE; does not prove protocol registration or execution"
 }
