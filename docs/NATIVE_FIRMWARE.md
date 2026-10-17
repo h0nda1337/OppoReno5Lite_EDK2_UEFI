@@ -247,3 +247,30 @@ protocolo. Es una guarda específica de este bootstrap, no un análisis completo
 del grafo de dependencias. La recompilación ARM64 conservó las fuentes y
 produjo esa expresión; los 52 tests de Python pasaron. Véase
 [la validación de la corrección en PC](../evidence/pcd-bootstrap-host-validation.json).
+
+## Tercer intento: PCD corregido y cápsulas pendientes
+
+La siguiente prueba física sí cargó controladores. El último tramo fotografiado
+incluye WatchdogTimer, y el único protocolo arquitectónico ausente es `Capsule`.
+ConSplitter, GraphicsConsole, EnglishDxe y FvSimpleFileSystem siguen diferidos
+porque sus dependencias esperan todos los servicios UEFI. El núcleo vuelve a
+detenerse en `DxeMain.c:578`. Esto confirma el avance tras corregir PCD, pero
+todavía no muestra el boot manager BDS ni la Shell. Después del reinicio manual
+se restauró el recovery original y Android completó el arranque, al 92 %.
+
+<img src="images/native-dxe-shell-lab-03.jpg" width="480" alt="Después de corregir PCD, el diagnóstico muestra únicamente Capsule ausente y cuatro controladores pendientes">
+
+Fotografía publicada a petición del propietario, sin metadatos personales de
+cámara, manteniendo orientación, perfil ICC y los datos comprimidos originales.
+Véanse [la revisión](../evidence/native-dxe-shell-lab-03-photo.json) y
+[el resultado físico](../evidence/native-dxe-shell-lab-03-validation.json).
+
+El siguiente código propio añade al controlador runtime las funciones de
+cápsulas y su protocolo arquitectónico. Devuelven `EFI_UNSUPPORTED` para
+solicitudes válidas y `EFI_INVALID_PARAMETER` para argumentos básicos inválidos;
+no leen, encolan ni escriben cápsulas. La consulta informa tamaño cero y tipo
+de reinicio frío junto al error. Se instalan las funciones antes de anunciar
+el protocolo. La prueba del controlador real con tablas sintéticas pasó
+ASan/UBSan y la compilación ARM64 conservó sus hashes. Su instalación física,
+el CRC actualizado por el núcleo y el acceso posterior a BDS/Shell siguen
+pendientes. Véase [la validación en PC](../evidence/capsule-runtime-host-validation.json).

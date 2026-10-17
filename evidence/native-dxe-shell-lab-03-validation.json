@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "scope": "physical integrated attempt 03 after PCD bootstrap correction",
+  "sources_refer_to_commit": "131cf153c63bfd8b8de71d56068570458c30f24a",
+  "native_fd_sha256": "f91278f9dd7ac5ead0b41acda86b7c5d74061f6e90b1e04610ab3fde82c4225c",
+  "candidate_sha256": "6692cbc046edb499cea225744117b5c3273878c9aeb3dabc355550ab8156093b",
+  "battery_percent_before": 92,
+  "battery_percent_after_restoration": 92,
+  "dxe_core_execution_observed": true,
+  "pcd_bootstrap_fix_allowed_driver_dispatch": true,
+  "only_missing_architectural_protocol_visible": "Capsule",
+  "deferred_driver_guids_visible": [
+    "408edcec-cf6d-477c-a5a8-b4844e3de281",
+    "cccb0c28-4b24-11d5-9a5a-0090273fc14d",
+    "cd3bafb6-50fb-4fe8-8e4e-ab74d2c1a600",
+    "907125c0-a5f1-11e3-a3fe-a319b849350c"
+  ],
+  "deferred_condition_visible": "All UEFI services available = FALSE",
+  "assert_file": "DxeMain.c",
+  "assert_line": 578,
+  "assert_status": "EFI_NOT_FOUND",
+  "bds_boot_manager_entry_verified": false,
+  "shell_execution_verified": false,
+  "manual_force_restart_returned_to_android": true,
+  "stock_recovery_restoration_acknowledged": true,
+  "android_boot_completed_after_stock_restoration": true,
+  "owner_photo": "docs/images/native-dxe-shell-lab-03.jpg",
+  "firmware_binary_published": false,
+  "fastbootd_menu_integration_started": false
+}

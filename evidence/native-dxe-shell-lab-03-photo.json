@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-dxe-shell-lab-03.jpg",
+  "bytes": 2944218,
+  "sha256": "4a009f4a0abe5b781febac26175d27c7e41daf66a97f56a68e5718ca2aa4ca6c",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "d6ca976b28d2a68e0bdad72b822563db833c63c69295426af0204af74ffde17c",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photo of integrated attempt 03 after PCD fix: only Capsule architectural protocol missing, four deferred console/file drivers and ASSERT DxeMain.c:578; no Shell"
+}

@@ -242,6 +242,16 @@ formateador es un stub acotado para las pruebas; la compilación ARM64 utiliza
 el PrintLib genérico de EDK2. Véase la reserva de la página y los límites de
 este diagnóstico en [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md#diagnóstico-de-texto-propio).
 
+El servicio propio que declara las cápsulas no compatibles también se verifica
+con el controlador real y tablas UEFI sintéticas bajo ASan/UBSan:
+
+```bash
+EDK2_HEADERS=/ruta/edk2 bash scripts/test_runtime_services.sh
+```
+
+Comprueba el orden de registro, los argumentos inválidos y que ninguna solicitud
+consuma o modifique el payload. No emula el CRC del núcleo ni usa el teléfono.
+
 El FD y su log se copian a `.build/native/entry-probe/`; la variante normal usa
 `.build/native/integration/`. La salida interna de EDK2 se comparte, por lo que
 las compilaciones deben ejecutarse en secuencia. Estas variantes no se deben

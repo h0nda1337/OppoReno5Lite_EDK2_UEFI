@@ -146,6 +146,9 @@ El registro de diagnóstico por sí solo no constituye una consola UEFI ni Shell
 En el segundo intento integrado sí se observó el núcleo DXE y su assert por
 protocolos ausentes. La foto y el ciclo de dependencia PCD identificado en el
 FD están en [el diagnóstico físico](docs/NATIVE_FIRMWARE.md#ejecución-física-del-diagnóstico-de-texto).
+Tras corregir PCD se cargaron controladores y quedó únicamente `Capsule` ausente.
+La tercera foto y el siguiente ajuste runtime, verificado todavía en PC, están
+en [el tercer intento](docs/NATIVE_FIRMWARE.md#tercer-intento-pcd-corregido-y-cápsulas-pendientes).
 
 ## Logo de OPPO durante el arranque de Windows
 
