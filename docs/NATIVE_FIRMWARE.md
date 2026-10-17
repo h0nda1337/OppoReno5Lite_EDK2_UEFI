@@ -323,3 +323,38 @@ simula que el núcleo ya descargó la aplicación y comprueba que no se reutilic
 su handle, además del orden del temporizador y liberación de temporales.
 La compilación ARM64 conservó las fuentes; el BDS emitido contiene su diagnóstico.
 Véase [la validación de PC](../evidence/bds-hii-host-validation.json).
+
+## Quinto intento: HII habilitado y retorno automático
+
+El BDS imprimió `BDS starting Shell application` y después
+`BDS Shell StartImage returned: Unsupported`. Ya no apareció el aviso de handle
+inválido. Los valores efectivos HII habían sido comprobados en `AutoGen.h`;
+corregirlos permitió descartar esa configuración anterior, pero no completó la
+inicialización de la Shell. El propietario confirmó que esta vez Android volvió
+automáticamente. ADB verificó arranque completo; se restauró el recovery original
+y Android arrancó de nuevo, con batería al 100 %. No se midió el intervalo ni se
+distinguió entre callback del evento y consulta del contador. Ese resultado no
+prueba recuperación desde una aplicación que no regrese. Véase
+[el resultado físico 05](../evidence/native-dxe-shell-lab-05-validation.json).
+
+La inspección encontró otra causa posible para `Unsupported`: el proyecto pedía
+100×60 caracteres, una geometría ausente de la lista del controlador genérico.
+Con una preferencia inexistente, GraphicsConsole deja su índice actual en -1;
+su `ClearScreen` devuelve `EFI_UNSUPPORTED`, que la Shell propaga antes de HII.
+La fotografía no permite atribuir de forma concluyente el rechazo a esa llamada.
+
+El código nuevo deja ambas preferencias en cero y el BDS consulta los modos
+disponibles, selecciona el de mayor área dentro de límites explícitos y ejecuta
+`SetMode` antes de limpiar la pantalla. Esa llamada también inicializa el búfer
+de renderizado de GraphicsConsole. Si la preparación falla, no invoca la Shell.
+Tras el retorno repite modo inicial, modo elegido, geometría, estados de consola,
+HII, evento e IRQ para conservar el contexto que la Shell pudo borrar.
+
+La prueba del BDS real con servicios sintéticos pasó 12 escenarios ASan/UBSan.
+Incluye modo inicial -1, lista sin 100×60, fallos de SetMode y ClearScreen, lista
+vacía, descriptor ausente, exceso de modos, consultas rechazadas y dimensiones
+fuera de límite, además de las cinco rutas anteriores de temporizador. No ejecuta
+el controlador gráfico ni la Shell genéricos: su verificación física sigue siendo
+un paso independiente. La compilación ARM64, el FD inspeccionado y los valores
+efectivos de ambas preferencias están registrados en
+[la validación de consola en PC](../evidence/bds-text-mode-host-validation.json).

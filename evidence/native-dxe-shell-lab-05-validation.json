@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "scope": "physical integrated attempt 05, HII enabled and automatic Android return",
+  "validation_date_local": "2026-10-17",
+  "sources_refer_to_commit": "6ae08be4edb2e97f5a299a3fd6d97f9d9868a54f",
+  "native_fd_sha256": "666a7d09f7b87f6f8273ad0ff35919e4f0acdfcb80512780715b1860afaea55e",
+  "candidate_sha256": "a145aee05d68c888270e5d66e34708db24738812ab0e766e6e5aaff917e3a1a2",
+  "battery_percent_before": 95,
+  "battery_percent_after_restoration": 100,
+  "bds_debug_output_observed": true,
+  "filtered_visible_lines": [
+    "BDS STARTING SHELL APPLICATION",
+    "ERROR: IMAGE ... START FAILED: UNSUPPORTED",
+    "BDS SHELL STARTIMAGE RETURNED: UNSUPPORTED"
+  ],
+  "shell_require_hii_platform_effective_value": true,
+  "shell_framework_hii_effective_value": false,
+  "shell_image_entry_invoked": true,
+  "shell_image_return_status": "EFI_UNSUPPORTED",
+  "shell_interactive_ui_observed": false,
+  "shell_initialization_completed": false,
+  "stale_image_handle_warning_observed": false,
+  "automatic_return_to_android_confirmed_by_owner": true,
+  "manual_buttons_required_for_this_return": false,
+  "android_boot_completed_confirmed_by_adb": true,
+  "reset_elapsed_seconds_measured": false,
+  "reset_event_callback_vs_polled_counter_distinguished": false,
+  "stock_recovery_restoration_acknowledged": true,
+  "android_boot_completed_after_stock_restoration": true,
+  "console_mode_diagnosis": "Inspection found requested 100x60 absent from GraphicsConsole modes; a negative current mode causes ClearScreen to return Unsupported. The photograph does not prove this was the exact Shell return site.",
+  "firmware_binary_published": false,
+  "fastbootd_menu_integration_started": false
+}

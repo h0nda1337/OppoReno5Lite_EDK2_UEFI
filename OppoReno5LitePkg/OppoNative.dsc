@@ -127,8 +127,8 @@
   gEfiShellPkgTokenSpaceGuid.PcdShellPageBreakDefault|FALSE
 
 [PcdsPatchableInModule]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|100
-  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|60
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|0
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|0
 
 [Components]
   OppoReno5LitePkg/Sec/OppoSec.inf

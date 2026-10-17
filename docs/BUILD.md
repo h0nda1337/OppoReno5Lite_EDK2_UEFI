@@ -261,6 +261,9 @@ EDK2_HEADERS=/ruta/edk2 bash scripts/test_bds.sh
 Ejecuta el código real y simula el retorno de una aplicación ya descargada,
 errores del evento y del temporizador, callback y contador con vuelta de rango.
 Comprueba el orden de registro y liberación de temporales bajo ASan/UBSan.
+También parte de modo de texto -1, ofrece modos que no incluyen 100×60 y exige
+`SetMode` antes de `ClearScreen` y de cargar la Shell. Rechaza fallos de activación,
+limpieza, consultas sin modos utilizables y geometrías fuera de los límites.
 No ejecuta una Shell real ni interrupciones ARM y no sustituye la prueba física.
 
 El FD y su log se copian a `.build/native/entry-probe/`; la variante normal usa
@@ -273,6 +276,8 @@ de Python comprueban límites, integridad y que no se conserve el ramdisk OEM.
 
 Las hipótesis y limitaciones del prototipo se describen en
 [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md). No hay controladores de entrada,
-almacenamiento o USB nativo y el reinicio automático todavía no es una vía de
-recuperación probada. Un build correcto no autoriza a considerar funcionales
-estos componentes ni a instalar la imagen sin resolver la estrategia de retorno.
+almacenamiento o USB nativo. Se observó retorno automático después del rechazo
+de Shell, sin medir su plazo ni distinguir evento de contador; no garantiza
+recuperación desde una aplicación bloqueada. Un build correcto no demuestra que
+estos componentes funcionen en el OPPO. La prueba física requiere una estrategia
+de retorno.

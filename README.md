@@ -14,8 +14,10 @@ nativa ya mostró su franja verde y volvió a Android con transporte gzip.
 La segunda prueba corta alcanzó HOBs, cambio de pila y MMU/cachés y volvió a
 Android. El registro de texto propio confirmó después la ejecución del núcleo
 DXE. Tras corregir PCD y registrar Capsule se alcanzó BDS y se cargó `Shell.efi`,
-pero su entrada devolvió `EFI_UNSUPPORTED`. Se corrigió el requisito HII y se
-añadió diagnóstico propio del BDS, con compilación ARM64 y pruebas de PC. La
+pero su entrada devolvió `EFI_UNSUPPORTED`. Con el requisito HII corregido se
+observó el mismo rechazo y el primer retorno automático a Android desde ese
+intento integrado. Después se restauró recovery original, al 100 % de batería.
+La nueva corrección activa explícitamente un modo de consola disponible. La
 inicialización completa de la Shell y la entrada de usuario siguen pendientes.**
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
@@ -34,7 +36,7 @@ Véase
 | Modelo y plataforma | CPH2205 / OP4F43L1 / proyecto 20295 / MT6779 |
 | Android de referencia | Android 13, ColorOS F.72, México libre NV7B |
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
-| Firmware integrado MT6779 | DXE y BDS alcanzados; Shell.efi cargada, pero su entrada devolvió Unsupported; corrección HII verificada en PC |
+| Firmware integrado MT6779 | DXE y BDS alcanzados; Shell.efi devuelve Unsupported incluso con HII habilitado; retorno automático a Android observado |
 | Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; orden nativo rojo=16/azul=0 contrastado con fotos |
@@ -91,10 +93,11 @@ todavía el hardware. Véase [docs/BUILD.md](docs/BUILD.md).
 El primer firmware integrado enlaza la SEC, GOP, servicios iniciales y BDS
 propios con el núcleo DXE y la Shell de EDK2. Las pruebas QEMU de la entrada
 continúan usando una rutina C de prueba; no ejecutan ese firmware completo.
-Las imágenes permanecen privadas; cuatro candidatos integrados ya se probaron
-mediante la partición recovery y después se restauró su original. No hay entrada, USB nativo o
-almacenamiento, y el reinicio de laboratorio no es todavía una vía de retorno
-probada. Véanse [docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md) y
+Las imágenes permanecen privadas; cinco candidatos integrados ya se probaron
+mediante la partición recovery y después se restauró su original. No hay entrada,
+USB nativo o almacenamiento. El quinto volvió automáticamente a Android tras
+el rechazo de Shell; faltan medir el plazo y distinguir evento de contador.
+Véanse [docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md) y
 [docs/NATIVE_FIRMWARE.md](docs/NATIVE_FIRMWARE.md).
 
 La planificación y fuentes están en [docs/ROADMAP.md](docs/ROADMAP.md) y

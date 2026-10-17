@@ -22,6 +22,7 @@ STATIC EFI_GRAPHICS_OUTPUT_PROTOCOL mGop;
 STATIC EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE mMode;
 STATIC EFI_GRAPHICS_OUTPUT_MODE_INFORMATION mInfo;
 STATIC EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL mOut;
+STATIC EFI_SIMPLE_TEXT_OUTPUT_MODE mTextMode;
 STATIC EFI_SIMPLE_TEXT_INPUT_PROTOCOL mIn;
 STATIC EFI_FIRMWARE_VOLUME2_PROTOCOL mVolume;
 STATIC EFI_DEVICE_PATH_PROTOCOL mPath;
@@ -30,6 +31,7 @@ STATIC EFI_EVENT_NOTIFY mNotify;
 STATIC UINT64 mCounter;
 STATIC UINTN mScenario, mAllocated, mFreed, mStarts, mUnloads, mClosed;
 STATIC BOOLEAN mTimerAttempted, mSetTimer, mApplicationAlive, mEventFired;
+STATIC UINTN mModeSets, mClears;
 
 BOOLEAN EFIAPI DebugPrintEnabled(VOID) { return TRUE; }
 BOOLEAN EFIAPI DebugPrintLevelEnabled(UINTN Level) { (VOID)Level;return TRUE; }
@@ -102,7 +104,27 @@ STATIC EFI_STATUS EFIAPI Close(EFI_EVENT Event)
 STATIC EFI_STATUS EFIAPI Watchdog(UINTN Seconds, UINT64 Code, UINTN Bytes, CHAR16 *Data)
 { assert(Seconds==0 && Code==0 && Bytes==0 && Data==NULL);return EFI_SUCCESS; }
 STATIC EFI_STATUS EFIAPI Clear(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This)
-{ assert(This==&mOut);return EFI_SUCCESS; }
+{
+  assert(This==&mOut && mModeSets==1 && This->Mode->Mode==2);
+  mClears++;return mScenario==6?EFI_DEVICE_ERROR:EFI_SUCCESS;
+}
+STATIC EFI_STATUS EFIAPI Query(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, UINTN Mode,
+                              UINTN *Columns, UINTN *Rows)
+{
+  assert(This==&mOut && Mode<5);
+  if(mScenario==10 || Mode==3)return EFI_UNSUPPORTED;
+  if(mScenario==11) {*Columns=MAX_UINTN;*Rows=MAX_UINTN;return EFI_SUCCESS;}
+  *Columns=Mode==2?135:80;*Rows=Mode==2?126:Mode==1?50:25;
+  if(Mode==4)*Rows=0;
+  return EFI_SUCCESS;
+}
+STATIC EFI_STATUS EFIAPI SetMode(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, UINTN Mode)
+{
+  assert(This==&mOut && Mode==2 && This->Mode->Mode==-1 && mClears==0);
+  mModeSets++;
+  if(mScenario==5)return EFI_DEVICE_ERROR;
+  This->Mode->Mode=(INT32)Mode;return EFI_SUCCESS;
+}
 STATIC EFI_STATUS EFIAPI Output(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, CHAR16 *Text)
 { assert(This==&mOut && Text);return EFI_SUCCESS; }
 STATIC EFI_STATUS EFIAPI Blt(EFI_GRAPHICS_OUTPUT_PROTOCOL *This, EFI_GRAPHICS_OUTPUT_BLT_PIXEL *Pixel,
@@ -124,6 +146,7 @@ STATIC EFI_STATUS EFIAPI Load(BOOLEAN Policy, EFI_HANDLE Parent, EFI_DEVICE_PATH
                               VOID *Source, UINTN Bytes, EFI_HANDLE *Image)
 {
   assert(!Policy && Parent==(EFI_HANDLE)(UINTN)0x100 && Path && Source && Bytes==16);
+  assert(mModeSets==1 && mClears==1 && gST->ConOut==&mOut && mTextMode.Mode==2);
   *Image=(EFI_HANDLE)(UINTN)3;mApplicationAlive=TRUE;return EFI_SUCCESS;
 }
 STATIC EFI_STATUS EFIAPI Start(EFI_HANDLE Image, UINTN *Bytes, CHAR16 **Data)
@@ -137,7 +160,7 @@ STATIC EFI_STATUS EFIAPI Unload(EFI_HANDLE Image)
 STATIC VOID EFIAPI Reset(EFI_RESET_TYPE Type, EFI_STATUS Status, UINTN Bytes, VOID *Data)
 {
   assert(Type==EfiResetCold && Status==EFI_SUCCESS && Bytes==0 && Data==NULL);
-  assert(mStarts==1 && mUnloads==0 && mFreed==mAllocated);
+  assert(mStarts==(mScenario<5?1U:0U) && mUnloads==0 && mFreed==mAllocated);
   longjmp(mReturn,1);
 }
 STATIC EFI_STATUS EFIAPI Stall(UINTN Microseconds)
@@ -160,19 +183,27 @@ int main(void)
   mBoot.UnloadImage=Unload;mBoot.Stall=Stall;mBoot.InstallMultipleProtocolInterfaces=Install;
   mRuntime.ResetSystem=Reset;mGop.Mode=&mMode;mGop.Blt=Blt;mMode.Info=&mInfo;
   mInfo.HorizontalResolution=1080;mInfo.VerticalResolution=2400;
-  mOut.ClearScreen=Clear;mOut.OutputString=Output;mVolume.ReadSection=ReadSection;
-  for(mScenario=0;mScenario<5;mScenario++) {
+  mOut.ClearScreen=Clear;mOut.OutputString=Output;mOut.QueryMode=Query;mOut.SetMode=SetMode;
+  mVolume.ReadSection=ReadSection;
+  for(mScenario=0;mScenario<12;mScenario++) {
     mAllocated=mFreed=mStarts=mUnloads=mClosed=0;
+    mModeSets=mClears=0;mOut.Mode=&mTextMode;mTextMode.Mode=-1;mTextMode.MaxMode=5;
+    if(mScenario==7)mTextMode.MaxMode=0;
+    if(mScenario==8)mOut.Mode=NULL;
+    if(mScenario==9)mTextMode.MaxMode=129;
     mTimerAttempted=mSetTimer=mApplicationAlive=mEventFired=FALSE;mNotify=NULL;
-    mCounter=mScenario==3?MAX_UINT64-10:100;mSystem.ConIn=&mIn;mSystem.ConOut=&mOut;
+    mCounter=mScenario==3?MAX_UINT64-10:100;mSystem.ConIn=&mIn;mSystem.ConOut=NULL;mSystem.StdErr=NULL;
     mSystem.Hdr.HeaderSize=sizeof(mSystem);
     assert(OppoBdsEntry((EFI_HANDLE)(UINTN)0x100,&mSystem)==EFI_SUCCESS);
     if(setjmp(mReturn)==0)mBds.Entry(&mBds);
-    assert(mTimerAttempted && mStarts==1 && mUnloads==0 && mFreed==mAllocated);
+    assert(mTimerAttempted && mStarts==(mScenario<5?1U:0U) && mUnloads==0 && mFreed==mAllocated);
+    assert((mSystem.ConOut==&mOut)==(mScenario<5));
+    assert(mClears==(mScenario<5 || mScenario==6?1U:0U));
+    assert(mModeSets==(mScenario<=6?1U:0U));
     assert(mEventFired==(mScenario==0 || mScenario==4));
     assert(mClosed==(mScenario==2?1U:0U));
     assert(mCounterDeadlineReady==(mScenario!=4) && mSystem.Hdr.CRC32==0x1234);
   }
-  puts("Original BDS: early timer, application lifecycle, fallback counter and wrap guards passed host sanitizers; no hardware test.");
+  puts("Original BDS: 12 scenarios passed host sanitizers, including activation from invalid text mode, console failures and deadline fallback; no hardware test.");
   return 0;
 }

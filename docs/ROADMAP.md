@@ -99,6 +99,9 @@ sí sola no demuestra que el payload se haya ejecutado.
 - [x] Corregir el requisito HII y verificar sus valores efectivos en el build.
 - [x] Probar en PC el temporizador temprano del BDS, la consulta del contador al
   regresar una aplicación y el ciclo de vida de su handle bajo sanitizadores.
+- [x] Observar retorno automático a Android tras el rechazo de Shell con HII
+  habilitado; restaurar recovery original y comprobar arranque completo.
+- [x] Probar en PC la selección y activación explícita del modo de consola.
 - [ ] Verificar el plazo y retorno de BDS en el teléfono, sin depender de ellos
   como única vía de recuperación.
 - Validar arranque repetible y salida mediante reinicio controlado.

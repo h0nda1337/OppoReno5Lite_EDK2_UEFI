@@ -25,6 +25,47 @@ STATIC CONST volatile CHAR8 mLabIdentity[] = "OPPO_NATIVE_DXE_SHELL_LAB_90S_V1";
 STATIC EFI_GUID mShellFile = {0x7c04a583, 0x9e3e, 0x4f1c, {0xad, 0x65, 0xe0, 0x52, 0x68, 0xd0, 0xb4, 0xd1}};
 STATIC BOOLEAN mCounterDeadlineReady;
 STATIC UINT64 mCounterStart, mCounterTicks;
+STATIC EFI_STATUS mEventStatus, mTimerStatus;
+
+typedef struct {
+  INT32 InitialMode, SelectedMode;
+  UINTN Columns, Rows;
+  EFI_STATUS SetStatus, ClearStatus;
+} OPPO_TEXT_SETUP;
+
+// Activate a mode even when the driver advertises a preferred index: SetMode
+// also allocates the graphics console's rendering buffer on its first use.
+STATIC EFI_STATUS ConfigureTextOutput (EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *Out,
+                                      OPPO_TEXT_SETUP *Setup)
+{
+  UINTN Index, Columns, Rows, BestArea = 0;
+  EFI_STATUS Status;
+  Setup->InitialMode = Setup->SelectedMode = -1;
+  Setup->Columns = Setup->Rows = 0;
+  Setup->SetStatus = Setup->ClearStatus = EFI_NOT_STARTED;
+  if (Out == NULL || Out->Mode == NULL || Out->QueryMode == NULL ||
+      Out->SetMode == NULL || Out->ClearScreen == NULL || Out->OutputString == NULL)
+    return EFI_UNSUPPORTED;
+  Setup->InitialMode = Out->Mode->Mode;
+  // Bound enumeration and multiplication for a malformed protocol instance.
+  if (Out->Mode->MaxMode <= 0 || Out->Mode->MaxMode > 128) return EFI_UNSUPPORTED;
+  for (Index = 0; Index < (UINTN)Out->Mode->MaxMode; Index++) {
+    Status = Out->QueryMode (Out, Index, &Columns, &Rows);
+    if (EFI_ERROR (Status) || Columns == 0 || Rows == 0 || Columns > 512 || Rows > 512)
+      continue;
+    if (Columns * Rows > BestArea) {
+      BestArea = Columns * Rows;
+      Setup->SelectedMode = (INT32)Index;
+      Setup->Columns = Columns; Setup->Rows = Rows;
+    }
+  }
+  if (Setup->SelectedMode < 0) return EFI_UNSUPPORTED;
+  Setup->SetStatus = Out->SetMode (Out, (UINTN)Setup->SelectedMode);
+  if (EFI_ERROR (Setup->SetStatus)) return Setup->SetStatus;
+  if (Out->Mode->Mode != Setup->SelectedMode) return EFI_DEVICE_ERROR;
+  Setup->ClearStatus = Out->ClearScreen (Out);
+  return Setup->ClearStatus;
+}
 
 STATIC VOID EFIAPI Timeout (EFI_EVENT Event, VOID *Context)
 {
@@ -40,6 +81,7 @@ STATIC VOID StartDeadline (VOID)
   EFI_EVENT Event;
   EFI_STATUS Status;
   mCounterDeadlineReady = FALSE;
+  mTimerStatus = EFI_NOT_STARTED;
   // The validated ARM counter counts upward. Do not guess for another source.
   if (First == 0 && Last == MAX_UINT64 && Frequency != 0 && Frequency <= 1000000000ULL) {
     mCounterStart = GetPerformanceCounter ();
@@ -49,9 +91,11 @@ STATIC VOID StartDeadline (VOID)
   DEBUG ((DEBUG_INFO, "BDS IRQ enabled=%u; counter=%Lu Hz; fallback=%u\n",
           (UINT32)ArmGetInterruptState (), Frequency, (UINT32)mCounterDeadlineReady));
   Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, Timeout, NULL, &Event);
+  mEventStatus = Status;
   DEBUG ((DEBUG_INFO, "BDS CreateEvent: %r\n", Status));
   if (!EFI_ERROR (Status)) {
     Status = gBS->SetTimer (Event, TimerRelative, 90ULL * 10000000);
+    mTimerStatus = Status;
     DEBUG ((DEBUG_INFO, "BDS SetTimer: %r\n", Status));
     if (EFI_ERROR (Status)) gBS->CloseEvent (Event);
   }
@@ -67,11 +111,12 @@ STATIC VOID CheckDeadline (VOID)
   }
 }
 
-STATIC VOID ProbeProtocol (EFI_GUID *Guid, CONST CHAR8 *Name)
+STATIC EFI_STATUS ProbeProtocol (EFI_GUID *Guid, CONST CHAR8 *Name)
 {
   VOID *Interface;
   EFI_STATUS Status = gBS->LocateProtocol (Guid, NULL, &Interface);
   DEBUG ((DEBUG_INFO, "BDS %a: %r\n", Name, Status));
+  return Status;
 }
 
 STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
@@ -79,6 +124,8 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   EFI_HANDLE *Handles, Shell;
   UINTN Count, Index;
   EFI_STATUS Status;
+  EFI_STATUS ConsoleStatus = EFI_NOT_FOUND, HiiDatabase, HiiFont, HiiString;
+  OPPO_TEXT_SETUP Text = {-1, -1, 0, 0, EFI_NOT_STARTED, EFI_NOT_STARTED};
   (VOID)This;
   if (mLabIdentity[0] != 'O') {
     gRT->ResetSystem (EfiResetCold, EFI_COMPROMISED_DATA, 0, NULL);
@@ -110,10 +157,12 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
       EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *Out;
       gBS->ConnectController (Handles[Index], NULL, NULL, TRUE);
       if (gBS->HandleProtocol (Handles[Index], &gEfiSimpleTextOutProtocolGuid, (VOID **)&Out) == EFI_SUCCESS) {
+        ConsoleStatus = ConfigureTextOutput (Out, &Text);
+        DEBUG ((DEBUG_INFO, "BDS text setup: %r; SetMode: %r; ClearScreen: %r\n",
+                ConsoleStatus, Text.SetStatus, Text.ClearStatus));
+        if (EFI_ERROR (ConsoleStatus)) continue;
         gST->ConsoleOutHandle = Handles[Index]; gST->ConOut = Out;
         gST->StandardErrorHandle = Handles[Index]; gST->StdErr = Out;
-        Status = Out->ClearScreen (Out);
-        DEBUG ((DEBUG_INFO, "BDS selected graphical text output; ClearScreen: %r\n", Status));
         Out->OutputString (Out, L"OPPO CPH2205 - experimental native EDK2\r\n");
         Out->OutputString (Out, L"Laboratory timer: reset requested after 90 seconds.\r\n\r\n");
         break;
@@ -123,12 +172,14 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   }
   DEBUG ((DEBUG_INFO, "BDS console pointers: input=%u output=%u\n",
           (UINT32)(gST->ConIn != NULL), (UINT32)(gST->ConOut != NULL)));
-  ProbeProtocol (&gEfiHiiDatabaseProtocolGuid, "HII database");
-  ProbeProtocol (&gEfiHiiFontProtocolGuid, "HII font");
-  ProbeProtocol (&gEfiHiiStringProtocolGuid, "HII string");
+  HiiDatabase = ProbeProtocol (&gEfiHiiDatabaseProtocolGuid, "HII database");
+  HiiFont = ProbeProtocol (&gEfiHiiFontProtocolGuid, "HII font");
+  HiiString = ProbeProtocol (&gEfiHiiStringProtocolGuid, "HII string");
   gST->Hdr.CRC32 = 0;
   gBS->CalculateCrc32 (gST, gST->Hdr.HeaderSize, &gST->Hdr.CRC32);
-  Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiFirmwareVolume2ProtocolGuid, NULL, &Count, &Handles);
+  // Do not invoke Shell with an uninitialized graphical text console.
+  Status = EFI_ERROR (ConsoleStatus) ? ConsoleStatus :
+    gBS->LocateHandleBuffer (ByProtocol, &gEfiFirmwareVolume2ProtocolGuid, NULL, &Count, &Handles);
   if (Status == EFI_SUCCESS) {
     for (Index = 0; Index < Count; Index++) {
       EFI_FIRMWARE_VOLUME2_PROTOCOL *Volume;
@@ -157,7 +208,16 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
     }
     FreePool (Handles);
   }
-  if (gST->ConOut) gST->ConOut->OutputString (gST->ConOut, L"Shell returned or could not start.\r\n");
+  if (!EFI_ERROR (ConsoleStatus))
+    gST->ConOut->OutputString (gST->ConOut, L"Shell returned or could not start.\r\n");
+  // Repeat the useful context after Shell, whose ClearScreen may erase it.
+  DEBUG ((DEBUG_INFO, "BDS text initial=%d selected=%d size=%ux%u setup=%r\n",
+          Text.InitialMode, Text.SelectedMode, (UINT32)Text.Columns, (UINT32)Text.Rows, ConsoleStatus));
+  DEBUG ((DEBUG_INFO, "BDS SetMode=%r ClearScreen=%r; input=%u\n",
+          Text.SetStatus, Text.ClearStatus, (UINT32)(gST->ConIn != NULL)));
+  DEBUG ((DEBUG_INFO, "BDS HII database=%r font=%r string=%r\n", HiiDatabase, HiiFont, HiiString));
+  DEBUG ((DEBUG_INFO, "BDS IRQ=%u event=%r timer=%r counter fallback=%u\n",
+          (UINT32)ArmGetInterruptState (), mEventStatus, mTimerStatus, (UINT32)mCounterDeadlineReady));
   for (;;) {
     CheckDeadline ();
     gBS->Stall (100000);
