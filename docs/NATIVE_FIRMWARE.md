@@ -138,3 +138,43 @@ permanecen de LK. Esta imagen no muestra DXE ni la Shell. Se retiraron los
 metadatos de cámara y se conservaron orientación, perfil de color y datos
 comprimidos de la imagen sin recomprimirlos. Véase
 [el registro de revisión de la foto](../evidence/native-mmu-photo.json).
+
+## Laboratorio DXE/Shell
+
+El siguiente candidato utiliza la variante integrada, sin los marcadores de
+parada de SEC. `prepare_native_lab.py` exige el identificador propio del BDS
+de laboratorio y conserva el mismo transporte gzip y ramdisk vacío. La
+herramienta de sesión requiere `--execute-native-firmware-lab`, separado de
+los modos de prueba corta, Linux y restauración.
+
+El candidato usa rojo=16/azul=0 a partir de la franja azul observada roja en el
+probe anterior. El contraste de las dos fotografías confirmó el orden nativo
+en esas franjas, sin modificar lo que se midió después bajo Linux. GOP también
+se comprobó en PC con ambos órdenes.
+
+Al entrar en BDS se intenta dibujar una cuarta franja amarilla mediante GOP,
+antes de conectar la consola. Si la consola funciona, se limpia la pantalla y
+se imprime el encabezado de laboratorio antes de cargar la Shell. Una franja
+amarilla sin texto permitiría localizar el avance hasta BDS; las tres franjas
+de SEC por sí solas no demuestran DXE. El timer de 90 segundos sigue siendo
+una solicitud de reset sin garantía frente a errores o interrupciones ausentes.
+
+En el primer intento integrado se observaron únicamente las franjas verde,
+azul y blanca. La fotografía confirma el orden de color corregido. La última
+etapa confirmada es SEC, después del HOB de información de arranque y antes de
+llamar a `LoadDxeCoreFromFv`. Sin la marca amarilla ni texto no se puede
+distinguir todavía entre un bloqueo en la carga y uno dentro de DXE o sus
+controladores. No se verificó ejecución de BDS ni de la Shell.
+
+Después de 142 segundos no había reinicio automático ni ADB. El propietario
+reinició con los botones; Android completó el arranque, con batería al 81 %.
+El temporizador de BDS no se considera validado. Se restauró el recovery
+original y se volvió a comprobar Android antes de preparar otro diagnóstico.
+
+<img src="images/native-dxe-shell-lab-01.jpg" width="360" alt="Primer intento integrado detenido con franjas verde, azul y blanca, sin texto de Shell">
+
+Fotografía del propietario publicada a petición suya; muestra el resultado
+detenido, no una Shell funcional. El logo y Orange State siguen siendo de LK.
+Se conservaron los datos comprimidos de imagen, orientación y perfil de color,
+retirando los demás metadatos de cámara. El registro está en
+[native-dxe-shell-lab-photo.json](../evidence/native-dxe-shell-lab-photo.json).

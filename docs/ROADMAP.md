@@ -55,8 +55,8 @@
   a Android con arranque completo y motivo `reboot`; no se midió el reset PSCI.
 - [x] Observar las tres franjas de la variante MMU, que comprueba HOBs, cambio
   de pila y bits M/C/I de SCTLR, y confirmar arranque completo de Android.
-- [ ] Confirmar el orden de canales del framebuffer antes de Linux; el azul de
-  la prueba se observó rojo.
+- [x] Contrastar el orden nativo rojo=16/azul=0 mediante las fotos de los dos
+  candidatos: el azul dejó de verse rojo.
 - [ ] Medir y validar en el OPPO esa materialización y una vía de restauración
   independiente de los temporizadores del prototipo.
 - Revisar el protocolo de entrada de LK, estado ARM64, memoria y reservas.
@@ -80,6 +80,9 @@ sí sola no demuestra que el payload se haya ejecutado.
 - [x] Probar el controlador GOP real con servicios simulados y ASan/UBSan.
 - [ ] Conseguir salida de consola visible y un mecanismo de entrada en el OPPO.
 - [ ] Verificar ejecución de DXE y Shell sobre la plataforma física.
+- [x] Probar el primer candidato integrado y registrar el bloqueo en las tres
+  franjas de SEC; no se observó BDS/Shell ni reset automático en 142 segundos.
+- [ ] Añadir diagnóstico para localizar el bloqueo de carga o ejecución de DXE.
 - Validar arranque repetible y salida mediante reinicio controlado.
 
 El código específico se escribe aquí o se reutiliza de repositorios del

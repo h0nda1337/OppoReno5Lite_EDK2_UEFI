@@ -30,10 +30,10 @@ Véase
 | Modelo y plataforma | CPH2205 / OP4F43L1 / proyecto 20295 / MT6779 |
 | Android de referencia | Android 13, ColorOS F.72, México libre NV7B |
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
-| Firmware integrado MT6779 | Prototipo de 8 MiB compilado e inspeccionado en PC; ejecución física pendiente |
+| Firmware integrado MT6779 | Primer intento alcanzó tres franjas de SEC; detenido sin marca de BDS ni texto de Shell |
 | Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
-| RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; canales de color nativos por confirmar |
+| RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; orden nativo rojo=16/azul=0 contrastado con fotos |
 | Pantalla y entrada para la Shell | Pendientes |
 | GOP y framebuffer propios | BLT comprobados con sanitizadores; franja nativa de SEC observada; controlador GOP en DXE pendiente |
 | Lector FDT propio en C | Comprobado con sanitizadores y captura; la prueba nativa alcanzó su validación de handoff y plan |
@@ -131,6 +131,12 @@ La prueba corta siguiente mostró tres franjas después de crear HOBs, cambiar
 de pila y comprobar MMU/cachés activas, y regresó a Android. El azul esperado
 se observó rojo: falta confirmar los canales del framebuffer antes de Linux.
 Véase [evidence/native-mmu-probe-validation.json](evidence/native-mmu-probe-validation.json).
+
+El primer intento integrado se detuvo en las tres franjas de SEC, ahora con
+azul correcto, sin evidencia de BDS ni Shell. No reinició automáticamente en
+142 segundos; volvió a Android mediante reinicio físico y se restauró recovery.
+Las fotografías solicitadas por el propietario se encuentran en
+[docs/NATIVE_FIRMWARE.md](docs/NATIVE_FIRMWARE.md#laboratorio-dxeshell).
 
 ## Logo de OPPO durante el arranque de Windows
 

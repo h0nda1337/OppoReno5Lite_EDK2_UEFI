@@ -156,7 +156,8 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   Info.FramebufferBase = State->Handoff.NativeFramebuffer.Base;
   Info.FramebufferBytes = State->Handoff.NativeFramebuffer.Length;
   Info.Width = OPPO_NATIVE_FB_WIDTH; Info.Height = OPPO_NATIVE_FB_HEIGHT; Info.Stride = OPPO_NATIVE_FB_STRIDE;
-  Info.RedShift = 0; Info.BlueShift = 16; Info.OpaqueAlpha = TRUE;
+  Info.RedShift = OPPO_NATIVE_FB_RED_SHIFT;
+  Info.BlueShift = OPPO_NATIVE_FB_BLUE_SHIFT; Info.OpaqueAlpha = TRUE;
   Info.InitialSctlr = State->Entry->Sctlr; Info.PsciVersion = State->PsciVersion;
   Info.Flags = OPPO_BOOT_MEMORY_READY | OPPO_BOOT_EXPECTED_DISPLAY_PROFILE | OPPO_BOOT_WATCHDOG_STOPPED;
   if (BuildGuidDataHob (&gOppoBootInfoHobGuid, &Info, sizeof (Info)) == NULL) Stop ();
@@ -211,7 +212,8 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   if (Status != EFI_SUCCESS || !State.Handoff.NativePanelFound ||
       !State.Handoff.NativeFramebufferCoveredByReservation ||
       State.Handoff.NativeFramebuffer.Base != OPPO_NATIVE_FB_BASE) Stop ();
-  OPPO_FB_LAYOUT Layout = {OPPO_NATIVE_FB_WIDTH, OPPO_NATIVE_FB_HEIGHT, OPPO_NATIVE_FB_STRIDE, 0, 16, TRUE};
+  OPPO_FB_LAYOUT Layout = {OPPO_NATIVE_FB_WIDTH, OPPO_NATIVE_FB_HEIGHT, OPPO_NATIVE_FB_STRIDE,
+                           OPPO_NATIVE_FB_RED_SHIFT, OPPO_NATIVE_FB_BLUE_SHIFT, TRUE};
   if (!OppoFbInitialize (&mMarker, (VOID *)(UINTN)State.Handoff.NativeFramebuffer.Base,
                          (UINTN)State.Handoff.NativeFramebuffer.Length, &Layout)) Stop ();
   mMarkerReady = TRUE;

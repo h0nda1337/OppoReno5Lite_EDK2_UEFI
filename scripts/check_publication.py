@@ -11,12 +11,14 @@ ALLOWED_ROOT_FILES = {'README.md', 'LICENSE', 'AGENTS.md', '.gitignore', '.gitat
 ALLOWED_DIRS = {'docs', 'scripts', 'evidence', 'OppoReno5LitePkg', '.github'}
 ALLOWED_SUFFIXES = {'.md', '.py', '.json', '.c', '.h', '.s', '.asm', '.inf',
                     '.dsc', '.fdf', '.dec', '.inc', '.yml', '.yaml', '.txt', '.patch', '.sh'}
-# Owner explicitly requested this photograph. Reviewed visually; camera EXIF
+# Owner explicitly requested these photographs. Reviewed visually; camera EXIF
 # and other APP metadata removed, keeping only orientation and its ICC profile.
 # Exact bytes are pinned; this is not a general permission to publish images.
 REVIEWED_IMAGES = {
     'docs/images/native-mmu-probe.jpg':
         (2040440, '7f4da2bfba27abeaaf28a5d24612b3fb6cfd338e8530ca42d6af3d815bf63ff0'),
+    'docs/images/native-dxe-shell-lab-01.jpg':
+        (1453605, '42862c3cafbb81f1ab6790c08637d8643a9c46335552572600f0355d2f022c01'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

@@ -15,6 +15,10 @@
 #define OPPO_NATIVE_FB_WIDTH      1080
 #define OPPO_NATIVE_FB_HEIGHT     2400
 #define OPPO_NATIVE_FB_STRIDE     4352
+/* Candidate pre-Linux ordering: the MMU probe's blue was observed red.
+ * This differs from the later Linux capture and still needs an RGB check. */
+#define OPPO_NATIVE_FB_RED_SHIFT  16
+#define OPPO_NATIVE_FB_BLUE_SHIFT 0
 #define OPPO_NATIVE_GICD_BASE     0x0c000000
 #define OPPO_NATIVE_GICR_BASE     0x0c040000
 #define OPPO_NATIVE_WDT_BASE      0x10007000

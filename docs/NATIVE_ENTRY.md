@@ -71,4 +71,6 @@ limitaciones en [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).
 La variante corta posterior sí alcanzó HOBs, cambio de pila y la comprobación
 de los bits de MMU/cachés: se observaron tres franjas y retorno a Android.
 No entró en DXE. El azul esperado se observó rojo, por lo que falta confirmar
-el orden de canales del framebuffer nativo.
+el orden en esa primera variante. El intento integrado posterior contrastó
+rojo=16/azul=0 y mostró azul correcto; permaneció en las tres franjas de SEC,
+sin evidencia de BDS ni de la Shell.

@@ -207,6 +207,14 @@ DXE. Ambos selectores de prueba son mutuamente excluyentes. El empaquetador
 requiere `--probe-stage mmu` y el marcador correspondiente dentro de SEC;
 rechaza intercambiarlo con la fase `handoff` o el firmware integrado.
 
+`prepare_native_lab.py` empaqueta por separado la variante integrada de
+laboratorio. Exige el marcador del BDS de 90 segundos y ausencia de marcadores
+de parada en SEC. Conserva gzip, ramdisk vacío y comprobaciones de transporte,
+firmware original y hashes de fuentes; no utiliza el teléfono. La sesión física
+requiere el selector explícito `--execute-native-firmware-lab`. El primer
+intento se detuvo antes de observar BDS/Shell: ese temporizador no es una vía
+de recuperación validada.
+
 El FD y su log se copian a `.build/native/entry-probe/`; la variante normal usa
 `.build/native/integration/`. La salida interna de EDK2 se comparte, por lo que
 las compilaciones deben ejecutarse en secuencia. Estas variantes no se deben

@@ -18,6 +18,7 @@ FV_START = 0x1000
 ENTRY_PROBE_MARKER = b'OPPO_SEC_PROBE_ONLY_V1\0'
 MMU_PROBE_MARKER = b'OPPO_SEC_MMU_PROBE_ONLY_V1\0'
 PROBE_MARKERS = {'handoff': ENTRY_PROBE_MARKER, 'mmu': MMU_PROBE_MARKER}
+NATIVE_LAB_MARKER = b'OPPO_NATIVE_DXE_SHELL_LAB_90S_V1\0'
 REQUIRED = {
     '2bf0a605-3974-4d50-b19b-e0b1a6a4667e': ('original-sec', 3),
     'a9b2bfc1-6e2f-4f4c-9589-c6aa3f851d67': ('original-gop', 7),
@@ -155,6 +156,23 @@ def require_entry_probe(raw, phase='handoff'):
     if (payload.count(PROBE_MARKERS[phase]) != 1 or
             any(marker in payload for name, marker in PROBE_MARKERS.items() if name != phase)):
         raise ValueError('Expected only the selected short SEC probe, not another mode')
+    return report
+
+
+def require_native_lab(raw):
+    report = inspect(raw)
+    sec = next(item for item in report['files'] if item.get('role') == 'original-sec')
+    te = next(item for item in sec['sections'] if item['type'] == 0x12)
+    payload = raw[te['offset']:te['offset'] + te['size']]
+    if any(marker in payload for marker in PROBE_MARKERS.values()):
+        raise ValueError('Short SEC probes cannot run as the DXE/Shell lab')
+    bds = next(item for item in report['files'] if item.get('role') == 'original-bds')
+    executables = [item for item in bds['sections'] if item['type'] == 0x10]
+    if len(executables) != 1:
+        raise ValueError('Expected one BDS executable')
+    pe = executables[0]
+    if raw[pe['offset']:pe['offset'] + pe['size']].count(NATIVE_LAB_MARKER) != 1:
+        raise ValueError('Expected the reviewed 90-second laboratory BDS marker')
     return report
 
 

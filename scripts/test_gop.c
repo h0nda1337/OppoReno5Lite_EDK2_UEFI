@@ -94,6 +94,17 @@ int main(void)
   assert(mInstalled->Blt(mInstalled, output, EfiBltVideoToBltBuffer, 0, 0, 0, MAX_UINTN, 1, 1, 0) == EFI_INVALID_PARAMETER);
   assert(mInstalled->Blt(mInstalled, output, EfiBltVideoFill, 0, 0, 8, 5, 1, 1, 0) == EFI_INVALID_PARAMETER);
   assert(memcmp(before, guarded, sizeof before) == 0);
+  // The pre-Linux lab candidate uses the opposite red/blue ordering.
+  mHob.Info.RedShift = 16; mHob.Info.BlueShift = 0;
+  assert(OppoGopEntry(NULL, NULL) == EFI_SUCCESS && mInstallCount == 2);
+  assert(mInstalled->QueryMode(mInstalled, 0, &mode_size, &mode) == EFI_SUCCESS);
+  assert(mode->PixelFormat == PixelBlueGreenRedReserved8BitPerColor);
+  free(mode);
+  assert(mInstalled->Blt(mInstalled, &color, EfiBltVideoFill, 0, 0, 1, 1, 2, 3, 0) == EFI_SUCCESS);
+  assert(guarded[13] == 0xff123456);
+  assert(mInstalled->Blt(mInstalled, output, EfiBltVideoToBltBuffer, 1, 1, 0, 0, 2, 3, 0) == EFI_SUCCESS);
+  assert(output[5].Red == 0x12 && output[5].Blue == 0x56);
+  assert(guarded[0] == 0x12345678 && guarded[1] == 0x12345678 && guarded[63] == 0x12345678);
   puts("Original GOP entry and all four protocol BLTs passed with synthetic RAM and host sanitizers; no physical display test.");
   return 0;
 }

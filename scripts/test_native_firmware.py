@@ -4,7 +4,8 @@ import struct
 import unittest
 from uuid import UUID
 
-from inspect_native_firmware import FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect, ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, require_entry_probe
+from inspect_native_firmware import (FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect,
+    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, require_entry_probe, require_native_lab)
 
 
 def pe_fixture():
@@ -26,7 +27,7 @@ def file_fixture(identifier, kind, section_type, payload):
     return header + section
 
 
-def fixture(probe=False, mmu=False):
+def fixture(probe=False, mmu=False, lab=False):
     raw = bytearray(b'\xff' * FD_SIZE)
     raw[:64] = b'\0' * 64
     struct.pack_into('<IIQQ', raw, 0, 0x14000400, 0xd503201f, 0x80000, FD_SIZE)
@@ -49,8 +50,9 @@ def fixture(probe=False, mmu=False):
     struct.pack_into('<H', header, 50, checksum)
     raw[FV_START:FV_START + len(header)] = header
     for identifier, (_, kind) in REQUIRED.items():
+        pe = pe_fixture() + (NATIVE_LAB_MARKER if lab and REQUIRED[identifier][0]=='original-bds' else b'')
         data = file_fixture(identifier, kind, 0x12 if kind == 3 else 0x10,
-                            te if kind == 3 else pe_fixture())
+                            te if kind == 3 else pe)
         raw[position:position + len(data)] = data
         position = (position + len(data) + 7) & ~7
     data = file_fixture('d6a2cb7f-6a18-4e2f-b43b-9920a733700a', 5, 0x10, pe_fixture())
@@ -70,6 +72,13 @@ class NativeFirmwareTests(unittest.TestCase):
                           (fixture(probe=True,mmu=True),'handoff'), (fixture(probe=True,mmu=True),'mmu'),
                           (fixture(),'mmu'), (fixture(mmu=True),'unknown')]:
             with self.assertRaises(ValueError): require_entry_probe(raw,phase)
+
+    def test_dxe_lab_requires_its_bds_marker_and_rejects_sec_probes(self):
+        self.assertFalse(require_native_lab(fixture(lab=True))['uefi_execution_observed'])
+        for raw in [fixture(),fixture(probe=True,lab=True),fixture(mmu=True,lab=True)]:
+            with self.assertRaises(ValueError): require_native_lab(raw)
+        for phase in ['handoff','mmu']:
+            with self.assertRaises(ValueError): require_entry_probe(fixture(lab=True),phase)
 
     def test_direct_entry_and_required_roles(self):
         result = inspect(fixture())

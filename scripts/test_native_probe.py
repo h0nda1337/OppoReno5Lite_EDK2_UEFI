@@ -7,6 +7,7 @@ import unittest
 from prepare_native_probe import FD_SIZE, inflate_native_kernel, probe_ramdisk, repack
 from recovery_image import AndroidV2, align, parse_newc
 from recovery_diagnostic_session import require_native_probe, require_minimal_readout
+from prepare_native_lab import require_lab_manifest
 
 
 def stock_fixture():
@@ -72,6 +73,18 @@ class NativeProbeTests(unittest.TestCase):
                         dict(manifest,probe_stage='dxe'),dict(manifest,probe_stage=None),
                         {'purpose':'minimal-linux-readout'}]:
             with self.assertRaises(ValueError):require_native_probe(altered,True,True)
+        with self.assertRaises(ValueError):require_minimal_readout(manifest,True,True)
+
+    def test_dxe_shell_lab_requires_a_separate_explicit_mode(self):
+        manifest={'purpose':'native-dxe-shell-lab','probe_only':False,'reset_request_after_seconds':90,
+                  'kernel_transport':'gzip','bootshim_used':False}
+        require_lab_manifest(manifest,True,True)
+        for explicit,direct in [(False,True),(True,False),(False,False)]:
+            with self.assertRaises(ValueError):require_lab_manifest(manifest,explicit,direct)
+        for changed in [dict(manifest,probe_only=True),dict(manifest,reset_request_after_seconds=10),
+                        dict(manifest,kernel_transport='raw'),dict(manifest,bootshim_used=True)]:
+            with self.assertRaises(ValueError):require_lab_manifest(changed,True,True)
+        with self.assertRaises(ValueError):require_native_probe(manifest,True,True)
         with self.assertRaises(ValueError):require_minimal_readout(manifest,True,True)
 
 

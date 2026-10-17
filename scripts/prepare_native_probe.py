@@ -29,6 +29,7 @@ SOURCE_FILES = (
     'scripts/build_native_firmware.sh',
     'scripts/inspect_native_firmware.py',
     'scripts/prepare_native_probe.py',
+    'scripts/prepare_native_lab.py',
 )
 
 
@@ -92,6 +93,12 @@ def validate_candidate(stock, candidate, manifest):
             manifest.get('kernel_transport') != 'gzip' or
             manifest.get('bootshim_used') is not False):
         raise ValueError('Expected a reviewed short SEC probe manifest')
+    validate_transport(stock, candidate, manifest,
+                       lambda fd: require_entry_probe(fd, manifest['probe_stage']))
+
+
+def validate_transport(stock, candidate, manifest, fd_validator):
+    """Shared bounded container checks; callers must first enforce their mode."""
     if digest(stock) != STOCK_SHA256 or len(stock) != PARTITION_SIZE:
         raise ValueError('Original recovery backup mismatch')
     if len(candidate) != PARTITION_SIZE or digest(candidate) != manifest['candidate_sha256']:
@@ -100,7 +107,7 @@ def validate_candidate(stock, candidate, manifest):
     if digest(changed.components['kernel']) != manifest.get('compressed_kernel_sha256'):
         raise ValueError('Compressed native kernel differs from the reviewed probe')
     fd = inflate_native_kernel(changed.components['kernel'])
-    require_entry_probe(fd, manifest['probe_stage'])
+    fd_validator(fd)
     if digest(fd) != manifest['native_fd_sha256']:
         raise ValueError('Native FD differs from the reviewed probe')
     packed = repack(stock, fd)

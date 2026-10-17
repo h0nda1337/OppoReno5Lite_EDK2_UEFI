@@ -28,6 +28,7 @@ from prepare_minimal_diagnostic import minimal_entries
 from recovery_image import AndroidV2, inflate_ramdisk, parse_newc
 from recovery_avb import properties as avb_properties
 from prepare_native_probe import validate_candidate as validate_native_probe
+from prepare_native_lab import require_lab_manifest, validate_candidate as validate_native_lab
 
 def require_minimal_readout(manifest, explicit_minimal, direct_entry):
     if (manifest.get('purpose') != 'minimal-linux-readout' or
@@ -88,6 +89,7 @@ def main():
     parser.add_argument('--boot-recovery-direct', action='store_true')
     parser.add_argument('--execute-minimal-linux-readout', action='store_true')
     parser.add_argument('--execute-native-entry-probe', action='store_true')
+    parser.add_argument('--execute-native-firmware-lab', action='store_true')
     parser.add_argument('--private-report', type=Path, required=True)
     parser.add_argument('--execute-recovery-phase', action='store_true')
     args = parser.parse_args()
@@ -97,6 +99,9 @@ def main():
         parser.error('Stock restoration returns to Android')
     if args.execute_native_entry_probe and (args.restore_stock or args.execute_minimal_linux_readout):
         parser.error('Native probe and Linux/restoration modes must be selected separately')
+    if args.execute_native_firmware_lab and (args.restore_stock or args.execute_native_entry_probe or
+                                            args.execute_minimal_linux_readout):
+        parser.error('DXE/Shell lab must be selected separately from other modes')
     repo = Path(__file__).resolve().parents[1]
     if args.private_report.exists() or args.private_report.resolve().is_relative_to(repo):
         parser.error('Choose a new report path outside the public repository')
@@ -108,7 +113,10 @@ def main():
     else:
         image = args.candidate_dir / 'recovery.img'
         manifest = json.loads((args.candidate_dir / 'build.json').read_text())
-        if args.execute_native_entry_probe:
+        if args.execute_native_firmware_lab:
+            require_lab_manifest(manifest, True, args.boot_recovery_direct)
+            validate_native_lab(stock, image.read_bytes(), manifest)
+        elif args.execute_native_entry_probe:
             require_native_probe(manifest, True, args.boot_recovery_direct)
             validate_native_probe(stock, image.read_bytes(), manifest)
         else:
@@ -117,6 +125,7 @@ def main():
             validate_candidate(stock, image.read_bytes(), manifest)
     session = ReadOnlyAdb(args.serial)
     operation = ('restore-stock' if args.restore_stock else
+                 'native-dxe-shell-lab' if args.execute_native_firmware_lab else
                  'native-sec-entry-probe' if args.execute_native_entry_probe else 'minimal-linux-readout')
     state = {'phase': 'preflight', 'operation': operation,
              'image_sha256': hashlib.sha256(image.read_bytes()).hexdigest(),

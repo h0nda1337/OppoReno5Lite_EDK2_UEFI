@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 import unittest
 
-from check_publication import ROOT, validate
+from check_publication import ROOT, REVIEWED_IMAGES, validate
 
 
 class PublicationTests(unittest.TestCase):
@@ -17,6 +17,13 @@ class PublicationTests(unittest.TestCase):
             validate(name, changed)
         with self.assertRaises(ValueError):
             validate('docs/images/unreviewed.jpg', photo)
+
+    def test_all_reviewed_images_are_pinned(self):
+        for name in REVIEWED_IMAGES:
+            photo = (ROOT/name).read_bytes()
+            validate(name, photo)
+            with self.assertRaises(ValueError):
+                validate(name, photo+b'additional metadata')
 
     def test_text_and_private_material_guards_remain_active(self):
         validate('docs/example.md', b'Reviewed public text\n')

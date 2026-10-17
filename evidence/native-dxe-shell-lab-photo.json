@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-dxe-shell-lab-01.jpg",
+  "bytes": 1453605,
+  "sha256": "42862c3cafbb81f1ab6790c08637d8643a9c46335552572600f0355d2f022c01",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "7b26c90bdd27e61a32ec541699c57f3255e48fcc9f913d3a13401267523167e3",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photo of integrated laboratory attempt 01: three SEC bars; no BDS marker or Shell text"
+}

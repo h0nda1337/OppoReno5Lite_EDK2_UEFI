@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "scope": "Integrated native DXE/Shell laboratory: host validation and first physical stall",
+  "fd_size": 8388608,
+  "fd_sha256": "85735354af3f46ca09599b7339160a8f308ef61cbbbc69b9827771becba54e2f",
+  "fd_base": "0x40080000",
+  "root_fv_offset": 4096,
+  "root_fv_checksum_valid": true,
+  "direct_header_fv_sec_branch_verified": true,
+  "sec_entry_physical_address": "0x40087000",
+  "files": [
+    {
+      "guid": "2bf0a605-3974-4d50-b19b-e0b1a6a4667e",
+      "type": 3,
+      "offset": 4168,
+      "size": 51128,
+      "sections": [
+        {
+          "type": 24,
+          "offset": 4196,
+          "size": 1744
+        },
+        {
+          "type": 18,
+          "offset": 5944,
+          "size": 49352
+        }
+      ],
+      "role": "original-sec"
+    },
+    {
+      "guid": "d6a2cb7f-6a18-4e2f-b43b-9920a733700a",
+      "type": 5,
+      "offset": 55296,
+      "size": 110620,
+      "sections": [
+        {
+          "type": 16,
+          "offset": 55324,
+          "size": 110592
+        }
+      ]
+    },
+    {
+      "guid": "80cf7257-87ab-47f9-a3fe-d50b76d89541",
+      "type": 7,
+      "offset": 165920,
+      "size": 24792,
+      "sections": [
+        {
+          "type": 25,
+          "offset": 165948,
+          "size": 160
+        },
+        {
+          "type": 19,
+          "offset": 166112,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 166136,
+          "size": 24576
+        }
+      ]
+    },
+    {
+      "guid": "b8d9777e-d72a-451f-9bdb-bafb52a68415",
+      "type": 7,
+      "offset": 190712,
+      "size": 36916,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 190740,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 190764,
+          "size": 36864
+        }
+      ]
+    },
+    {
+      "guid": "de371f7c-dec4-4d21-adf1-593abcc15882",
+      "type": 7,
+      "offset": 227632,
+      "size": 20548,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 227660,
+          "size": 36
+        },
+        {
+          "type": 16,
+          "offset": 227700,
+          "size": 20480
+        }
+      ]
+    },
+    {
+      "guid": "49ea041e-6752-42ca-b0b1-7344fe2546b7",
+      "type": 7,
+      "offset": 248184,
+      "size": 16452,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 248212,
+          "size": 36
+        },
+        {
+          "type": 16,
+          "offset": 248252,
+          "size": 16384
+        }
+      ]
+    },
+    {
+      "guid": "b601f8c4-43b7-4784-95b1-f4226cb40cee",
+      "type": 7,
+      "offset": 264640,
+      "size": 262196,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 264668,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 264692,
+          "size": 262144
+        }
+      ]
+    },
+    {
+      "guid": "f80697e9-7fd6-4665-8646-88e33ef71dfc",
+      "type": 7,
+      "offset": 526840,
+      "size": 16436,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 526868,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 526892,
+          "size": 16384
+        }
+      ]
+    },
+    {
+      "guid": "f099d67f-71ae-4c36-b2a3-dceb0eb2b7d8",
+      "type": 7,
+      "offset": 543280,
+      "size": 16452,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 543308,
+          "size": 36
+        },
+        {
+          "type": 16,
+          "offset": 543348,
+          "size": 16384
+        }
+      ]
+    },
+    {
+      "guid": "4c6e0267-c77d-410d-8100-1495911a989d",
+      "type": 7,
+      "offset": 559736,
+      "size": 16436,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 559764,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 559788,
+          "size": 16384
+        }
+      ]
+    },
+    {
+      "guid": "fcabe6a7-7953-4a84-b7ec-d29e89b62e87",
+      "type": 7,
+      "offset": 576176,
+      "size": 196660,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 576204,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 576228,
+          "size": 196608
+        }
+      ]
+    },
+    {
+      "guid": "cbd2e4d5-7068-4ff5-b462-9822b4ad8d60",
+      "type": 7,
+      "offset": 772840,
+      "size": 262196,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 772868,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 772892,
+          "size": 262144
+        }
+      ]
+    },
+    {
+      "guid": "9b680fce-ad6b-4f3a-b60b-f59899003443",
+      "type": 7,
+      "offset": 1035040,
+      "size": 53300,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 1035068,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 1035092,
+          "size": 53248
+        }
+      ]
+    },
+    {
+      "guid": "408edcec-cf6d-477c-a5a8-b4844e3de281",
+      "type": 7,
+      "offset": 1088344,
+      "size": 32796,
+      "sections": [
+        {
+          "type": 16,
+          "offset": 1088372,
+          "size": 32768
+        }
+      ]
+    },
+    {
+      "guid": "cccb0c28-4b24-11d5-9a5a-0090273fc14d",
+      "type": 7,
+      "offset": 1121144,
+      "size": 24604,
+      "sections": [
+        {
+          "type": 16,
+          "offset": 1121172,
+          "size": 24576
+        }
+      ]
+    },
+    {
+      "guid": "348c4d62-bfbd-4882-9ece-c80bb1c4783b",
+      "type": 7,
+      "offset": 1145752,
+      "size": 94260,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 1145780,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 1145804,
+          "size": 94208
+        }
+      ]
+    },
+    {
+      "guid": "cd3bafb6-50fb-4fe8-8e4e-ab74d2c1a600",
+      "type": 7,
+      "offset": 1240016,
+      "size": 16412,
+      "sections": [
+        {
+          "type": 16,
+          "offset": 1240044,
+          "size": 16384
+        }
+      ]
+    },
+    {
+      "guid": "907125c0-a5f1-11e3-a3fe-a3198b49350c",
+      "type": 7,
+      "offset": 1256432,
+      "size": 28700,
+      "sections": [
+        {
+          "type": 16,
+          "offset": 1256460,
+          "size": 28672
+        }
+      ]
+    },
+    {
+      "guid": "799bc15f-c3a6-4d88-94bc-809f07c356ab",
+      "type": 7,
+      "offset": 1285136,
+      "size": 196660,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 1285164,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 1285188,
+          "size": 196608
+        }
+      ],
+      "role": "original-runtime"
+    },
+    {
+      "guid": "a9b2bfc1-6e2f-4f4c-9589-c6aa3f851d67",
+      "type": 7,
+      "offset": 1481800,
+      "size": 16436,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 1481828,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 1481852,
+          "size": 16384
+        }
+      ],
+      "role": "original-gop"
+    },
+    {
+      "guid": "1d4ea2cd-6d78-44ad-8c78-aa6b3d286273",
+      "type": 7,
+      "offset": 1498240,
+      "size": 16436,
+      "sections": [
+        {
+          "type": 19,
+          "offset": 1498268,
+          "size": 18
+        },
+        {
+          "type": 16,
+          "offset": 1498292,
+          "size": 16384
+        }
+      ],
+      "role": "original-bds"
+    },
+    {
+      "guid": "7c04a583-9e3e-4f1c-ad65-e05268d0b4d1",
+      "type": 9,
+      "offset": 1514680,
+      "size": 397340,
+      "sections": [
+        {
+          "type": 16,
+          "offset": 1514708,
+          "size": 397312
+        }
+      ],
+      "role": "edk2-shell"
+    }
+  ],
+  "bootshim_used": false,
+  "phone_operations_performed": true,
+  "build_exit_success_and_completion_marker_verified": true,
+  "build_sources_unchanged_during_verification": true,
+  "edk2_commit": "b03a21a63e3bd001f52c527e5a57feddb53a690b",
+  "python_tests_passed": 51,
+  "gop_host_asan_ubsan_both_color_orders_passed": true,
+  "bds_lab_marker_verified": true,
+  "short_probe_markers_absent": true,
+  "native_red_shift_candidate": 16,
+  "native_blue_shift_candidate": 0,
+  "physical_color_order_verified": true,
+  "reset_request_after_seconds": 90,
+  "native_reset_timer_verified": false,
+  "fastbootd_menu_integration_started": false,
+  "source_sha256": {
+    "OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.c": "5c859d57f156371e3fcf4c37fcdf5f0d99841c2721283c28e9a6e9aa502ef370",
+    "OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.inf": "b31cf36d0207aa7bdd972d1856d8589ef0a624f769c29dd1aa7c2409504eff2f",
+    "OppoReno5LitePkg/Drivers/OppoGopDxe/OppoGopDxe.c": "9bdd3e4b1730371b087801836d9369e6afa3768af672294ec545a28c3e850506",
+    "OppoReno5LitePkg/Drivers/OppoGopDxe/OppoGopDxe.inf": "a5e4d1309cc8c8f255a6d6f70ab9b9708540705d26f5280f3ba64cb99d266823",
+    "OppoReno5LitePkg/Drivers/OppoRuntimeDxe/OppoRuntimeDxe.c": "962b81afac5aa6354149f697d5197807233f92c73cf04ef8c083552eb190884a",
+    "OppoReno5LitePkg/Drivers/OppoRuntimeDxe/OppoRuntimeDxe.inf": "ef17e53b907580ee712f73d738181f61113e7ce86fce929ad2aeaffeda12e941",
+    "OppoReno5LitePkg/Include/Guid/OppoBootInfo.h": "727ef9c133df7931cde4c2f242ac52f66372088768e0306e804016b44b823b4a",
+    "OppoReno5LitePkg/Include/Library/OppoBgrtLib.h": "fe1283e59c9d3f679a583f14a54e8c6874227a2adc6145211efbccdf192ec9d9",
+    "OppoReno5LitePkg/Include/Library/OppoFdtLib.h": "eda50dc17ee572a0de1e0cee47c6503918e11c192f8bf2334d441da34f5f4cc7",
+    "OppoReno5LitePkg/Include/Library/OppoFrameBufferLib.h": "b35e2af1a9b4a19f3e67f060ff113174dea7c39f98d9622848c019bd57bc6489",
+    "OppoReno5LitePkg/Include/Library/OppoHandoffLib.h": "a841a7174b49f301ce835cf93bfc0a8a4803c4058d628db49438148991565fa4",
+    "OppoReno5LitePkg/Include/Library/OppoMemoryPlanLib.h": "97d12d58753b2dda1852694811f28cc2788757450b528a176bbf68fe19ac8139",
+    "OppoReno5LitePkg/Include/Library/OppoPlatformLib.h": "94b7e43f10e793884991d2f0a9fc04cfac45fe86c26859a46d904140a232eb27",
+    "OppoReno5LitePkg/Include/OppoNativeProfile.h": "c3208ae6122f4e4861e4917e1debd04b63bfa6cb51c28f8de2b0b4a6c6f3eea7",
+    "OppoReno5LitePkg/Include/OppoSecEntry.h": "8af12b605c749964b2c094f66667413bf79032005a6d7056a42d70f6e5d86ecd",
+    "OppoReno5LitePkg/Library/OppoBgrtLib/OppoBgrtLib.c": "3904548b1db907f761ce5ac5a5dc63a29420731d1fe6fa19f4a791005aee4e81",
+    "OppoReno5LitePkg/Library/OppoBgrtLib/OppoBgrtLib.inf": "26cb05512285901aa8fd66036656b10b635b198f10b4b8541bece51009240e09",
+    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.c": "310f09fe7ae1f0f56076a39743c8974d735eae0f7273fdce500c720f38555058",
+    "OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf": "8373e0a316219f85fb4c7fd50ad71fde398846af4d5d947b8c8927355cfbdaed",
+    "OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.c": "45520c34d714d60ac9f5ff59c6ad648d31a24096e02d58cf8053bb4b03c3a804",
+    "OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.inf": "81ea0decf2b8885afceeca1606f0bc5fa93fec1b76bf3223755a25442bf5bfef",
+    "OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.c": "a385d6d3581c2863c4b7911b8a956c19854a1c4251aa0ab1072a9ce523d34a13",
+    "OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.inf": "c7f9c02bea6304abe7429508ee42747da79f16e33b214c72cfc3a562364d4b66",
+    "OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.c": "dad25a69cec1a9ba813ba40bb3a4b9aad797492d6596c38898afb7f0d15c8dc5",
+    "OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.inf": "3dbe2576f7d7b1f73fafbb27c3bd75dbb06ffef05c3da762c4f00926800ba3cc",
+    "OppoReno5LitePkg/Library/OppoPlatformLib/OppoPlatformLib.c": "f4046eb4b83d24bf047987c14946091a2b2265e5ba6a5877caa4b5d772a5ca75",
+    "OppoReno5LitePkg/Library/OppoPlatformLib/OppoPlatformLib.inf": "328449be73be26020464949cbf046d6e5f839ca5e53fcdead6c37d523c0e3f22",
+    "OppoReno5LitePkg/OppoLibraryValidation.dsc": "e54ed88f9f283f882267530a576f8f30e35c7eb23023b3bf0caa85b7416a3d94",
+    "OppoReno5LitePkg/OppoNative.dsc": "386133bae68302c9640075913750b57b0bec368d7ad2dc3b997322a6d2229406",
+    "OppoReno5LitePkg/OppoNative.fdf": "4da5f7c070b9eb3cec744403a2cb0e8176889ac789f8b05810450f8fd492eb7b",
+    "OppoReno5LitePkg/OppoReno5LitePkg.dec": "9f745d315f11576df35619f6d01af1c59e311b5fec656d069540aaf320c59782",
+    "OppoReno5LitePkg/Sec/AArch64/Entry.S": "5583e067d99163a7bff5797ab9a1bcb684539b10eb8d0e9e3450acf7d8bb5e2f",
+    "OppoReno5LitePkg/Sec/NativeMain.c": "ec310738f3722292f07082750c356afb64b37a5ace1c3f257864952dcc4ca5bc",
+    "OppoReno5LitePkg/Sec/OppoSec.inf": "5c65ce62bf6646ea4aa7f353d74bad4d96d43fa1f538fd7aaf2c4c754dddd367",
+    "scripts/build_native_firmware.sh": "9045328744afedf406ef3a86ba67f4e410a420f5aeedbd02601484d61a342dc9",
+    "scripts/inspect_native_firmware.py": "23001840ca5a50b45b0a43bc278019b5f530150e1aabd5bf5708a4567b8e5355",
+    "scripts/prepare_native_lab.py": "e5c6770fb176733d1708a32f54b1126e8fa10c6a3c0facbd52e1c557ec3cc3c2",
+    "scripts/prepare_native_probe.py": "3c21b3b5a7170b2be2154aa79b9b7b7a1e8bb170159425070c3a161ffede7414",
+    "scripts/test_gop.c": "e0ae26fd134be1885c70ecbd42c88b1733913e7bcc7957f24055cc3a3e9f7f21",
+    "scripts/test_gop.sh": "5b8cbc045a9538327d8b2db7bb773edcdc795cfc99b72b9c1a4e77c4508818bb",
+    "scripts/test_native_firmware.py": "ca313acf346eab326c848ab6e0668d0fb52e1e6f582fd51b9dda359a6aecb3eb",
+    "scripts/test_native_probe.py": "f960b5ba17779f0b7419760cc3c088e6f8cc2c173b45ca129c47105f66ee2145",
+    "scripts/recovery_diagnostic_session.py": "ebeec2204973908d3420cf3623150c9d465f98bea70921663010168cf48c5f50"
+  },
+  "native_sec_execution_observed": true,
+  "dxe_execution_on_phone_verified": false,
+  "bds_execution_on_phone_verified": false,
+  "uefi_shell_execution_on_phone_verified": false,
+  "physical_attempt": {
+    "preflight_battery_percent": 81,
+    "owner_observed_three_bars_top_to_bottom": [
+      "green",
+      "blue",
+      "white"
+    ],
+    "owner_observed_bds_yellow_marker": false,
+    "owner_observed_shell_text": false,
+    "last_confirmed_stage": "SEC after boot-info HOB, before LoadDxeCoreFromFv",
+    "no_automatic_reset_or_adb_after_seconds": 142,
+    "native_reset_timer_verified": false,
+    "owner_manual_restart_restored_android": true,
+    "adb_boot_completed_verified": true,
+    "manual_restart_boot_reason": "PowerKey",
+    "battery_after_manual_return_percent": 81,
+    "original_recovery_fastboot_restoration_acknowledged": true,
+    "android_boot_verified_after_restoration": true,
+    "battery_after_restoration_percent": 80,
+    "documentation_photo": "docs/images/native-dxe-shell-lab-01.jpg"
+  }
+}

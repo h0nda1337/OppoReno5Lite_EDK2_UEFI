@@ -15,6 +15,7 @@
 #include <Library/UefiRuntimeServicesTableLib.h>
 
 STATIC EFI_HANDLE mImage;
+STATIC CONST volatile CHAR8 mLabIdentity[] = "OPPO_NATIVE_DXE_SHELL_LAB_90S_V1";
 STATIC EFI_GUID mShellFile = {0x7c04a583, 0x9e3e, 0x4f1c, {0xad, 0x65, 0xe0, 0x52, 0x68, 0xd0, 0xb4, 0xd1}};
 
 STATIC VOID EFIAPI Timeout (EFI_EVENT Event, VOID *Context)
@@ -30,6 +31,19 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   EFI_STATUS Status;
   EFI_EVENT ReturnTimer;
   (VOID)This;
+  if (mLabIdentity[0] != 'O') {
+    gRT->ResetSystem (EfiResetCold, EFI_COMPROMISED_DATA, 0, NULL);
+    for (;;) gBS->Stall (100000);
+  }
+  // A visible stage marker if connecting the console stalls before text.
+  EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop;
+  if (gBS->LocateProtocol (&gEfiGraphicsOutputProtocolGuid, NULL, (VOID **)&Gop) == EFI_SUCCESS &&
+      Gop->Mode != NULL && Gop->Mode->Info != NULL &&
+      Gop->Mode->Info->HorizontalResolution >= 1080 &&
+      Gop->Mode->Info->VerticalResolution >= 280) {
+    EFI_GRAPHICS_OUTPUT_BLT_PIXEL Yellow = {0, 255, 255, 0};
+    Gop->Blt (Gop, &Yellow, EfiBltVideoFill, 0, 0, 0, 256, 1080, 24, 0);
+  }
   gBS->SetWatchdogTimer (0, 0, 0, NULL);
   if (gBS->LocateHandleBuffer (AllHandles, NULL, NULL, &Count, &Handles) == EFI_SUCCESS) {
     for (Index = 0; Index < Count; Index++) gBS->ConnectController (Handles[Index], NULL, NULL, TRUE);
