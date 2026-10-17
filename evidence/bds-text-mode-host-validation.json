@@ -88,5 +88,6 @@
   "host_test_sha256": {
     "scripts/test_bds.c": "fd67d9db142677fc40af1fa02ee793efa49ea7dc8a391109a86e4f17f789ea76",
     "scripts/test_bds.sh": "19ef53d21327a353ff0005b0f3a9cef04bd140b06ea13769d40eea0e31176074"
-  }
+  },
+  "sources_refer_to_commit": "cead17d6f1e945447a9c71ea55dfbbbfdfc3ff44"
 }

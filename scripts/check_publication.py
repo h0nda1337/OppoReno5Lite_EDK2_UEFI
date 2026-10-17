@@ -25,6 +25,10 @@ REVIEWED_IMAGES = {
         (2944218, '4a009f4a0abe5b781febac26175d27c7e41daf66a97f56a68e5718ca2aa4ca6c'),
     'docs/images/native-dxe-shell-lab-04.jpg':
         (2545787, '6ff6ee24d932261c47b03008fa2d9b2579b4708b2698642faddf25f16e511425'),
+    'docs/images/native-dxe-shell-lab-06.jpg':
+        (2628480, 'e22916db2109d93cc100f54f11fbf9ff8195ae53c261ae911aa319b529c47b1b'),
+    'docs/images/native-dxe-shell-lab-06-detail.jpg':
+        (2624217, 'f52b09eee2cec8daf12582c1846b80d2837640c9e9a103bd66c98d482e8d8fc4'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

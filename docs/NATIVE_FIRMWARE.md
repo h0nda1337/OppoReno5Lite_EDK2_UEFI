@@ -358,3 +358,48 @@ el controlador gráfico ni la Shell genéricos: su verificación física sigue s
 un paso independiente. La compilación ARM64, el FD inspeccionado y los valores
 efectivos de ambas preferencias están registrados en
 [la validación de consola en PC](../evidence/bds-text-mode-host-validation.json).
+
+La ampliación posterior de la prueba pasó 14 escenarios con el mismo BDS:
+comprueba que un índice preferido ya anunciado también reciba `SetMode` antes
+de dibujar, y que no se inicie Shell si el productor informa éxito sin activar
+el índice. Es validación sintética adicional; no sustituye la observación del
+sexto intento. Véase [el registro de PC](../evidence/bds-preferred-mode-host-validation.json).
+
+## Sexto intento: protocolos de Shell y excepción síncrona
+
+Después de activar el modo de texto, las fotografías muestran instalaciones de
+`SimpleTextOut` (`387477c2…`), `ShellParameters` (`752f3136…`) y `Shell`
+(`6302d008…`). En esta revisión genérica esas últimas instalaciones ocurren
+después de superar `ClearScreen`, la condición HII y la instalación del logger
+de consola de la Shell. El texto pequeño de excepción utiliza la consola UEFI,
+distinta del registro propio visible más abajo. La inicialización avanzó, pero
+no apareció el encabezado ni el prompt de la Shell.
+
+<img src="images/native-dxe-shell-lab-06.jpg" width="480" alt="Sexto intento: consola mostrando una excepción síncrona y las instalaciones de protocolos ShellParameters y Shell">
+
+<img src="images/native-dxe-shell-lab-06-detail.jpg" width="480" alt="Segunda fotografía del mismo fallo, con el mensaje de excepción junto al recorte de la cámara frontal">
+
+Ambas fotografías se publican a petición del propietario. Se retiraron los
+metadatos personales de cámara, manteniendo orientación, perfil ICC y los datos
+comprimidos originales. Véanse las revisiones de
+[la vista completa](../evidence/native-dxe-shell-lab-06-photo.json) y
+[el detalle](../evidence/native-dxe-shell-lab-06-detail-photo.json).
+
+El propietario confirmó retorno automático a Android sin botones. Se restauró
+recovery original y ADB comprobó arranque completo, con batería al 100 %. No se
+midió el plazo ni se identificó qué mecanismo produjo el reinicio desde esta
+excepción; no equivale a validar el temporizador del BDS bajo fallo.
+
+El análisis de la compilación exacta sitúa la dirección fotografiada en el
+acceso a `gEfiShellParametersProtocol->Argc` de `ProcessCommandLine`. La base de
+carga se deduce del puntero publicado para el protocolo Shell y su símbolo en
+el mapa del mismo binario. No se capturaron ESR, FAR ni los registros generales.
+
+Se encontró además que `ShellLibAutoInitialize` conservaba su valor verdadero:
+el `ShellInitialize` emitido consiste únicamente en devolver éxito. El constructor
+corre antes de que la propia Shell instale sus protocolos, y la llamada posterior
+no vuelve a buscarlos. Esto es coherente con el acceso fallido a parámetros sin
+inicializar. La próxima composición debe desactivar la inicialización automática
+para esta aplicación y comprobar el valor efectivo y la función emitida antes de
+otra prueba. El registro físico y el análisis están en
+[la evidencia 06](../evidence/native-dxe-shell-lab-06-validation.json).

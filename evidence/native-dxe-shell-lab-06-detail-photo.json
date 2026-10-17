@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-dxe-shell-lab-06-detail.jpg",
+  "bytes": 2624217,
+  "sha256": "f52b09eee2cec8daf12582c1846b80d2837640c9e9a103bd66c98d482e8d8fc4",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "d4acd252c9c88a3a93c3fdbfe7351ce965cb487f38fef5c133b456ebac7050a4",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of integrated attempt 06: a synchronous exception is visible after installation of SimpleTextOut, ShellParameters and Shell protocols; interactive Shell UI not observed"
+}

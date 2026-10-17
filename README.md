@@ -17,8 +17,10 @@ DXE. Tras corregir PCD y registrar Capsule se alcanzó BDS y se cargó `Shell.ef
 pero su entrada devolvió `EFI_UNSUPPORTED`. Con el requisito HII corregido se
 observó el mismo rechazo y el primer retorno automático a Android desde ese
 intento integrado. Después se restauró recovery original, al 100 % de batería.
-La nueva corrección activa explícitamente un modo de consola disponible. La
-inicialización completa de la Shell y la entrada de usuario siguen pendientes.**
+Al activar explícitamente un modo disponible, el sexto intento mostró texto de
+consola UEFI y registró los protocolos de la Shell, pero sufrió una excepción al
+leer sus parámetros. Volvió automáticamente a Android y se restauró recovery.
+La inicialización completa de la Shell y la entrada de usuario siguen pendientes.**
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -36,12 +38,12 @@ Véase
 | Modelo y plataforma | CPH2205 / OP4F43L1 / proyecto 20295 / MT6779 |
 | Android de referencia | Android 13, ColorOS F.72, México libre NV7B |
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
-| Firmware integrado MT6779 | DXE y BDS alcanzados; Shell.efi devuelve Unsupported incluso con HII habilitado; retorno automático a Android observado |
+| Firmware integrado MT6779 | Consola UEFI visible y protocolos Shell registrados; excepción al leer parámetros; retorno automático a Android observado |
 | Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; orden nativo rojo=16/azul=0 contrastado con fotos |
-| Pantalla y entrada para la Shell | Registro propio visible desde DXE; consola UEFI y entrada todavía pendientes |
-| GOP y framebuffer propios | BLT comprobados con sanitizadores; franja nativa de SEC observada; controlador GOP en DXE pendiente |
+| Pantalla y entrada para la Shell | Texto de excepción de la consola UEFI observado; encabezado, prompt y entrada todavía pendientes |
+| GOP y framebuffer propios | BLT comprobados con sanitizadores; consola gráfica UEFI dibujó el texto de excepción en el OPPO |
 | Lector FDT propio en C | Comprobado con sanitizadores y captura; la prueba nativa alcanzó su validación de handoff y plan |
 | Interpretación de la entrega de LK | C propio; reservas fijas, dinámicas, vacías e incompletas diferenciadas; primera política comprobada en PC |
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
@@ -93,10 +95,10 @@ todavía el hardware. Véase [docs/BUILD.md](docs/BUILD.md).
 El primer firmware integrado enlaza la SEC, GOP, servicios iniciales y BDS
 propios con el núcleo DXE y la Shell de EDK2. Las pruebas QEMU de la entrada
 continúan usando una rutina C de prueba; no ejecutan ese firmware completo.
-Las imágenes permanecen privadas; cinco candidatos integrados ya se probaron
+Las imágenes permanecen privadas; seis candidatos integrados ya se probaron
 mediante la partición recovery y después se restauró su original. No hay entrada,
-USB nativo o almacenamiento. El quinto volvió automáticamente a Android tras
-el rechazo de Shell; faltan medir el plazo y distinguir evento de contador.
+USB nativo o almacenamiento. El quinto y sexto volvieron automáticamente a
+Android; faltan medir el plazo e identificar el mecanismo de cada retorno.
 Véanse [docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md) y
 [docs/NATIVE_FIRMWARE.md](docs/NATIVE_FIRMWARE.md).
 

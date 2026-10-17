@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "scope": "Physical integrated attempt 06 and bounded analysis of its exact Shell binary",
+  "validation_date_local": "2026-10-17",
+  "sources_refer_to_commit": "cead17d6f1e945447a9c71ea55dfbbbfdfc3ff44",
+  "native_fd_sha256": "776ca3f3adaf56a3553526504daa40e2415378cc3a8fdad0e0bad6888f817cd0",
+  "candidate_sha256": "b7cf8ca8c2dc54ccd46a9e8421678982992be0b378ccdef14dc883bdfefe59cd",
+  "battery_percent_before": 100.0,
+  "battery_percent_after_restoration": 100.0,
+  "observed_protocols": [
+    "EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL",
+    "EFI_SHELL_PARAMETERS_PROTOCOL",
+    "EFI_SHELL_PROTOCOL"
+  ],
+  "native_uefi_console_text_observed": true,
+  "shell_console_logger_installation_reached": true,
+  "shell_parameters_and_shell_protocol_installation_reached": true,
+  "shell_interactive_ui_observed": false,
+  "shell_initialization_completed": false,
+  "synchronous_exception_observed": true,
+  "exception_address_transcribed_from_photograph": "0x46a23a6c",
+  "shell_image_base_inferred_from_protocol_pointer_and_matching_map": "0x46a21000",
+  "shell_protocol_pointer_visible_in_photograph": "0x46a87ff8",
+  "shell_protocol_symbol_rva": "0x66ff8",
+  "exception_rva_derived": "0x2a6c",
+  "exception_instruction_verified_in_fd_pe": "ldr x1, [x0, #8]",
+  "symbolized_source": "ShellPkg/Application/Shell/Shell.c:987, ProcessCommandLine, gEfiShellParametersProtocol->Argc access",
+  "registers_esr_far_captured": false,
+  "shell_pe_from_symbol_cache_matches_fd_section": true,
+  "shell_pe_sha256": "3e0f4f01b89bbb3843b1674a0eb77ed0257837fb28e2270443163c0f6cd03a83",
+  "shell_initialize_emitted_at_rva": "0xe7c0",
+  "shell_initialize_emitted_instructions": [
+    "mov x0, #0",
+    "ret"
+  ],
+  "configuration_diagnosis": "Automatic ShellLib initialization ran before protocols existed; later ShellInitialize compiled as success without reinitializing. This is consistent with the exception, but register contents were not captured.",
+  "automatic_return_to_android_confirmed_by_owner": true,
+  "manual_buttons_required_for_this_return": false,
+  "reset_elapsed_seconds_measured": false,
+  "reset_cause_identified": false,
+  "stock_recovery_restoration_acknowledged": true,
+  "android_boot_completed_after_stock_restoration": true,
+  "owner_photos": [
+    "docs/images/native-dxe-shell-lab-06.jpg",
+    "docs/images/native-dxe-shell-lab-06-detail.jpg"
+  ],
+  "firmware_binary_published": false,
+  "fastbootd_menu_integration_started": false
+}

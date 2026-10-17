@@ -32,6 +32,7 @@ STATIC UINT64 mCounter;
 STATIC UINTN mScenario, mAllocated, mFreed, mStarts, mUnloads, mClosed;
 STATIC BOOLEAN mTimerAttempted, mSetTimer, mApplicationAlive, mEventFired;
 STATIC UINTN mModeSets, mClears;
+STATIC BOOLEAN ExpectShellStart(VOID) { return mScenario<5 || mScenario==12; }
 
 BOOLEAN EFIAPI DebugPrintEnabled(VOID) { return TRUE; }
 BOOLEAN EFIAPI DebugPrintLevelEnabled(UINTN Level) { (VOID)Level;return TRUE; }
@@ -120,9 +121,11 @@ STATIC EFI_STATUS EFIAPI Query(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, UINTN Mode
 }
 STATIC EFI_STATUS EFIAPI SetMode(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, UINTN Mode)
 {
-  assert(This==&mOut && Mode==2 && This->Mode->Mode==-1 && mClears==0);
+  assert(This==&mOut && Mode==2 && mClears==0);
+  assert(This->Mode->Mode==(mScenario==12?2:-1));
   mModeSets++;
   if(mScenario==5)return EFI_DEVICE_ERROR;
+  if(mScenario==13)return EFI_SUCCESS; /* Broken producer did not activate it. */
   This->Mode->Mode=(INT32)Mode;return EFI_SUCCESS;
 }
 STATIC EFI_STATUS EFIAPI Output(EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *This, CHAR16 *Text)
@@ -160,7 +163,7 @@ STATIC EFI_STATUS EFIAPI Unload(EFI_HANDLE Image)
 STATIC VOID EFIAPI Reset(EFI_RESET_TYPE Type, EFI_STATUS Status, UINTN Bytes, VOID *Data)
 {
   assert(Type==EfiResetCold && Status==EFI_SUCCESS && Bytes==0 && Data==NULL);
-  assert(mStarts==(mScenario<5?1U:0U) && mUnloads==0 && mFreed==mAllocated);
+  assert(mStarts==(ExpectShellStart()?1U:0U) && mUnloads==0 && mFreed==mAllocated);
   longjmp(mReturn,1);
 }
 STATIC EFI_STATUS EFIAPI Stall(UINTN Microseconds)
@@ -185,25 +188,26 @@ int main(void)
   mInfo.HorizontalResolution=1080;mInfo.VerticalResolution=2400;
   mOut.ClearScreen=Clear;mOut.OutputString=Output;mOut.QueryMode=Query;mOut.SetMode=SetMode;
   mVolume.ReadSection=ReadSection;
-  for(mScenario=0;mScenario<12;mScenario++) {
+  for(mScenario=0;mScenario<14;mScenario++) {
     mAllocated=mFreed=mStarts=mUnloads=mClosed=0;
     mModeSets=mClears=0;mOut.Mode=&mTextMode;mTextMode.Mode=-1;mTextMode.MaxMode=5;
     if(mScenario==7)mTextMode.MaxMode=0;
     if(mScenario==8)mOut.Mode=NULL;
     if(mScenario==9)mTextMode.MaxMode=129;
+    if(mScenario==12)mTextMode.Mode=2; /* Preferred index, rendering not initialized. */
     mTimerAttempted=mSetTimer=mApplicationAlive=mEventFired=FALSE;mNotify=NULL;
     mCounter=mScenario==3?MAX_UINT64-10:100;mSystem.ConIn=&mIn;mSystem.ConOut=NULL;mSystem.StdErr=NULL;
     mSystem.Hdr.HeaderSize=sizeof(mSystem);
     assert(OppoBdsEntry((EFI_HANDLE)(UINTN)0x100,&mSystem)==EFI_SUCCESS);
     if(setjmp(mReturn)==0)mBds.Entry(&mBds);
-    assert(mTimerAttempted && mStarts==(mScenario<5?1U:0U) && mUnloads==0 && mFreed==mAllocated);
-    assert((mSystem.ConOut==&mOut)==(mScenario<5));
-    assert(mClears==(mScenario<5 || mScenario==6?1U:0U));
-    assert(mModeSets==(mScenario<=6?1U:0U));
+    assert(mTimerAttempted && mStarts==(ExpectShellStart()?1U:0U) && mUnloads==0 && mFreed==mAllocated);
+    assert((mSystem.ConOut==&mOut)==ExpectShellStart());
+    assert(mClears==(ExpectShellStart() || mScenario==6?1U:0U));
+    assert(mModeSets==(mScenario<=6 || mScenario>=12?1U:0U));
     assert(mEventFired==(mScenario==0 || mScenario==4));
     assert(mClosed==(mScenario==2?1U:0U));
     assert(mCounterDeadlineReady==(mScenario!=4) && mSystem.Hdr.CRC32==0x1234);
   }
-  puts("Original BDS: 12 scenarios passed host sanitizers, including activation from invalid text mode, console failures and deadline fallback; no hardware test.");
+  puts("Original BDS: 14 scenarios passed host sanitizers, including explicit activation of a preferred index and rejection of a producer that fails to commit SetMode; no hardware test.");
   return 0;
 }

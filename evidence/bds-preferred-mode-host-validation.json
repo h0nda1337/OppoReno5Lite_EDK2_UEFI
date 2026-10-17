@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "scope": "Additional BDS text activation tests; synthetic host services only",
+  "validation_date_local": "2026-10-17",
+  "firmware_sources_refer_to_commit": "cead17d6f1e945447a9c71ea55dfbbbfdfc3ff44",
+  "firmware_source_changed": false,
+  "host_asan_ubsan_passed": true,
+  "total_bds_scenarios_passed": 14,
+  "additional_scenarios": [
+    "A preferred mode index is advertised but SetMode must still run before rendering",
+    "A producer returns SetMode success without committing the selected index; Shell must not start"
+  ],
+  "generic_graphics_console_or_shell_executed": false,
+  "source_sha256": {
+    "OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.c": "c88668b7007d6ce8f540c631b0e8238798c4367b641d0ff1a6ba8ffbb7438e93",
+    "scripts/test_bds.c": "b51f541915eaa85043c94dc455dd5122a6122afeaeb8aa455a2278296dd9cb45",
+    "scripts/test_bds.sh": "19ef53d21327a353ff0005b0f3a9cef04bd140b06ea13769d40eea0e31176074"
+  },
+  "physical_candidate_06_results_refer_to": "evidence/native-dxe-shell-lab-06-validation.json"
+}

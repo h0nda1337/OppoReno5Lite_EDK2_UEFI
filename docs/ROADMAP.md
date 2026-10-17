@@ -83,7 +83,8 @@ sí sola no demuestra que el payload se haya ejecutado.
 - [x] Integrar núcleo EDK2 y Shell en un prototipo de compilación, con GOP y BDS
   propios y variables solo en RAM.
 - [x] Probar el controlador GOP real con servicios simulados y ASan/UBSan.
-- [ ] Conseguir salida de consola visible y un mecanismo de entrada en el OPPO.
+- [x] Observar texto de consola UEFI en el OPPO, mediante el mensaje de excepción.
+- [ ] Implementar y verificar un mecanismo de entrada en el OPPO.
 - [x] Verificar ejecución del núcleo DXE y de su diagnóstico sobre la plataforma física.
 - [ ] Verificar ejecución de la Shell sobre la plataforma física.
 - [x] Probar el primer candidato integrado y registrar el bloqueo en las tres
@@ -102,6 +103,8 @@ sí sola no demuestra que el payload se haya ejecutado.
 - [x] Observar retorno automático a Android tras el rechazo de Shell con HII
   habilitado; restaurar recovery original y comprobar arranque completo.
 - [x] Probar en PC la selección y activación explícita del modo de consola.
+- [x] Observar instalaciones de ShellParameters/Shell y localizar la excepción
+  posterior mediante el binario exacto y la fotografía del sexto intento.
 - [ ] Verificar el plazo y retorno de BDS en el teléfono, sin depender de ellos
   como única vía de recuperación.
 - Validar arranque repetible y salida mediante reinicio controlado.
