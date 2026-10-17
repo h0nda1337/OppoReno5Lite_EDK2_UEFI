@@ -79,6 +79,8 @@ sin evidencia de BDS ni de la Shell.
 
 El registro de texto propio del segundo intento integrado confirmó después la
 ejecución del núcleo DXE. La corrección del bootstrap PCD permitió cargar
-controladores en el tercero; quedó únicamente Capsule ausente. La consola UEFI,
-la Shell y la entrada de usuario siguen pendientes de validación física. Véanse
+controladores en el tercero; quedó únicamente Capsule ausente. El séptimo intento
+posterior mostró UEFI Interactive Shell v2.2 y el prompt Shell>, seguido de retorno
+automático a Android y restauración del recovery original. La entrada física y
+ejecución de comandos siguen pendientes. Véanse
 las fotografías y resultados en [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).

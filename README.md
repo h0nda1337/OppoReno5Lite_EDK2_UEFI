@@ -4,23 +4,13 @@ Port experimental de EDK2 para **OPPO Reno5 Lite CPH2205 / OP4F43L1**, proyecto
 20295, MediaTek MT6779 (Helio P95). El objetivo es conseguir una UEFI Shell nativa
 y después ofrecer una opción **UEFI Shell** en el recovery que muestra Fastbootd.
 
-**Estado, 17 de octubre de 2026: bibliotecas propias de plataforma, BGRT,
-framebuffer, FDT, handoff y plan de memoria compiladas con EDK2 para ARM64;
-entrada ARM64 propia probada en QEMU EL1/EL2; primer prototipo integrado de
-firmware compilado e inspeccionado en PC, con SEC, GOP, servicios iniciales y
-BDS propios más núcleo DXE y Shell de EDK2. El diagnóstico Linux mínimo sí se
-ejecutó en el OPPO y capturó memoria y pantalla por USB. La prueba corta de SEC
-nativa ya mostró su franja verde y volvió a Android con transporte gzip.
-La segunda prueba corta alcanzó HOBs, cambio de pila y MMU/cachés y volvió a
-Android. El registro de texto propio confirmó después la ejecución del núcleo
-DXE. Tras corregir PCD y registrar Capsule se alcanzó BDS y se cargó `Shell.efi`,
-pero su entrada devolvió `EFI_UNSUPPORTED`. Con el requisito HII corregido se
-observó el mismo rechazo y el primer retorno automático a Android desde ese
-intento integrado. Después se restauró recovery original, al 100 % de batería.
-Al activar explícitamente un modo disponible, el sexto intento mostró texto de
-consola UEFI y registró los protocolos de la Shell, pero sufrió una excepción al
-leer sus parámetros. Volvió automáticamente a Android y se restauró recovery.
-La inicialización completa de la Shell y la entrada de usuario siguen pendientes.**
+**Estado, 17 de octubre de 2026: UEFI Interactive Shell v2.2 llegó al prompt
+`Shell>` en el OPPO, con entrada ARM64, SEC, GOP y BDS propios y núcleo/Shell
+de la dependencia base EDK2, sin BootShim ni kernel Linux en el candidato.
+El séptimo intento quedó documentado mediante fotografía del propietario.
+Volvió automáticamente a Android; ADB verificó arranque completo y después
+se restauró recovery original, con batería al 100 %. La entrada de usuario,
+ejecución de comandos y la opción del menú Fastbootd siguen pendientes.**
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -38,18 +28,18 @@ Véase
 | Modelo y plataforma | CPH2205 / OP4F43L1 / proyecto 20295 / MT6779 |
 | Android de referencia | Android 13, ColorOS F.72, México libre NV7B |
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
-| Firmware integrado MT6779 | Consola UEFI visible y protocolos Shell registrados; excepción al leer parámetros; retorno automático a Android observado |
+| Firmware integrado MT6779 | Shell v2.2 inicializada hasta el prompt; regreso automático a Android y restauración de recovery original comprobados |
 | Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; orden nativo rojo=16/azul=0 contrastado con fotos |
-| Pantalla y entrada para la Shell | Texto de excepción de la consola UEFI observado; encabezado, prompt y entrada todavía pendientes |
-| GOP y framebuffer propios | BLT comprobados con sanitizadores; consola gráfica UEFI dibujó el texto de excepción en el OPPO |
+| Pantalla y entrada para la Shell | Encabezado, mapa FS0 de firmware y prompt visibles; entrada física y comandos sin validar |
+| GOP y framebuffer propios | BLT comprobados con sanitizadores; consola gráfica UEFI mostrando la Shell en el OPPO |
 | Lector FDT propio en C | Comprobado con sanitizadores y captura; la prueba nativa alcanzó su validación de handoff y plan |
 | Interpretación de la entrega de LK | C propio; reservas fijas, dinámicas, vacías e incompletas diferenciadas; primera política comprobada en PC |
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
-| Logo original y BGRT | Extractor y biblioteca comprobados en PC; pantalla UEFI y Windows pendientes |
+| Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el
 trabajo previo. Se mantienen fuera de este repositorio. El propietario fijó
@@ -95,10 +85,11 @@ todavía el hardware. Véase [docs/BUILD.md](docs/BUILD.md).
 El primer firmware integrado enlaza la SEC, GOP, servicios iniciales y BDS
 propios con el núcleo DXE y la Shell de EDK2. Las pruebas QEMU de la entrada
 continúan usando una rutina C de prueba; no ejecutan ese firmware completo.
-Las imágenes permanecen privadas; seis candidatos integrados ya se probaron
-mediante la partición recovery y después se restauró su original. No hay entrada,
-USB nativo o almacenamiento. El quinto y sexto volvieron automáticamente a
-Android; faltan medir el plazo e identificar el mecanismo de cada retorno.
+Las imágenes permanecen privadas; siete candidatos integrados ya se probaron
+mediante la partición recovery y después se restauró su original. Aún no hay
+controladores de teclado, USB nativo o almacenamiento físico. El séptimo llegó al prompt y volvió solo a
+Android. El retorno automático está observado; su plazo nativo y la ruta exacta
+de reset todavía no están identificados.
 Véanse [docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md) y
 [docs/NATIVE_FIRMWARE.md](docs/NATIVE_FIRMWARE.md).
 

@@ -5,8 +5,10 @@ inspeccionar en PC. No son instrucciones de instalación. Una variante corta
 ya mostró su franja verde en el OPPO y volvió a Android. Una segunda variante
 corta superó HOBs, cambio de pila y activación de MMU/cachés. Los intentos
 integrados posteriores sí ejecutaron el núcleo DXE y el registro de texto
-propio. El cuarto intento pasó a BDS, cargó `Shell.efi` e invocó su entrada,
-que devolvió `EFI_UNSUPPORTED`; todavía no se observó su interfaz inicializada.
+propio. Tras resolver composición PCD, consola e inicialización de parámetros,
+el séptimo intento mostró UEFI Interactive Shell v2.2 y el prompt `Shell>`.
+Volvió automáticamente a Android y se restauró recovery original. La entrada
+de usuario y ejecución de comandos siguen pendientes.
 Las etapas, sus límites y las fotos se detallan abajo.
 
 La imagen tiene 8 MiB y comienza en `0x40080000`. Su cabecera ARM64 salta
@@ -412,3 +414,35 @@ y la llamada al constructor de nuestro logger. En el PE exacto del FD,
 `ShellLibConstructorWorker`; ya no es una devolución constante de éxito.
 Esto verifica la corrección de composición en PC, no el resultado físico.
 Véase [la validación del binario](../evidence/shell-initialization-host-validation.json).
+
+## Séptimo intento: primer prompt de la Shell nativa
+
+La fotografía muestra el encabezado de UEFI Interactive Shell v2.2, el mapa
+`FS0` y el prompt `Shell>`. Confirma que el firmware nativo inicializó la
+aplicación hasta su bucle de consola después de corregir la inicialización de
+ShellLib. El candidato conserva entrada, SEC, GOP y BDS propios con el núcleo
+y Shell genéricos de EDK2; no contiene BootShim ni kernel/ramdisk OEM en ejecución.
+
+<img src="images/native-dxe-shell-lab-07.jpg" width="480" alt="Primer arranque de UEFI Interactive Shell v2.2 en el OPPO Reno5 Lite, con mapa FS0 y prompt Shell>">
+
+Fotografía publicada a petición del propietario. Se retiraron los metadatos
+personales de cámara, preservando orientación, ICC y los datos comprimidos
+originales. Véase [la revisión](../evidence/native-dxe-shell-lab-07-photo.json).
+
+El mapa FS0 corresponde al volumen de firmware en memoria, no a UFS, microSD o
+USB. No se probó entrada física ni se ejecutaron comandos. Parte del texto
+superior queda oculta por la cámara frontal; el área de consola requiere una
+adaptación posterior. La imagen sigue siendo la variante de laboratorio con
+solicitud de reset a los 90 segundos.
+
+El propietario confirmó retorno automático sin botones. El observador de ADB
+detectó Android con `sys.boot_completed=1` y motivo `reboot`, a los 198,885 segundos
+desde el informe de solicitud de recovery. Incluye LK, firmware, arranque Android
+y muestreo del observador; no establece la duración del temporizador ni identifica
+el mecanismo que reinició el teléfono. Después se restauró el recovery original,
+Fastboot confirmó la escritura y ADB verificó otro arranque completo, al 100 %.
+
+El resultado filtrado, los hashes de la compilación probada y las limitaciones
+están en [la evidencia física 07](../evidence/native-dxe-shell-lab-07-validation.json).
+La integración de la opción en Fastbootd sigue pendiente y se coordinará con el
+propietario antes de iniciarla, como solicitó.

@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-dxe-shell-lab-07.jpg",
+  "bytes": 2393497,
+  "sha256": "e0cff71d2815359a2ea9165fa3de5df40a887c58dfb775e5d3ab2224baed3b46",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "014c77601d0e2b9097468ff187ecbab1daa45c9091d93a176ab5f0f734d806a9",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of integrated attempt 07: native UEFI Interactive Shell v2.2 and Shell prompt visible, with an FS0 firmware-volume mapping; no keyboard input or command execution demonstrated"
+}

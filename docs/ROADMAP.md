@@ -78,7 +78,7 @@ manejo del comando en LK o preparar una vía alternativa de diagnóstico.
 El éxito de esta etapa requiere evidencia física. Una compilación correcta por
 sí sola no demuestra que el payload se haya ejecutado.
 
-## 3. UEFI Shell — pendiente
+## 3. UEFI Shell — arranque visible; entrada pendiente
 
 - [x] Integrar núcleo EDK2 y Shell en un prototipo de compilación, con GOP y BDS
   propios y variables solo en RAM.
@@ -86,7 +86,8 @@ sí sola no demuestra que el payload se haya ejecutado.
 - [x] Observar texto de consola UEFI en el OPPO, mediante el mensaje de excepción.
 - [ ] Implementar y verificar un mecanismo de entrada en el OPPO.
 - [x] Verificar ejecución del núcleo DXE y de su diagnóstico sobre la plataforma física.
-- [ ] Verificar ejecución de la Shell sobre la plataforma física.
+- [x] Observar el encabezado UEFI Interactive Shell v2.2 y el prompt Shell> en el OPPO.
+- [ ] Ejecutar y comprobar comandos mediante la entrada física.
 - [x] Probar el primer candidato integrado y registrar el bloqueo en las tres
   franjas de SEC; no se observó BDS/Shell ni reset automático en 142 segundos.
 - [x] Añadir diagnóstico propio para localizar el bloqueo de carga o ejecución de DXE.
@@ -96,7 +97,7 @@ sí sola no demuestra que el payload se haya ejecutado.
   comprobar el controlador con sanitizadores y verificar su PE generado.
 - [x] Superar la comprobación arquitectónica del núcleo y llegar desde BDS a la
   carga y entrada de Shell.efi; el retorno Unsupported impidió inicializarla.
-- [ ] Verificar consola UEFI visible y completar la inicialización de la Shell.
+- [x] Verificar consola UEFI visible e inicialización de la Shell hasta el prompt.
 - [x] Corregir el requisito HII y verificar sus valores efectivos en el build.
 - [x] Probar en PC el temporizador temprano del BDS, la consulta del contador al
   regresar una aplicación y el ciclo de vida de su handle bajo sanitizadores.

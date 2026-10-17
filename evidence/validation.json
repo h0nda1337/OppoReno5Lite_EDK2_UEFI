@@ -117,5 +117,8 @@
   "native_gop_host_asan_ubsan_passed": true,
   "native_dxe_or_shell_execution_observed": false,
   "native_recovery_path_verified": false,
-  "fastbootd_menu_integration_started": false
+  "fastbootd_menu_integration_started": false,
+  "scope": "Historical host snapshot from 2026-10-16; subsequent native device results are separate records",
+  "historical_snapshot": true,
+  "latest_native_device_validation": "evidence/native-dxe-shell-lab-07-validation.json"
 }

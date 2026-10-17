@@ -75,5 +75,7 @@
     "scripts/inspect_native_firmware.py": "61906d13c89492cbb80e5a28f95b52c3852b26e3f16dd6da46a8b4c57ccc933e",
     "scripts/prepare_native_lab.py": "e5c6770fb176733d1708a32f54b1126e8fa10c6a3c0facbd52e1c557ec3cc3c2",
     "scripts/prepare_native_probe.py": "3c21b3b5a7170b2be2154aa79b9b7b7a1e8bb170159425070c3a161ffede7414"
-  }
+  },
+  "sources_refer_to_commit": "5546a3ee85fe119fc104e813d98b3b71dd243d71",
+  "later_physical_validation": "evidence/native-dxe-shell-lab-07-validation.json"
 }
