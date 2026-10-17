@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: BSD-2-Clause
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoGopDxe
+  FILE_GUID = a9b2bfc1-6e2f-4f4c-9589-c6aa3f851d67
+  MODULE_TYPE = DXE_DRIVER
+  ENTRY_POINT = OppoGopEntry
+[Sources]
+  OppoGopDxe.c
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  HobLib
+  BaseLib
+  OppoFrameBufferLib
+[Guids]
+  gOppoBootInfoHobGuid
+  gOppoGopDeviceGuid
+[Protocols]
+  gEfiDevicePathProtocolGuid
+  gEfiGraphicsOutputProtocolGuid
+[Depex]
+  TRUE

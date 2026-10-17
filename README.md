@@ -6,10 +6,11 @@ y después ofrecer una opción **UEFI Shell** en el recovery que muestra Fastboo
 
 **Estado, 16 de octubre de 2026: bibliotecas propias de plataforma, BGRT,
 framebuffer, FDT, handoff y plan de memoria compiladas con EDK2 para ARM64;
-entrada ARM64 propia probada en
-QEMU EL1/EL2; diagnóstico Linux mínimo ejecutado en el OPPO con
-captura USB de memoria y pantalla. Todavía no hay una imagen UEFI completa ni un
-arranque UEFI observado en este OPPO.**
+entrada ARM64 propia probada en QEMU EL1/EL2; primer prototipo integrado de
+firmware compilado e inspeccionado en PC, con SEC, GOP, servicios iniciales y
+BDS propios más núcleo DXE y Shell de EDK2. El diagnóstico Linux mínimo sí se
+ejecutó en el OPPO y capturó memoria y pantalla por USB. Todavía no se ha
+observado un arranque UEFI en este OPPO.**
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -27,15 +28,15 @@ Véase
 | Modelo y plataforma | CPH2205 / OP4F43L1 / proyecto 20295 / MT6779 |
 | Android de referencia | Android 13, ColorOS F.72, México libre NV7B |
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
-| EDK2 específico para MT6779 | Pendiente de desarrollo y validación |
+| Firmware integrado MT6779 | Prototipo de 8 MiB compilado e inspeccionado en PC; ejecución física pendiente |
 | Entrada ARM64 propia | Pila, vectores y argumentos comprobados en QEMU EL1/EL2; sin prueba nativa en el OPPO |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. Mapa UEFI y pantalla antes de Linux pendientes |
 | Pantalla y entrada para la Shell | Pendientes |
-| Operaciones de framebuffer propias | Cuatro BLT comprobadas en PC con sanitizadores y compilación EDK2; GOP nativo pendiente |
+| GOP y framebuffer propios | Controlador y cuatro BLT comprobados con RAM simulada y sanitizadores; pantalla nativa pendiente |
 | Lector FDT propio en C | Límites y alteraciones comprobados con sanitizadores; confirma RAM y PSCI sobre la captura privada; ejecución nativa pendiente |
 | Interpretación de la entrega de LK | C propio; reservas fijas, dinámicas, vacías e incompletas diferenciadas; primera política comprobada en PC |
-| Primer plan de memoria propio | Imagen, pool inicial y exclusiones comprobados en PC; HOBs y tablas MMU pendientes |
+| Primer plan de memoria propio | Política comprobada en PC; código HOB/MMU integrado, pendiente de ejecución física; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; pantalla UEFI y Windows pendientes |
@@ -81,11 +82,13 @@ mapas no verificados, desbordamientos y solapamientos con regiones reservadas.
 Compila como objeto ARM64; no constituye una imagen arrancable ni inicializa
 todavía el hardware. Véase [docs/BUILD.md](docs/BUILD.md).
 
-La biblioteca de framebuffer propia proporciona las operaciones de píxeles
-para un futuro GOP. La entrada SEC propia conserva el FDT y prepara el entorno
-inicial; su validación actual usa una rutina C de prueba en QEMU. Todavía faltan
-los HOBs, la inicialización de memoria y el núcleo DXE. Véase
-[docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md).
+El primer firmware integrado enlaza la SEC, GOP, servicios iniciales y BDS
+propios con el núcleo DXE y la Shell de EDK2. Las pruebas QEMU de la entrada
+continúan usando una rutina C de prueba; no ejecutan ese firmware completo.
+La imagen permanece privada y no se ha instalado. No hay entrada, USB nativo o
+almacenamiento, y el reinicio de laboratorio no es todavía una vía de retorno
+probada. Véanse [docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md) y
+[docs/NATIVE_FIRMWARE.md](docs/NATIVE_FIRMWARE.md).
 
 La planificación y fuentes están en [docs/ROADMAP.md](docs/ROADMAP.md) y
 [docs/RESEARCH.md](docs/RESEARCH.md).

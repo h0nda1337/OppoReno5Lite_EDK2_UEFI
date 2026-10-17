@@ -1,0 +1,46 @@
+## @file
+# Original platform SEC; links generic EDK2 core primitives.
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoSec
+  FILE_GUID = 2bf0a605-3974-4d50-b19b-e0b1a6a4667e
+  MODULE_TYPE = SEC
+  VERSION_STRING = 0.1
+
+[Sources]
+  NativeMain.c
+
+[Sources.AARCH64]
+  AArch64/Entry.S
+
+[BuildOptions]
+  GCC:*_*_*_CC_FLAGS = -mgeneral-regs-only
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+
+[LibraryClasses]
+  ArmLib
+  ArmMmuLib
+  ArmSmcLib
+  BaseLib
+  BaseMemoryLib
+  StackCheckLib
+  HobLib
+  PrePiLib
+  PrePiHobListPointerLib
+  OppoFdtLib
+  OppoPlatformLib
+  OppoHandoffLib
+  OppoFrameBufferLib
+  OppoMemoryPlanLib
+
+[Guids]
+  gOppoBootInfoHobGuid

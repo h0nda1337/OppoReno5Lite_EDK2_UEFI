@@ -171,3 +171,29 @@ La comprobación de PC contrasta una propuesta de imagen de 8 MiB y pool de
 initrd. La dirección FDT de esta prueba es suministrada, no un x0 nativo medido.
 No se reserva memoria física, no se crean HOBs ni tablas MMU y no se describe
 todavía toda la RAM disponible para un sistema operativo.
+
+## Prototipo integrado de firmware nativo
+
+Este objetivo de compilación incorpora la SEC, GOP, servicios iniciales y BDS
+propios junto al núcleo EDK2 y su Shell. Produce un FD privado de 8 MiB, sin
+empaquetarlo como recovery y sin utilizar el teléfono. Requiere el mismo EDK2
+revisado, BaseTools y el compilador cruzado AArch64.
+
+```bash
+EDK2_SOURCE=/ruta/edk2 bash scripts/build_native_firmware.sh
+python scripts/inspect_native_firmware.py \
+  /ruta/edk2/.build/OppoNative/RELEASE_GCC/FV/OPPONATIVE.fd \
+  --output .build/native/host-inspection.json
+EDK2_HEADERS=/ruta/edk2 bash scripts/test_gop.sh
+```
+
+El log está en `.build/native/build.log`. La compilación exige salida correcta,
+marca `- Done -` y presencia del FD. El inspector comprueba su estructura y
+el salto directo hasta la SEC; no ejecuta la imagen. La prueba GOP utiliza el
+controlador real con RAM y servicios UEFI simulados bajo ASan/UBSan.
+
+Las hipótesis y limitaciones del prototipo se describen en
+[NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md). No hay controladores de entrada,
+almacenamiento o USB nativo y el reinicio automático todavía no es una vía de
+recuperación probada. Un build correcto no autoriza a considerar funcionales
+estos componentes ni a instalar la imagen sin resolver la estrategia de retorno.

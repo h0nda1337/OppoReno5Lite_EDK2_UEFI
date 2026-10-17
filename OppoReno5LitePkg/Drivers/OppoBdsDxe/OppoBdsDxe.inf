@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: BSD-2-Clause
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoBdsDxe
+  FILE_GUID = 1d4ea2cd-6d78-44ad-8c78-aa6b3d286273
+  MODULE_TYPE = DXE_DRIVER
+  ENTRY_POINT = OppoBdsEntry
+[Sources]
+  OppoBdsDxe.c
+[Packages]
+  MdePkg/MdePkg.dec
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  MemoryAllocationLib
+  DevicePathLib
+[Protocols]
+  gEfiBdsArchProtocolGuid
+  gEfiGraphicsOutputProtocolGuid
+  gEfiSimpleTextOutProtocolGuid
+  gEfiFirmwareVolume2ProtocolGuid
+[Depex]
+  TRUE

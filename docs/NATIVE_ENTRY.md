@@ -33,9 +33,9 @@ framebuffer no valida por sí sola una escritura al panel. Tampoco leer
 
 La política inicial propia ya se comprueba en PC: protege imagen y datos fijos,
 redondea exclusiones a páginas y difiere las reservas dinámicas al OS como exige
-DTSpec 3.5.4. Solo propone un pool inicial de 64 MiB. Faltan su materialización
-en HOBs, el mapa MMU y la inicialización física; no se debe usar como mapa final
-de un sistema operativo.
+DTSpec 3.5.4. Solo propone un pool inicial de 64 MiB. El prototipo SEC ya
+contiene su materialización en HOBs y mapa MMU, pero falta verificar su ejecución
+física; no se debe usar como mapa final de un sistema operativo.
 
 ## Qué se comprobó
 
@@ -55,9 +55,13 @@ un núcleo DXE ni la Shell.
 
 ## Qué falta
 
-La rutina `OppoSecMain` solo existe en la prueba. Faltan su implementación real,
-inicialización del estado C, HOBs, mapa de memoria con todas las reservas,
-cachés/MMU, temporizador, reinicio, acceso nativo a la pantalla, empaquetado de
-volúmenes EDK2 y transferencia al núcleo DXE. Los errores se aparcan; todavía
-no existe una salida de recuperación nativa probada en el OPPO. Por ello esta
-entrada no se instala en el teléfono.
+`Sec/NativeMain.c` implementa ahora la rutina real del prototipo, distinta de la
+rutina del harness QEMU. Construye HOBs y mapa MMU, habilita cachés y carga DXE;
+se acompaña de GOP, servicios iniciales y BDS propios. El volumen incluye la
+Shell del núcleo EDK2. Véase [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).
+
+Esas operaciones todavía requieren validación física: estado de entrada de
+LK, reservas, continuidad de pantalla, MMU, temporizador, interrupciones,
+watchdog y reinicio. Los errores iniciales pueden aparcarse y el reset PSCI no
+garantiza una salida de recovery. Todavía no existe una vía de recuperación
+nativa probada en el OPPO; no se instala esta entrada en el teléfono.

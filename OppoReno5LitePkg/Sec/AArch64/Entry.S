@@ -6,6 +6,8 @@
 .section .text.OppoSecEntry, "ax", %progbits
 .balign 16
 .global OppoSecEntry
+.global _ModuleEntryPoint
+.set _ModuleEntryPoint, OppoSecEntry
 .type OppoSecEntry, %function
 OppoSecEntry:
     msr     daifset, #0xf

@@ -5,8 +5,8 @@
   "bootshim_used": false,
   "entry_relocates_or_copies_an_appended_payload": false,
   "entry_arm64_object": {
-    "size": 5992,
-    "sha256": "1f66e9f96870393654e2e98615a8729247491813c87a18e86428b02393ce881b"
+    "size": 6032,
+    "sha256": "a376df8411b5feefdfdaa9e4439bf6f3ce5388430b6d85af90428792d1b049b6"
   },
   "runs": [
     {
@@ -29,14 +29,16 @@
     }
   ],
   "physical_execution_verified": false,
-  "real_platform_sec_main_implemented": false,
-  "complete_uefi_firmware_built": false,
+  "real_platform_sec_main_implemented": true,
   "dxe_or_shell_executed": false,
   "source_sha256": {
     "OppoReno5LitePkg/Include/OppoSecEntry.h": "8af12b605c749964b2c094f66667413bf79032005a6d7056a42d70f6e5d86ecd",
-    "OppoReno5LitePkg/Sec/AArch64/Entry.S": "e011ca2543fb8fa68bae666a5e580b36bc62078c1f6647ac924565943eec1515",
+    "OppoReno5LitePkg/Sec/AArch64/Entry.S": "5583e067d99163a7bff5797ab9a1bcb684539b10eb8d0e9e3450acf7d8bb5e2f",
     "scripts/test_sec_header.S": "cb1abcc53312e42275af6d546c7752c449a34a40ebd55f5c017b72ffe611c115",
     "scripts/test_sec_entry.c": "e60f8d1bde86be48514546b2d39bc3741c3d291c822a137568e8e97fb55bada7",
     "scripts/test_sec_entry.sh": "55269af3147ebee9af12cb8693be6f9cda1ef63b0f93070813c359b9d866cd1a"
-  }
+  },
+  "native_integration_prototype_fd_built": true,
+  "complete_platform_support_verified": false,
+  "native_integration_report": "native-firmware-host-validation.json"
 }

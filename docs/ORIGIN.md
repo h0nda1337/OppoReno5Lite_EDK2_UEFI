@@ -11,11 +11,17 @@ El kernel original solo se empleó como firmware privado para el inventario
 Linux; no se publica ni se presenta como código propio.
 
 Las bibliotecas de plataforma, BGRT, framebuffer, FDT, handoff y plan de memoria,
-la entrada SEC ARM64, sus
+la entrada SEC ARM64, su inicialización C, GOP, servicios iniciales y BDS, sus
 pruebas, el PID 1 mínimo y las herramientas Python de este repositorio son
 implementaciones originales del proyecto. Las fuentes
 de OPPO, AOSP, Linux y edk2-mtk consultadas sirven para investigar formatos e
 interfaces. Consultar una referencia no autoriza copiar su implementación.
+
+La composición de `OppoNative.dsc` y `OppoNative.fdf` es original. Identifica
+explícitamente los módulos genéricos de la dependencia base EDK2: núcleos,
+primitivas ARM, GIC, temporizador, consola, HII, variables y Shell. Su revisión
+de referencia es `b03a21a63e3bd001f52c527e5a57feddb53a690b`; no se presentan
+esos componentes como implementaciones propias.
 
 La opción del menú Fastbootd se integrará después de validar la Shell y una
 salida fiable a Android. El menú no sustituye esa validación.

@@ -43,11 +43,16 @@
   dinámicas diferidas al OS y nodo vacío comprobado sin propiedades.
 - [x] Contrastar en PC una propuesta de pool inicial e imagen con la captura,
   sin asignar memoria física ni considerarla un mapa completo de RAM.
-- [ ] Materializar la política en HOBs y en el mapa MMU de la plataforma.
+- [x] Implementar HOBs y mapa MMU acotado en el prototipo SEC; código compilado,
+  sin validación de su ejecución física.
+- [x] Componer el primer FD con entrada directa a SEC, núcleo DXE y Shell;
+  comprobar cabeceras, módulos y entrada en PC.
+- [ ] Medir y validar en el OPPO esa materialización y una vía de restauración
+  independiente de los temporizadores del prototipo.
 - Revisar el protocolo de entrada de LK, estado ARM64, memoria y reservas.
 - Evaluar la disponibilidad real de un arranque de prueba temporal.
-- Escribir la entrada ARM64 de la propia plataforma EDK2, sin BootShim,
-  conservando el FDT que entrega LK y con diagnóstico observable.
+- Validar la entrada ARM64 propia, sin BootShim, conservando el FDT que entrega
+  LK y con diagnóstico observable.
 - Validar cachés, MMU, temporizador, interrupciones y watchdog en el teléfono.
 
 Las dos primeras pruebas de transferencia de imágenes originales mediante
@@ -60,8 +65,11 @@ sí sola no demuestra que el payload se haya ejecutado.
 
 ## 3. UEFI Shell — pendiente
 
-- Conseguir salida de consola visible y un mecanismo de entrada.
-- Integrar el núcleo EDK2 y Shell con una descripción de plataforma coherente.
+- [x] Integrar núcleo EDK2 y Shell en un prototipo de compilación, con GOP y BDS
+  propios y variables solo en RAM.
+- [x] Probar el controlador GOP real con servicios simulados y ASan/UBSan.
+- [ ] Conseguir salida de consola visible y un mecanismo de entrada en el OPPO.
+- [ ] Verificar ejecución de DXE y Shell sobre la plataforma física.
 - Validar arranque repetible y salida mediante reinicio controlado.
 
 El código específico se escribe aquí o se reutiliza de repositorios del

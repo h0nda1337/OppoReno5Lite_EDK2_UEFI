@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: BSD-2-Clause
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoRuntimeDxe
+  FILE_GUID = 799bc15f-c3a6-4d88-94bc-809f07c356ab
+  MODULE_TYPE = DXE_RUNTIME_DRIVER
+  ENTRY_POINT = OppoRuntimeEntry
+[Sources]
+  OppoRuntimeDxe.c
+[Packages]
+  MdePkg/MdePkg.dec
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  ArmSmcLib
+  BaseLib
+[Protocols]
+  gEfiResetArchProtocolGuid
+  gEfiRealTimeClockArchProtocolGuid
+[Depex]
+  TRUE
