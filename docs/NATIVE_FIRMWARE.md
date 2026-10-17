@@ -178,3 +178,36 @@ detenido, no una Shell funcional. El logo y Orange State siguen siendo de LK.
 Se conservaron los datos comprimidos de imagen, orientación y perfil de color,
 retirando los demás metadatos de cámara. El registro está en
 [native-dxe-shell-lab-photo.json](../evidence/native-dxe-shell-lab-photo.json).
+
+## Diagnóstico de texto propio
+
+El siguiente diagnóstico añade `OppoDebugLib` a SEC y al núcleo DXE, usando
+la interfaz DebugLib de la dependencia base EDK2. El renderer y sus glifos 5×7
+son originales. La biblioteca usa el framebuffer ya validado y escribe desde
+la fila 320, conservando las barras de etapa. No instala consola UEFI ni
+controladores de entrada.
+
+Una página del pool, `0x46fef000`, conserva el cursor entre SEC y DXE. Se sitúa
+justo debajo de la pila y se excluye del área libre del constructor de HOBs,
+con una asignación `EfiBootServicesData`. SEC inicia la página después de
+validar handoff, pool y framebuffer. La variante del núcleo comprueba firma
+y geometría desde su primera llamada, incluso en las comprobaciones de memoria
+anteriores a sus constructores. El constructor vuelve a enlazar el mismo
+cursor. En SEC las llamadas anteriores a su inicialización permanecen
+desactivadas. Un indicador descarta llamadas
+anidadas; los asserts muestran el nombre base del archivo y detienen la CPU.
+
+La prueba de PC utiliza el código real y mapeos virtuales sintéticos con páginas
+de guarda. Comprueba el área superior intacta, padding por fila, salto y vuelta
+de líneas, truncado, rechazo de estado inválido, continuidad del cursor y parada
+por assert, con ASan/UBSan. El formato de cadenas se simula en esa prueba;
+el firmware enlaza el PrintLib genérico de EDK2. Estos resultados no prueban
+todavía que los mensajes sean visibles en el teléfono.
+
+La compilación ARM64 de este diagnóstico finalizó correctamente y el inspector
+validó el FD y su marcador integrado. Se comprobó que la variante del núcleo
+se construyera con su enlace temprano y que las fuentes conservaran los hashes
+tomados antes del build. La ejecución observada en PC tardó 34,345 segundos,
+con caché Linux respaldada en G: y presupuesto de ocho módulos por cuatro
+objetos. No se midió el pico de CPU y no es un benchmark controlado frente al
+build anterior. Véase [la validación de PC](../evidence/native-display-log-host-validation.json).

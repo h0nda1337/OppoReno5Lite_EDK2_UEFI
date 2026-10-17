@@ -470,5 +470,6 @@
     "android_boot_verified_after_restoration": true,
     "battery_after_restoration_percent": 80,
     "documentation_photo": "docs/images/native-dxe-shell-lab-01.jpg"
-  }
+  },
+  "sources_refer_to_commit": "34af08cc4d94c40f7eb957e7c690a8c9a80219a8"
 }

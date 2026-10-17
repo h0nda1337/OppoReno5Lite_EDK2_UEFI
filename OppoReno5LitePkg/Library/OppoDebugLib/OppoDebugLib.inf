@@ -1,0 +1,22 @@
+## @file
+# Original bounded display logger for the native laboratory SEC and DXE core.
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoDebugLib
+  FILE_GUID = ba69e6d3-2c91-4319-a7e0-4469c2f5f6d7
+  MODULE_TYPE = BASE
+  VERSION_STRING = 0.1
+  LIBRARY_CLASS = DebugLib|SEC
+  CONSTRUCTOR = OppoDebugConstructor
+[Sources]
+  OppoDebugLib.c
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  PrintLib
+  OppoFrameBufferLib

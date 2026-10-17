@@ -192,6 +192,16 @@ marca `- Done -` y presencia del FD. El inspector comprueba su estructura y
 el salto directo hasta la SEC; no ejecuta la imagen. La prueba GOP utiliza el
 controlador real con RAM y servicios UEFI simulados bajo ASan/UBSan.
 
+El script reparte el trabajo entre módulos de EDK2 y objetos de GNU make.
+Selecciona hasta ocho módulos y hasta cuatro objetos por módulo, sin superar
+el número de CPU lógicas disponibles; muestra el presupuesto al empezar.
+`NATIVE_MODULE_JOBS` y `NATIVE_OBJECT_JOBS` permiten reducirlo o redistribuirlo.
+En WSL, guardar las dependencias y la salida en un sistema de archivos Linux
+puede reducir las esperas de acceso a muchos archivos pequeños. En este
+laboratorio ese sistema reside en una imagen privada guardada en G:, para
+mantener allí los archivos voluminosos. El porcentaje de CPU durante la copia,
+generación de metadatos o enlazado puede ser inferior al del compilador.
+
 Para construir únicamente la variante de prueba corta de SEC, sin ejecutar
 DXE ni la Shell al entrar:
 
@@ -214,6 +224,17 @@ firmware original y hashes de fuentes; no utiliza el teléfono. La sesión físi
 requiere el selector explícito `--execute-native-firmware-lab`. El primer
 intento se detuvo antes de observar BDS/Shell: ese temporizador no es una vía
 de recuperación validada.
+
+El renderer de diagnóstico de texto propio tiene una prueba separada en PC:
+
+```bash
+EDK2_HEADERS=/ruta/edk2 bash scripts/test_debug_log.sh
+```
+
+Usa páginas virtuales sintéticas protegidas, sin operar el teléfono. El
+formateador es un stub acotado para las pruebas; la compilación ARM64 utiliza
+el PrintLib genérico de EDK2. Véase la reserva de la página y los límites de
+este diagnóstico en [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md#diagnóstico-de-texto-propio).
 
 El FD y su log se copian a `.build/native/entry-probe/`; la variante normal usa
 `.build/native/integration/`. La salida interna de EDK2 se comparte, por lo que

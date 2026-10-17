@@ -17,6 +17,11 @@ implementaciones originales del proyecto. Las fuentes
 de OPPO, AOSP, Linux y edk2-mtk consultadas sirven para investigar formatos e
 interfaces. Consultar una referencia no autoriza copiar su implementación.
 
+El renderer de `OppoDebugLib`, sus glifos 5×7, la página de cursor compartido y
+la prueba de memoria protegida también son originales. El formateador utilizado
+en el firmware sigue siendo el PrintLib genérico de EDK2; el del test de PC es
+un stub propio acotado a sus casos. No se importó una fuente tipográfica externa.
+
 La composición de `OppoNative.dsc` y `OppoNative.fdf` es original. Identifica
 explícitamente los módulos genéricos de la dependencia base EDK2: núcleos,
 primitivas ARM, GIC, temporizador, consola, HII, variables y Shell. Su revisión

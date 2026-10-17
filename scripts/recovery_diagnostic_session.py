@@ -12,6 +12,8 @@ An explicitly selected minimal Linux readout may run after candidate validation;
 it contains no OEM recovery service or persistent-filesystem mounts.
 A separate, explicit short native SEC entry probe may run with an empty ramdisk.
 It requests reset after ten seconds and does not enter DXE or the Shell.
+A separate integrated laboratory mode may enter DXE and the Shell; its BDS
+90-second timer is not a verified recovery path.
 See docs/RECOVERY_DIAGNOSTICS.md.
 """
 import argparse

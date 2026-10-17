@@ -15,6 +15,8 @@
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/PcdLib.h>
+#include <Library/DebugLib.h>
+#include <Library/OppoDebugLog.h>
 #include <Library/HobLib.h>
 #include <Library/PrePiLib.h>
 #include <Library/PrePiHobListPointerLib.h>
@@ -114,7 +116,7 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   OPPO_BOOT_INFO Info;
   (VOID)Unused;
   Hobs = HobConstructor ((VOID *)(UINTN)Plan->Pool.Base, (UINTN)Plan->Pool.Length,
-                         (VOID *)(UINTN)Plan->Pool.Base, (VOID *)(UINTN)StackBase);
+                         (VOID *)(UINTN)Plan->Pool.Base, (VOID *)(UINTN)OPPO_NATIVE_DEBUG_BASE);
   if (Hobs == NULL || PrePeiSetHobList (Hobs) != EFI_SUCCESS) Stop ();
   BuildResourceDescriptorHob (EFI_RESOURCE_SYSTEM_MEMORY, Attributes, Plan->Pool.Base, Plan->Pool.Length);
   for (Index = 0; Index < Plan->ProtectedCount; Index++) {
@@ -125,6 +127,7 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
     if (Type != EfiReservedMemoryType) BuildMemoryAllocationHob (R.Base, R.Length, Type);
   }
   BuildStackHob (StackBase, OPPO_NATIVE_STACK_BYTES);
+  BuildMemoryAllocationHob (OPPO_NATIVE_DEBUG_BASE, 4096, EfiBootServicesData);
   BuildCpuHob ((UINT8)ArmGetPhysicalAddressBits (), 0);
   SetBootMode (BOOT_WITH_FULL_CONFIGURATION);
   BuildFvHob (OPPO_NATIVE_FV_BASE, OPPO_NATIVE_FV_BYTES);
@@ -218,6 +221,9 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
                          (UINTN)State.Handoff.NativeFramebuffer.Length, &Layout)) Stop ();
   mMarkerReady = TRUE;
   Stage (0, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){0, 255, 0, 0});
+  if (!OppoDebugStart ()) Stop ();
+  DEBUG ((DEBUG_INFO, "SEC handoff validated; EL %u, counter %Lu\n",
+          (UINT32)Entry->ExceptionLevel, Entry->CounterFrequency));
   if (FeaturePcdGet (PcdNativeEntryProbe)) EntryProbe (Entry);
   SwitchStack (ContinueBoot, &State, NULL,
                (VOID *)(UINTN)(State.Plan.Pool.Base + State.Plan.Pool.Length));

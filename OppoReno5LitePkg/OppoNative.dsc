@@ -18,7 +18,7 @@
 !include MdePkg/MdeLibs.dsc.inc
 
 [BuildOptions]
-  GCC:*_*_*_CC_FLAGS = -DMDEPKG_NDEBUG -fno-jump-tables
+  GCC:*_*_*_CC_FLAGS = -fno-jump-tables
   GCC:*_*_*_DLINK_FLAGS = -z common-page-size=0x1000
 
 [BuildOptions.common.EDKII.DXE_RUNTIME_DRIVER]
@@ -87,6 +87,7 @@
   OppoMemoryPlanLib|OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.inf
 
 [LibraryClasses.common.SEC]
+  DebugLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoDebugLib.inf
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   HobLib|EmbeddedPkg/Library/PrePiHobLib/PrePiHobLib.inf
   MemoryAllocationLib|EmbeddedPkg/Library/PrePiMemoryAllocationLib/PrePiMemoryAllocationLib.inf
@@ -95,6 +96,7 @@
   ExtractGuidedSectionLib|EmbeddedPkg/Library/PrePiExtractGuidedSectionLib/PrePiExtractGuidedSectionLib.inf
 
 [LibraryClasses.common.DXE_CORE]
+  DebugLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoDebugCoreLib.inf
   HobLib|MdePkg/Library/DxeCoreHobLib/DxeCoreHobLib.inf
   MemoryAllocationLib|MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationLib.inf
 

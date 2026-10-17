@@ -138,6 +138,12 @@ azul correcto, sin evidencia de BDS ni Shell. No reinició automáticamente en
 Las fotografías solicitadas por el propietario se encuentran en
 [docs/NATIVE_FIRMWARE.md](docs/NATIVE_FIRMWARE.md#laboratorio-dxeshell).
 
+El siguiente diagnóstico añade un registro de texto propio a SEC y al núcleo
+DXE, con glifos originales y una página reservada para conservar el cursor.
+Compiló para ARM64 y pasó las pruebas de PC con sanitizadores; esos resultados
+se registran en [la evidencia de PC](evidence/native-display-log-host-validation.json).
+El registro de diagnóstico por sí solo no constituye una consola UEFI ni Shell.
+
 ## Logo de OPPO durante el arranque de Windows
 
 Se extrajo localmente el logotipo del firmware propio, separando la marca OPPO

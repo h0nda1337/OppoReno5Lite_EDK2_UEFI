@@ -1,0 +1,24 @@
+## @file
+# Bind the SEC-validated page before the DXE core's earliest memory checks.
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoDebugCoreLib
+  FILE_GUID = a98b0de6-c428-41b5-b092-6f2e08b31bf4
+  MODULE_TYPE = BASE
+  VERSION_STRING = 0.1
+  LIBRARY_CLASS = DebugLib|DXE_CORE
+  CONSTRUCTOR = OppoDebugConstructor
+[Sources]
+  OppoDebugLib.c
+[BuildOptions]
+  GCC:*_*_*_CC_FLAGS = -DOPPO_LOG_EARLY_CORE
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  PrintLib
+  OppoFrameBufferLib
