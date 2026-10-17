@@ -182,7 +182,7 @@ revisado, BaseTools y el compilador cruzado AArch64.
 ```bash
 EDK2_SOURCE=/ruta/edk2 bash scripts/build_native_firmware.sh
 python scripts/inspect_native_firmware.py \
-  /ruta/edk2/.build/OppoNative/RELEASE_GCC/FV/OPPONATIVE.fd \
+  .build/native/integration/OPPONATIVE.fd \
   --output .build/native/host-inspection.json
 EDK2_HEADERS=/ruta/edk2 bash scripts/test_gop.sh
 ```
@@ -191,6 +191,21 @@ El log está en `.build/native/build.log`. La compilación exige salida correcta
 marca `- Done -` y presencia del FD. El inspector comprueba su estructura y
 el salto directo hasta la SEC; no ejecuta la imagen. La prueba GOP utiliza el
 controlador real con RAM y servicios UEFI simulados bajo ASan/UBSan.
+
+Para construir únicamente la variante de prueba corta de SEC, sin ejecutar
+DXE ni la Shell al entrar:
+
+```bash
+NATIVE_ENTRY_PROBE=1 EDK2_SOURCE=/ruta/edk2 bash scripts/build_native_firmware.sh
+```
+
+El FD y su log se copian a `.build/native/entry-probe/`; la variante normal usa
+`.build/native/integration/`. La salida interna de EDK2 se comparte, por lo que
+las compilaciones deben ejecutarse en secuencia. Estas variantes no se deben
+intercambiar: `prepare_native_probe.py` exige el marcador propio dentro de SEC
+y empaqueta solo la prueba corta en un directorio privado nuevo. Usa gzip para
+el campo kernel de Android v2, tal como exige el LK inspeccionado. Las pruebas
+de Python comprueban límites, integridad y que no se conserve el ramdisk OEM.
 
 Las hipótesis y limitaciones del prototipo se describen en
 [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md). No hay controladores de entrada,

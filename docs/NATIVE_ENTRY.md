@@ -13,8 +13,8 @@ MPIDR. No desactiva a ciegas un MMU que haya encontrado activo.
 
 El contrato de entrada se basa en la
 [documentación ARM64 de Linux](https://docs.kernel.org/arch/arm64/booting.html).
-Esto describe el contrato que se espera de LK; su cumplimiento en la entrada
-nativa del OPPO todavía debe medirse.
+Esto describe el contrato que se espera de LK. La prueba corta alcanzó la
+franja verde de SEC; todavía faltan medidas de los registros de entrada.
 
 `OppoFdtLib` aporta un lector original para la estructura que entrega LK. El
 formato se consulta en la
@@ -60,8 +60,10 @@ rutina del harness QEMU. Construye HOBs y mapa MMU, habilita cachés y carga DXE
 se acompaña de GOP, servicios iniciales y BDS propios. El volumen incluye la
 Shell del núcleo EDK2. Véase [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).
 
-Esas operaciones todavía requieren validación física: estado de entrada de
-LK, reservas, continuidad de pantalla, MMU, temporizador, interrupciones,
-watchdog y reinicio. Los errores iniciales pueden aparcarse y el reset PSCI no
-garantiza una salida de recovery. Todavía no existe una vía de recuperación
-nativa probada en el OPPO; no se instala esta entrada en el teléfono.
+La prueba corta con transporte gzip ya mostró la franja verde después de las
+validaciones de handoff, memoria, PSCI_VERSION y watchdog, y volvió a Android.
+No ejecutó HOBs, MMU ni DXE. Todavía requieren validación física esas etapas,
+GIC y temporizadores, además de medidas del estado de entrada y del reset PSCI.
+Los errores tempranos pueden aparcarse; el retorno de una prueba corta no
+garantiza una salida en todos los fallos. Véase la evidencia filtrada y las
+limitaciones en [NATIVE_FIRMWARE.md](NATIVE_FIRMWARE.md).

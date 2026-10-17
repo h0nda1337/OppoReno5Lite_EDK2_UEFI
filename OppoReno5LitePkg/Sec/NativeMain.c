@@ -14,6 +14,7 @@
 #include <Library/ArmSmcLib.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/PcdLib.h>
 #include <Library/HobLib.h>
 #include <Library/PrePiLib.h>
 #include <Library/PrePiHobListPointerLib.h>
@@ -53,6 +54,21 @@ STATIC VOID Stop (VOID)
   Stage (3, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){0, 0, 255, 0});
   if (mResetReady) ArmCallSmc0 (ARM_SMC_ID_PSCI_SYSTEM_RESET, NULL, NULL, NULL);
   CpuDeadLoop ();
+}
+
+STATIC VOID EntryProbe (CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
+{
+  // Present only in the probe SEC. Host packaging rejects an integration FD.
+  STATIC CONST volatile CHAR8 Identity[] = "OPPO_SEC_PROBE_ONLY_V1";
+  if (Identity[0] != 'O' || Entry->CounterFrequency > 1000000000ULL) Stop ();
+  Stage (1, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 255, 255, 0});
+  UINT64 Start = ArmReadCntPct ();
+  UINT64 Ticks = Entry->CounterFrequency * 10;
+  while (ArmReadCntPct () - Start < Ticks) CpuPause ();
+  // This request is a test of PSCI, not a proven fallback for a CPU exception.
+  ArmCallSmc0 (ARM_SMC_ID_PSCI_SYSTEM_RESET, NULL, NULL, NULL);
+  Stop ();
+  for (;;) CpuDeadLoop ();
 }
 
 STATIC BOOLEAN RegisterMatches (CONST OPPO_FDT_VIEW *View, CONST CHAR8 *Path,
@@ -189,6 +205,7 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
                          (UINTN)State.Handoff.NativeFramebuffer.Length, &Layout)) Stop ();
   mMarkerReady = TRUE;
   Stage (0, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){0, 255, 0, 0});
+  if (FeaturePcdGet (PcdNativeEntryProbe)) EntryProbe (Entry);
   SwitchStack (ContinueBoot, &State, NULL,
                (VOID *)(UINTN)(State.Plan.Pool.Base + State.Plan.Pool.Length));
   Stop ();

@@ -12,6 +12,7 @@
   BUILD_TARGETS = RELEASE
   SKUID_IDENTIFIER = DEFAULT
   FLASH_DEFINITION = OppoReno5LitePkg/OppoNative.fdf
+  DEFINE OPPO_ENTRY_PROBE = FALSE
 
 !include MdePkg/MdeLibs.dsc.inc
 
@@ -97,6 +98,7 @@
   MemoryAllocationLib|MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationLib.inf
 
 [PcdsFeatureFlag]
+  gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe|$(OPPO_ENTRY_PROBE)
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|FALSE
   gArmTokenSpaceGuid.PcdRemapUnusedMemoryNx|FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdHiiOsRuntimeSupport|FALSE

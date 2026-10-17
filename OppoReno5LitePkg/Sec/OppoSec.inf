@@ -32,6 +32,7 @@
   ArmSmcLib
   BaseLib
   BaseMemoryLib
+  PcdLib
   StackCheckLib
   HobLib
   PrePiLib
@@ -44,3 +45,6 @@
 
 [Guids]
   gOppoBootInfoHobGuid
+
+[FeaturePcd]
+  gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe

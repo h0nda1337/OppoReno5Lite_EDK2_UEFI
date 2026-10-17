@@ -10,6 +10,8 @@ Not for unattended automation. Keep the stock backup available until restored.
 OEM-ramdisk diagnostics remain suspended after the encryption-key incident.
 An explicitly selected minimal Linux readout may run after candidate validation;
 it contains no OEM recovery service or persistent-filesystem mounts.
+A separate, explicit short native SEC entry probe may run with an empty ramdisk.
+It requests reset after ten seconds and does not enter DXE or the Shell.
 See docs/RECOVERY_DIAGNOSTICS.md.
 """
 import argparse
@@ -25,11 +27,19 @@ from prepare_recovery_diagnostic import PARTITION_SIZE, STOCK_SHA256, patch_entr
 from prepare_minimal_diagnostic import minimal_entries
 from recovery_image import AndroidV2, inflate_ramdisk, parse_newc
 from recovery_avb import properties as avb_properties
+from prepare_native_probe import validate_candidate as validate_native_probe
 
 def require_minimal_readout(manifest, explicit_minimal, direct_entry):
     if (manifest.get('purpose') != 'minimal-linux-readout' or
             not explicit_minimal or not direct_entry):
         raise ValueError('Only an explicit minimal Linux readout with direct entry is permitted; OEM-ramdisk diagnostics remain suspended')
+
+
+def require_native_probe(manifest, explicit_native, direct_entry):
+    if (manifest.get('purpose') != 'native-sec-entry-probe' or not explicit_native or
+            not direct_entry or manifest.get('probe_only') is not True or
+            manifest.get('reset_request_after_seconds') != 10):
+        raise ValueError('Only the explicit short native SEC probe may use this phase')
 
 
 def partition_size(value):
@@ -76,6 +86,7 @@ def main():
     parser.add_argument('--restore-stock', action='store_true')
     parser.add_argument('--boot-recovery-direct', action='store_true')
     parser.add_argument('--execute-minimal-linux-readout', action='store_true')
+    parser.add_argument('--execute-native-entry-probe', action='store_true')
     parser.add_argument('--private-report', type=Path, required=True)
     parser.add_argument('--execute-recovery-phase', action='store_true')
     args = parser.parse_args()
@@ -83,6 +94,8 @@ def main():
         parser.error('Explicit execution flag and candidate directory or restore mode required')
     if args.restore_stock and args.boot_recovery_direct:
         parser.error('Stock restoration returns to Android')
+    if args.execute_native_entry_probe and (args.restore_stock or args.execute_minimal_linux_readout):
+        parser.error('Native probe and Linux/restoration modes must be selected separately')
     repo = Path(__file__).resolve().parents[1]
     if args.private_report.exists() or args.private_report.resolve().is_relative_to(repo):
         parser.error('Choose a new report path outside the public repository')
@@ -94,11 +107,17 @@ def main():
     else:
         image = args.candidate_dir / 'recovery.img'
         manifest = json.loads((args.candidate_dir / 'build.json').read_text())
-        require_minimal_readout(manifest, args.execute_minimal_linux_readout,
-                                args.boot_recovery_direct)
-        validate_candidate(stock, image.read_bytes(), manifest)
+        if args.execute_native_entry_probe:
+            require_native_probe(manifest, True, args.boot_recovery_direct)
+            validate_native_probe(stock, image.read_bytes(), manifest)
+        else:
+            require_minimal_readout(manifest, args.execute_minimal_linux_readout,
+                                    args.boot_recovery_direct)
+            validate_candidate(stock, image.read_bytes(), manifest)
     session = ReadOnlyAdb(args.serial)
-    state = {'phase': 'preflight', 'operation': 'restore-stock' if args.restore_stock else 'diagnostic',
+    operation = ('restore-stock' if args.restore_stock else
+                 'native-sec-entry-probe' if args.execute_native_entry_probe else 'minimal-linux-readout')
+    state = {'phase': 'preflight', 'operation': operation,
              'image_sha256': hashlib.sha256(image.read_bytes()).hexdigest(),
              'partition_target': 'recovery', 'other_partitions_written': False,
              'lock_unlock_commands_sent': False, 'results': []}

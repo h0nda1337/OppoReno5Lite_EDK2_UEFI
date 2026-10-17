@@ -9,8 +9,9 @@ framebuffer, FDT, handoff y plan de memoria compiladas con EDK2 para ARM64;
 entrada ARM64 propia probada en QEMU EL1/EL2; primer prototipo integrado de
 firmware compilado e inspeccionado en PC, con SEC, GOP, servicios iniciales y
 BDS propios más núcleo DXE y Shell de EDK2. El diagnóstico Linux mínimo sí se
-ejecutó en el OPPO y capturó memoria y pantalla por USB. Todavía no se ha
-observado un arranque UEFI en este OPPO.**
+ejecutó en el OPPO y capturó memoria y pantalla por USB. La prueba corta de SEC
+nativa ya mostró su franja verde y volvió a Android con transporte gzip.
+MMU, DXE y Shell todavía no se han observado en el teléfono.**
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -29,12 +30,12 @@ Véase
 | Android de referencia | Android 13, ColorOS F.72, México libre NV7B |
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
 | Firmware integrado MT6779 | Prototipo de 8 MiB compilado e inspeccionado en PC; ejecución física pendiente |
-| Entrada ARM64 propia | Pila, vectores y argumentos comprobados en QEMU EL1/EL2; sin prueba nativa en el OPPO |
+| Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
-| RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. Mapa UEFI y pantalla antes de Linux pendientes |
+| RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC ya dibujó antes de Linux; mapa MMU pendiente |
 | Pantalla y entrada para la Shell | Pendientes |
-| GOP y framebuffer propios | Controlador y cuatro BLT comprobados con RAM simulada y sanitizadores; pantalla nativa pendiente |
-| Lector FDT propio en C | Límites y alteraciones comprobados con sanitizadores; confirma RAM y PSCI sobre la captura privada; ejecución nativa pendiente |
+| GOP y framebuffer propios | BLT comprobados con sanitizadores; franja nativa de SEC observada; controlador GOP en DXE pendiente |
+| Lector FDT propio en C | Comprobado con sanitizadores y captura; la prueba nativa alcanzó su validación de handoff y plan |
 | Interpretación de la entrega de LK | C propio; reservas fijas, dinámicas, vacías e incompletas diferenciadas; primera política comprobada en PC |
 | Primer plan de memoria propio | Política comprobada en PC; código HOB/MMU integrado, pendiente de ejecución física; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
@@ -117,6 +118,13 @@ el tag nativo de LK y su reserva, aunque contradice las propiedades divididas de
 árbol. Se conservan ambas descripciones; el análisis no convierte ninguna en una
 configuración GOP ya validada. Los resultados filtrados están en
 [evidence/runtime-linux-observations.json](evidence/runtime-linux-observations.json).
+
+La primera prueba de SEC nativa falló en LK porque el FD se había empaquetado
+sin gzip. Tras corregir ese transporte, el propietario vio la franja verde de
+la SEC propia y el retorno automático a Android. ADB confirmó arranque completo
+y motivo `reboot`; no se midió el intervalo ni se confirmó de forma concluyente
+la ruta PSCI de reset. Esta variante termina antes de HOBs, MMU, DXE y Shell.
+Véase [evidence/native-entry-probe-validation.json](evidence/native-entry-probe-validation.json).
 
 ## Logo de OPPO durante el arranque de Windows
 

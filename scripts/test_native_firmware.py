@@ -4,7 +4,7 @@ import struct
 import unittest
 from uuid import UUID
 
-from inspect_native_firmware import FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect
+from inspect_native_firmware import FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect, ENTRY_PROBE_MARKER, require_entry_probe
 
 
 def pe_fixture():
@@ -26,7 +26,7 @@ def file_fixture(identifier, kind, section_type, payload):
     return header + section
 
 
-def fixture():
+def fixture(probe=False):
     raw = bytearray(b'\xff' * FD_SIZE)
     raw[:64] = b'\0' * 64
     struct.pack_into('<IIQQ', raw, 0, 0x14000400, 0xd503201f, 0x80000, FD_SIZE)
@@ -40,7 +40,7 @@ def fixture():
     struct.pack_into('<II', header, 56, (FD_SIZE - FV_START) // 4096, 4096)
     position = FV_START + len(header)
     te_at = position + 24 + 4
-    te = bytearray(44)
+    te = bytearray(44) + (ENTRY_PROBE_MARKER if probe else b'')
     struct.pack_into('<HHBBHIIQ', te, 0, 0x5a56, 0xaa64, 0, 10, 40, 40, 40, FD_BASE + te_at)
     struct.pack_into('<I', te, 40, 0xd503201f)
     sec_entry = te_at + 40
@@ -59,6 +59,11 @@ def fixture():
 
 
 class NativeFirmwareTests(unittest.TestCase):
+    def test_full_integration_firmware_cannot_pass_short_probe_guard(self):
+        with self.assertRaises(ValueError):
+            require_entry_probe(fixture())
+        self.assertFalse(require_entry_probe(fixture(probe=True))['uefi_execution_observed'])
+
     def test_direct_entry_and_required_roles(self):
         result = inspect(fixture())
         self.assertTrue(result['direct_header_fv_sec_branch_verified'])

@@ -1,8 +1,9 @@
 # Prototipo de firmware nativo
 
 `OppoNative.dsc` y `OppoNative.fdf` componen un prototipo para compilar e
-inspeccionar en PC. No son instrucciones de instalación. Todavía no se ha
-observado su ejecución en el OPPO ni se ha probado su salida de recuperación.
+inspeccionar en PC. No son instrucciones de instalación. Una variante corta
+ya mostró su franja verde en el OPPO y volvió a Android; todavía no se observó
+la ejecución física del prototipo integrado con MMU, DXE y Shell.
 
 La imagen tiene 8 MiB y comienza en `0x40080000`. Su cabecera ARM64 salta
 directamente al volumen FV situado en `0x40081000`; el vector de ese volumen
@@ -38,15 +39,16 @@ valida y protege al recibir el control.
 
 El perfil de pantalla usa la base del tag nativo de LK y la geometría observada
 por el diagnóstico Linux: 1080 × 2400 y stride 4352. Su continuidad antes de
-Linux sigue siendo una hipótesis que requiere prueba física. Las barras de
+Linux se observó durante la prueba corta de SEC. Las barras de
 etapa nativas se sitúan desde la fila 160; la barra de la fotografía anterior
 pertenece al diagnóstico Linux y no demuestra ejecución de este firmware.
 
 El modo del watchdog se trata con la clave `0x22000000` y el bit de habilitación
 documentados en el
 [kernel OPPO inspeccionado](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/watchdog/mtk_wdt.c).
-La implementación es propia. Este acceso, las llamadas PSCI y el funcionamiento
-de GIC y temporizadores todavía no se probaron desde la entrada nativa.
+La implementación es propia. La franja verde de la prueba corta sucede después
+de comprobar PSCI_VERSION y de deshabilitar el watchdog con lectura posterior.
+Todavía faltan medidas del estado de entrada y pruebas de GIC y temporizadores.
 
 El temporizador BDS depende de que funcionen esas piezas. No garantiza que una
 excepción temprana o un bloqueo vuelva a Android; el reset tampoco demuestra
@@ -75,3 +77,39 @@ no ejecutan este núcleo DXE ni su Shell.
 
 Los comandos se encuentran en [BUILD.md](BUILD.md). El script de compilación
 no empaqueta un recovery ni utiliza ADB, Fastboot o herramientas MediaTek.
+
+## Prueba corta de entrada
+
+`NATIVE_ENTRY_PROBE=1` construye una variante de SEC que, tras validar el
+handoff y la propuesta de memoria, intenta dibujar dos franjas y solicita
+`PSCI_SYSTEM_RESET` después de diez segundos. Termina antes de construir HOBs,
+habilitar la MMU o entrar en DXE. La variante normal no contiene su marcador;
+el empaquetador rechaza un FD normal como candidato para esta fase.
+
+La primera instalación de esa variante **no llegó a la entrada nativa**. Se
+había puesto el FD sin comprimir en el campo kernel del contenedor Android.
+El registro privado de LK indicó `gzip header is not correct` y
+`decompress kernel image fail`, con tamaño `0x00800000`. El propietario observó
+pantalla negra y reinicios hasta Android. No se atribuye ese retorno a PSCI.
+Se restauró el recovery original y una lectura completa de sus 64 MiB confirmó
+que coincide con el respaldo.
+
+El empaquetador corregido transporta el FD mediante un único miembro gzip.
+La descompresión que hace LK debe producir la misma cabecera ARM64 y entrada
+directa; no se añade un cargador. La validación en PC limita la salida a 8 MiB,
+comprueba integridad, rechaza miembros adicionales y conserva DTB, DTBO,
+second y los demás campos del recovery original salvo tamaños, ID y offset.
+El ramdisk nuevo es un archivo vacío, sin servicios OEM. Se conservan las
+propiedades AVB usando algoritmo `NONE`; esto no constituye una firma OEM.
+
+Los candidatos, respaldos, registros originales e identificadores permanecen
+fuera del repositorio público. Una prueba posterior debe registrar por separado
+la aceptación del contenedor por LK, la ejecución de SEC y la salida a Android.
+
+En el segundo intento, con gzip y el mismo FD, el propietario vio la franja
+verde y el reinicio automático a Android. ADB confirmó el arranque completo,
+batería al 80 % y motivo `reboot`, en lugar del `lk_crash` anterior. No se vio la
+franja blanca ni se midió el intervalo: el retorno es compatible con la solicitud
+PSCI del probe, pero no se atribuye de forma concluyente a esa ruta. La franja
+verde confirma que SEC llegó a validar handoff, PSCI_VERSION, watchdog, reservas,
+plan inicial y framebuffer. Esta variante termina antes de HOBs, MMU y DXE.
