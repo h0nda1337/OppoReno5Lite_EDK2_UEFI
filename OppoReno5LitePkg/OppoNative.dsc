@@ -133,7 +133,11 @@
 [Components]
   OppoReno5LitePkg/Sec/OppoSec.inf
   MdeModulePkg/Core/Dxe/DxeMain.inf
-  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf {
+    <LibraryClasses>
+      # The protocol producer must not depend on its own PCD protocol.
+      PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
+  }
   ArmPkg/Drivers/CpuDxe/CpuDxe.inf
   ArmPkg/Drivers/ArmGicDxe/ArmGicDxe.inf
   ArmPkg/Drivers/TimerDxe/TimerDxe.inf

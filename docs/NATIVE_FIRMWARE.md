@@ -211,3 +211,39 @@ tomados antes del build. La ejecución observada en PC tardó 34,345 segundos,
 con caché Linux respaldada en G: y presupuesto de ocho módulos por cuatro
 objetos. No se midió el pico de CPU y no es un benchmark controlado frente al
 build anterior. Véase [la validación de PC](../evidence/native-display-log-host-validation.json).
+
+## Ejecución física del diagnóstico de texto
+
+El segundo intento integrado mostró texto del núcleo DXE mediante el renderer
+propio. La fotografía del propietario permite leer los protocolos de variables,
+cápsulas, contador monotónico, reset y reloj ausentes, los controladores
+descubiertos pero no cargados y `ASSERT_EFI_ERROR (Status = Not Found)`, seguido
+de `ASSERT DxeMain.c:578`. Esa línea comprueba los servicios arquitectónicos
+después de ejecutar el dispatcher en la revisión EDK2 fijada. Confirma ejecución
+del núcleo y del registro de diagnóstico; BDS y la Shell siguen sin verificarse.
+
+<img src="images/native-dxe-shell-lab-02.jpg" width="480" alt="Diagnóstico nativo mostrando controladores sin cargar y ASSERT DxeMain.c:578">
+
+Fotografía publicada por petición expresa del propietario. Se retiraron los
+metadatos personales de cámara y se conservaron orientación, perfil ICC y
+los datos comprimidos de imagen, sin recomprimirlos. Véase
+[su revisión](../evidence/native-dxe-shell-lab-02-photo.json).
+
+La inspección del FD de ese intento encontró que el propio productor PCD
+tenía como dependencia `gEfiPcdProtocolGuid`, que debe instalar él mismo.
+Su expresión binaria era `PUSH 13a3f0f6-264a-3ef0-f2e0-dec512342f34; END`.
+La composición global enlazaba `DxePcdLib` también dentro de ese productor;
+esa biblioteca añade precisamente esa dependencia. Es un ciclo de arranque
+en la composición del proyecto, coherente con la lista fotografiada. Corregir
+la configuración y verificar la expresión del próximo FD precede a otra
+prueba física; esta foto no demuestra que esa corrección ya funcione.
+
+El registro del intento y de la restauración posterior está en
+[la evidencia física 02](../evidence/native-dxe-shell-lab-02-validation.json).
+La composición corregida selecciona `BasePcdLibNull` solo para el productor
+PCD. El inspector del laboratorio exige en su FFS la expresión incondicional
+`TRUE; END` (`06 08`), y rechaza el candidato anterior que esperaba su propio
+protocolo. Es una guarda específica de este bootstrap, no un análisis completo
+del grafo de dependencias. La recompilación ARM64 conservó las fuentes y
+produjo esa expresión; los 52 tests de Python pasaron. Véase
+[la validación de la corrección en PC](../evidence/pcd-bootstrap-host-validation.json).

@@ -225,6 +225,12 @@ requiere el selector explícito `--execute-native-firmware-lab`. El primer
 intento se detuvo antes de observar BDS/Shell: ese temporizador no es una vía
 de recuperación validada.
 
+La variante integrada también debe contener el productor PCD con DEPEX
+incondicional `TRUE; END`. El inspector comprueba los bytes emitidos en el
+FFS y rechaza la dependencia circular identificada en la segunda prueba física.
+El cambio se limita a la biblioteca PCD del productor; los consumidores
+conservan la biblioteca dinámica y sus dependencias.
+
 El renderer de diagnóstico de texto propio tiene una prueba separada en PC:
 
 ```bash

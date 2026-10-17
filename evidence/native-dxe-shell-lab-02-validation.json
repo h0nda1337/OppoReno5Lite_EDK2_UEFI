@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "physical integrated attempt 02, original display diagnostic",
+  "sources_refer_to_commit": "02c319f41e6e3574992ad3bd6c171caf148d0988",
+  "validation_date_local": "2026-10-16",
+  "native_fd_sha256": "b2b248c086d107fd2bcc509383327a1f6815111d279be9ebe8afd341ab667391",
+  "candidate_sha256": "88014a8e570cae9f3d93e253886b69778a23cb94ebb54bff73fd489abd50a02f",
+  "battery_percent_before": 92,
+  "battery_percent_after_restoration": 92,
+  "observed_stage_bars": [
+    "green",
+    "blue",
+    "white"
+  ],
+  "original_display_logger_execution_observed": true,
+  "dxe_core_execution_observed": true,
+  "missing_architectural_protocols_visible_in_photo": [
+    "Variable",
+    "Variable Write",
+    "Capsule",
+    "Monotonic Counter",
+    "Reset",
+    "Real Time Clock"
+  ],
+  "undispatched_driver_list_visible": true,
+  "assert_file": "DxeMain.c",
+  "assert_line": 578,
+  "assert_status": "EFI_NOT_FOUND",
+  "bds_execution_verified": false,
+  "shell_execution_verified": false,
+  "automatic_reset_path_verified": false,
+  "manual_force_restart_returned_to_android": true,
+  "stock_recovery_restoration_acknowledged": true,
+  "android_boot_completed_after_stock_restoration": true,
+  "pcd_producer_depex_bytes": "02f6f0a3134a26f03ef2e0dec512342f3408",
+  "pcd_producer_waits_for_protocol_it_produces": true,
+  "pcd_protocol_guid": "13a3f0f6-264a-3ef0-f2e0-dec512342f34",
+  "dependency_diagnosis_scope": "Emitted PCD DEPEX and generic library declaration inspected on PC; consistent with the photograph, pending corrected physical test",
+  "owner_photo": "docs/images/native-dxe-shell-lab-02.jpg",
+  "firmware_binary_published": false,
+  "bootshim_used": false,
+  "fastbootd_menu_integration_started": false
+}

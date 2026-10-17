@@ -5,7 +5,8 @@ import unittest
 from uuid import UUID
 
 from inspect_native_firmware import (FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect,
-    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, require_entry_probe, require_native_lab)
+    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, PCD_DRIVER_GUID,
+    require_entry_probe, require_native_lab)
 
 
 def pe_fixture():
@@ -17,8 +18,11 @@ def pe_fixture():
     return data
 
 
-def file_fixture(identifier, kind, section_type, payload):
+def file_fixture(identifier, kind, section_type, payload, depex=None):
     section = (len(payload) + 4).to_bytes(3, 'little') + bytes([section_type]) + payload
+    if depex is not None:
+        section += b'\0' * (-len(section) % 4)
+        section += (len(depex) + 4).to_bytes(3, 'little') + b'\x13' + depex
     header = bytearray(24)
     header[:16] = UUID(identifier).bytes_le
     header[17], header[18], header[23] = 0xaa, kind, 0xf8
@@ -27,7 +31,7 @@ def file_fixture(identifier, kind, section_type, payload):
     return header + section
 
 
-def fixture(probe=False, mmu=False, lab=False):
+def fixture(probe=False, mmu=False, lab=False, pcd_depex=b'\x06\x08', pcd_present=True):
     raw = bytearray(b'\xff' * FD_SIZE)
     raw[:64] = b'\0' * 64
     struct.pack_into('<IIQQ', raw, 0, 0x14000400, 0xd503201f, 0x80000, FD_SIZE)
@@ -57,6 +61,10 @@ def fixture(probe=False, mmu=False, lab=False):
         position = (position + len(data) + 7) & ~7
     data = file_fixture('d6a2cb7f-6a18-4e2f-b43b-9920a733700a', 5, 0x10, pe_fixture())
     raw[position:position + len(data)] = data
+    position = (position + len(data) + 7) & ~7
+    if pcd_present:
+        data = file_fixture(PCD_DRIVER_GUID, 7, 0x10, pe_fixture(), pcd_depex)
+        raw[position:position + len(data)] = data
     return raw
 
 
@@ -83,9 +91,19 @@ class NativeFirmwareTests(unittest.TestCase):
     def test_direct_entry_and_required_roles(self):
         result = inspect(fixture())
         self.assertTrue(result['direct_header_fv_sec_branch_verified'])
-        self.assertEqual(len(result['files']), 6)
+        self.assertEqual(len(result['files']), 7)
         self.assertFalse(result['uefi_execution_observed'])
         self.assertFalse(result['bootshim_used'])
+
+    def test_lab_rejects_pcd_self_dependency_and_missing_bootstrap(self):
+        circular = b'\x02' + UUID('13a3f0f6-264a-3ef0-f2e0-dec512342f34').bytes_le + b'\x08'
+        for expression in (circular, b'\x07\x08', b'\x06', b'\x06\x08\x00', None):
+            with self.subTest(expression=expression):
+                with self.assertRaises(ValueError):
+                    require_native_lab(fixture(lab=True, pcd_depex=expression))
+        with self.assertRaises(ValueError):
+            require_native_lab(fixture(lab=True, pcd_present=False))
+        self.assertTrue(require_native_lab(fixture(lab=True))['pcd_bootstrap_unconditional_depex_verified'])
 
     def test_corrupt_header_checksum_file_bounds_and_sec_entry_are_rejected(self):
         original = fixture()

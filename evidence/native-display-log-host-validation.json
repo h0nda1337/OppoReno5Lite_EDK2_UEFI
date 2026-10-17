@@ -87,5 +87,6 @@
     "scripts/inspect_native_firmware.py": "23001840ca5a50b45b0a43bc278019b5f530150e1aabd5bf5708a4567b8e5355",
     "scripts/prepare_native_lab.py": "e5c6770fb176733d1708a32f54b1126e8fa10c6a3c0facbd52e1c557ec3cc3c2",
     "scripts/prepare_native_probe.py": "3c21b3b5a7170b2be2154aa79b9b7b7a1e8bb170159425070c3a161ffede7414"
-  }
+  },
+  "sources_refer_to_commit": "02c319f41e6e3574992ad3bd6c171caf148d0988"
 }
