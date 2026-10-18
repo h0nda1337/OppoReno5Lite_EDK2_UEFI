@@ -144,6 +144,23 @@ STATIC VOID Write (LOG_STATE *S, CONST CHAR8 *Buffer, UINTN Bytes, UINTN Level)
 #endif
 
 #ifdef OPPO_LOG_BOOT_API_ONLY
+STATIC VOID OpaqueCapture (LOG_STATE *S, UINT32 *Changed, UINT32 *Colored)
+{
+  *Changed = 0; *Colored = 0;
+  // Diagnostic at the final pre-ExitBS reset only. Keep all RGB bits and row
+  // padding unchanged; this is not a GOP mode or display-controller change.
+  for (UINTN Y = 0; Y < OPPO_NATIVE_FB_HEIGHT; Y++)
+    for (UINTN X = 0; X < OPPO_NATIVE_FB_WIDTH; X++) {
+      volatile UINT32 *Pixel = S->Frame.Pixels + Y * (OPPO_NATIVE_FB_STRIDE / 4) + X;
+      UINT32 Raw = *Pixel;
+      if ((Raw >> 24) == 255) continue;
+      (*Changed)++;
+      if ((Raw & 0x00ffffffU) != 0) (*Colored)++;
+      *Pixel = Raw | 0xff000000U;
+    }
+  MemoryFence ();
+}
+
 STATIC VOID LargeReport (LOG_STATE *S, CONST CHAR8 *Buffer, UINTN Bytes)
 {
   UINTN Column = 0, Line = 0;
@@ -152,6 +169,7 @@ STATIC VOID LargeReport (LOG_STATE *S, CONST CHAR8 *Buffer, UINTN Bytes)
         RESET_REPORT_TOP, OPPO_NATIVE_FB_WIDTH, RESET_REPORT_HEIGHT);
   for (UINTN I = 0; I < Bytes && I < 384 && Line < 8; I++) {
     CHAR8 C = Buffer[I];
+    if (C == '\r') continue;
     if (C == '\n') {Column = 0; Line++; continue;}
     if (Column >= OPPO_NATIVE_FB_WIDTH / 24) continue;
     CONST GLYPH *Glyph = FindGlyph (C);
@@ -168,15 +186,17 @@ VOID EFIAPI OppoBootLogReset (EFI_RESET_TYPE Type, EFI_STATUS Status)
 {
   LOG_STATE *S = State ();
   CHAR8 Buffer[384];
+  UINT32 Changed = 0, Colored = 0;
   OPPO_BOOT_FLOW Flow = {0, EFI_NOT_STARTED, EFI_NOT_STARTED, EFI_NOT_STARTED, 0};
   if (S == NULL || S->Busy) return;
   if (S->FlowSignature == FLOW_SIGNATURE) Flow = S->Flow;
+  S->Busy = 1; MemoryFence ();
+  if (Flow.Stage == OPPO_BOOT_START_ACTIVE) OpaqueCapture (S, &Changed, &Colored);
   UINTN Bytes = AsciiSPrint (Buffer, sizeof (Buffer),
-    "OPPO RESET CAPTURE\nTYPE=%u REQUEST=%a\nEFI STATUS=%016Lx\nSTAGE=%u LOAD=%016Lx\nRETURN=%016Lx\nMAP=%016Lx\nFREE SNAPSHOT=%Lu MIB\n15 SECOND CAPTURE HOLD\n",
+    "OPPO RESET CAPTURE\nTYPE=%u REQUEST=%a\nEFI STATUS=%016Lx\nSTAGE=%u LOAD=%016Lx\nRETURN=%016Lx\nMAP=%016Lx FREE=%LuM\nALPHA FIX=%u COLOR=%u\n15 SECOND CAPTURE HOLD\n",
     (UINT32)Type, Type == EfiResetShutdown ? "POWER OFF" : "RESET", (UINT64)Status,
     Flow.Stage, (UINT64)Flow.LoadStatus, (UINT64)Flow.StartStatus,
-    (UINT64)Flow.MapStatus, Flow.ConventionalBytes / (1024 * 1024));
-  S->Busy = 1; MemoryFence ();
+    (UINT64)Flow.MapStatus, Flow.ConventionalBytes / (1024 * 1024), Changed, Colored);
   LargeReport (S, Buffer, Bytes);
   S->Busy = 0; MemoryFence ();
 }

@@ -16,13 +16,13 @@ El lector microSD propio ya abrió `BOOTAA64.EFI` desde la tarjeta en EDK2 y ley
 un prefijo ARM64 UEFI válido de 4096 bytes, tras habilitar VMC/VMCH a 3,0 V.
 La foto del intento 16 y el regreso a Android están documentados en
 [docs/MICROSD.md](docs/MICROSD.md#encendido-vmcvmch-16-lectura-física-de-la-microsd-conseguida).
-El intento 20 confirmó `LoadImage` correcto y una solicitud de apagado mientras
-`StartImage` seguía activo. El mapa previo a entrar en el cargador mostraba
-52 MiB convencionales libres; no se ha demostrado falta de memoria. Se infiere
-ejecución de Windows Boot Manager por la inspección del archivo y la ruta de
-arranque. Su texto sigue oculto por rectángulos negros; el error exacto y el
-arranque de WinPE siguen pendientes. Las dos fotos y la restauración del recovery
-original están documentadas en [el intento 20](docs/MICROSD.md#panel-ampliado-y-memoria-convencional-20).
+El intento 21 hizo legible la pantalla de recuperación de Windows Boot Manager
+al ajustar la opacidad antes del apagado. Muestra `0xc0000017`: memoria insuficiente
+para crear el ramdisk. EDK2 aún entrega un pool inicial de solo 64 MiB, con
+52 MiB convencionales libres antes de entrar al cargador. El siguiente paso es
+planificar RAM adicional respetando las reservas reales del handoff; WinPE y
+el kernel siguen sin arrancar. Las dos fotos, el diagnóstico y la restauración
+del recovery original están documentados en [el intento 21](docs/MICROSD.md#diagnóstico-de-opacidad-21).
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -51,7 +51,7 @@ Véase
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
-| microSD y cargador ARM64 | FAT, carga EFI correcta y apagado con la aplicación activa verificados. Identidad de Boot Manager inferida; texto legible y WinPE pendientes |
+| microSD y cargador ARM64 | FAT, carga EFI y pantalla Recovery de Windows Boot Manager verificados. Error `0xc0000017` de RAM para ramdisk; WinPE pendiente |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el

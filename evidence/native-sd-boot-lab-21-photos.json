@@ -1,0 +1,31 @@
+{
+  "photos": [
+    {
+      "public_path": "docs/images/native-sd-boot-lab-21-reset.jpg",
+      "bytes": 3081458,
+      "sha256": "4949e9db3a6871e689663607b9796dbd6f5a865e4ae399491e551c0b15a76b58",
+      "orientation": 6,
+      "icc_segments_preserved": 1,
+      "compressed_pixel_scans_preserved": true,
+      "compressed_scan_sha256": "434a4f24c59203ed110228aed06877cb547ca015efb7412ebd4142676481e45b",
+      "retained_exif_tags": [
+        "Orientation"
+      ],
+      "owner_requested_documentation": true
+    },
+    {
+      "public_path": "docs/images/native-sd-boot-lab-21-context.jpg",
+      "bytes": 4448260,
+      "sha256": "08b208f6a0ce20d815d0c4ee48275a81ed6fcff9d683860336026440474317cb",
+      "orientation": 6,
+      "icc_segments_preserved": 1,
+      "compressed_pixel_scans_preserved": true,
+      "compressed_scan_sha256": "0025531fb98d814880aa0c7d6ddf1b375e3ecf9f7334a09f614b8484c84943e3",
+      "retained_exif_tags": [
+        "Orientation"
+      ],
+      "owner_requested_documentation": true
+    }
+  ],
+  "visual_review": "Owner photographs show a legible Windows Recovery display reporting error 0xc0000017 and insufficient memory for a ramdisk and, in the detail photo, the original large reset report. No personal identifiers visible."
+}

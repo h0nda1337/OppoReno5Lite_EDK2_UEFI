@@ -556,6 +556,57 @@ Véanse [la compilación y pruebas de PC](../evidence/native-sd-boot-lab-20-host
 [la evidencia física filtrada](../evidence/native-sd-boot-lab-20-validation.json)
 y [la revisión de las fotos](../evidence/native-sd-boot-lab-20-photos.json).
 
+## Diagnóstico de opacidad (21)
+
+La captura previa al apagado ajusta a `0xff` el byte superior de cada píxel
+visible, conservando todos los bits RGB y el relleno de las filas. Solo se
+ejecuta cuando `StartImage` sigue activo y la captura anterior a
+`ExitBootServices` está armada. No cambia el modo GOP, registros del controlador
+de pantalla, política de carga ni la solicitud PSCI de apagado. Después muestra
+`ALPHA FIX`, número de píxeles ajustados, y `COLOR`, cuántos de ellos contenían
+RGB distinto de cero. Son recuentos diagnósticos, no confirmación de la causa.
+
+La hipótesis es que el byte reservado que escribe la aplicación pueda estar
+siendo interpretado como opacidad por la pantalla heredada. Si los glifos RGB
+ya existen en el framebuffer, este diagnóstico podría volverlos visibles al
+final. No se añade una reparación permanente durante la ejecución del cargador
+ni se afirma compatibilidad gráfica completa. También se omiten los retornos
+de carro que introducía el formateador en las líneas del panel propio.
+
+Once casos con memoria protegida en PC verifican que el ajuste no modifica RGB,
+padding ni estado inválido/ocupado, es idempotente y conserva los píxeles ya
+opacos. Se comprueban también la traza ausente y CRLF; el formateador sigue
+simulado. Las regresiones SEC y DXE core pasan con sanitizadores. La variante
+ARM64 compiló en unos 29 segundos;
+véase [la evidencia de PC](../evidence/native-sd-boot-lab-21-host-validation.json).
+
+![Pantalla de recuperación de Windows: memoria insuficiente para crear el ramdisk](images/native-sd-boot-lab-21-context.jpg)
+
+La fotografía física permite leer `Recovery`, el mensaje de memoria insuficiente
+para crear un dispositivo ramdisk y **`Error code: 0xc0000017`**. Con la ruta EFI
+de la tarjeta y la inspección previa de `bootmgr.exe`, se confirma la pantalla de
+recuperación de Windows Boot Manager. No es un pantallazo del kernel ni prueba
+de arranque de WinPE. No se ha medido el tamaño o requisito de contigüidad de la
+asignación que falló; EDK2 conserva el pool de 64 MiB, no los 6 GiB físicos.
+
+![Informe del ajuste de opacidad y de la solicitud de apagado](images/native-sd-boot-lab-21-reset.jpg)
+
+El panel muestra `ALPHA FIX=139171 COLOR=139171`. Esos píxeles tenían color RGB
+pero no opacidad completa; al modificar solo el byte superior, el texto antes
+oculto se hizo legible. Esto demuestra un problema de opacidad en esa captura,
+sin validar todavía una solución permanente para GOP o el controlador físico.
+Se mantienen `TYPE=2 REQUEST=POWER OFF`, estado EFI cero, etapa 3, carga correcta,
+marcador de retorno `EFI_NOT_STARTED`, mapa correcto y observación previa de
+52 MiB. El estado de apagado no es el código de error de Windows.
+
+ADB detectó Android completo unos 132 segundos después del informe de entrada,
+con motivo `usb`. El método de encendido no se confirmó por separado; no se
+afirma retorno automático. Se restauró el recovery original y se verificó
+Android al 100 % de batería. Las fotografías conservan los píxeles comprimidos,
+orientación y perfil de color, sin metadatos personales. Véanse
+[la evidencia física](../evidence/native-sd-boot-lab-21-validation.json) y
+[la revisión de las fotografías](../evidence/native-sd-boot-lab-21-photos.json).
+
 ## Aplicación EFI de la tarjeta
 
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera
