@@ -18,8 +18,14 @@ typedef struct {
   UINT8 VmchControl1, VmchControl2, VmchVoltage;
   UINT32 ClockSelect, ClockGate, Pinmux;
   UINT32 RestoreRegister, RestoreExpected, RestoreObserved;
+  EFI_STATUS Apply, Rollback;
+  UINT32 ApplyFailureRegister;
+  UINT8 ActiveVmcControl, ActiveVmchControl, ActiveVmcVoltage, ActiveVmchVoltage;
 } OPPO_SD_POWER;
 // Reads ID at PMU address 0x34 and CRC-protected LDO state at 0x64.
 // No slave register writes, bus scan, DMA, voltage changes or rail enables.
 EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *Power);
+// Explicit board-validated mode: initialize only disabled VMC/VMCH to3.0V.
+// Requires additional platform voltage validation. Failure attempts rollback.
+EFI_STATUS OppoSdPowerEnable (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *Power);
 #endif

@@ -4,13 +4,19 @@ Port experimental de EDK2 para **OPPO Reno5 Lite CPH2205 / OP4F43L1**, proyecto
 20295, MediaTek MT6779 (Helio P95). El objetivo es conseguir una UEFI Shell nativa
 y después ofrecer una opción **UEFI Shell** en el recovery que muestra Fastbootd.
 
-**Estado, 17 de octubre de 2026: UEFI Interactive Shell v2.2 llegó al prompt
+**Estado, 18 de octubre de 2026: UEFI Interactive Shell v2.2 llegó al prompt
 `Shell>` en el OPPO, con entrada ARM64, SEC, GOP y BDS propios y núcleo/Shell
 de la dependencia base EDK2, sin BootShim ni kernel Linux en el candidato.
 El séptimo intento quedó documentado mediante fotografía del propietario.
 Volvió automáticamente a Android; ADB verificó arranque completo y después
 se restauró recovery original, con batería al 100 %. La entrada de usuario,
 ejecución de comandos y la opción del menú Fastbootd siguen pendientes.**
+
+El lector microSD propio ya abrió `BOOTAA64.EFI` desde la tarjeta en EDK2 y leyó
+un prefijo ARM64 UEFI válido de 4096 bytes, tras habilitar VMC/VMCH a 3,0 V.
+La foto del intento 16 y el regreso a Android están documentados en
+[docs/MICROSD.md](docs/MICROSD.md#encendido-vmcvmch-16-lectura-física-de-la-microsd-conseguida).
+La ejecución de Windows Boot Manager y Windows PE sigue pendiente.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -39,7 +45,7 @@ Véase
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
-| microSD y cargador ARM64 | Banco RM, consulta del regulador y restauración I²C verificados físicamente; habilitaciones SD apagadas y CMD8 con CRC. Lectura de sectores y Windows Boot Manager pendientes |
+| microSD y cargador ARM64 | Encendido VMC/VMCH, acceso FAT y lectura del prefijo ARM64 UEFI verificados en el OPPO; ejecución de Windows Boot Manager pendiente |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el

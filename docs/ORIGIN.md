@@ -30,6 +30,8 @@ Partition y FAT pertenecen a la dependencia base EDK2, con sus licencias.
 La consulta PIO de I²C5 y CRC-8 de `OppoSdPowerLib`, su perfil FDT y sus pruebas
 también son originales. La referencia del fabricante solo se consultó para
 los contratos del bus y los registros LDO. No se importó su controlador Linux.
+La operación explícita de encendido a 3,0 V, su restauración ante fallos y su
+modelo de PC también son implementaciones originales del proyecto.
 
 La composición de `OppoNative.dsc` y `OppoNative.fdf` es original. Identifica
 explícitamente los módulos genéricos de la dependencia base EDK2: núcleos,

@@ -53,7 +53,119 @@ STATIC EFI_STATUS Query (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P,
   return EFI_TIMEOUT;
 }
 
-EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
+STATIC EFI_STATUS WriteLdo (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P, UINT8 Register, UINT8 Value)
+{
+  // A closed write set: VMC/VMCH enables, selectors and SD-card detector only.
+  if (Register != 5 && Register != 9 && Register != 11 && Register != 12 && Register != 15)
+    return EFI_INVALID_PARAMETER;
+  P->LastAddress = 0x64; P->LastRegister = Register; P->Interrupt = 0;
+  if (Read (Io, 0x24) & 1) return EFI_NOT_READY;
+  UINT8 Packet[3] = {0xc8, Register, Value};
+  UINT8 Payload[4] = {Register, Value, Crc (Packet, 3), 0};
+  Write (Io, 0x08, 0); Write (Io, 0x0c, 0x1ff); Write (Io, 0x38, 1);
+  Write (Io, 0x10, 0x28); // ACK detection and clock extension; no DMA or RS.
+  Write (Io, 0x04, 0xc8); Write (Io, 0x14, sizeof (Payload));
+  Write (Io, 0x44, 0); Write (Io, 0x18, 1);
+  for (UINTN I = 0; I < sizeof (Payload); I++) Write (Io, 0, Payload[I]);
+  Write (Io, 0x24, 1);
+  for (UINT32 Elapsed = 0; Elapsed < 100000; Elapsed += 10) {
+    UINT32 Events = Read (Io, 0x0c) & 0x1ff;
+    P->Interrupt = Events;
+    if (Events & ~1U) return (Events & (1U << 5)) ? EFI_TIMEOUT : EFI_DEVICE_ERROR;
+    if (Events & 1) {Write (Io, 0x0c, Events); return EFI_SUCCESS;}
+    Io->Delay (Io->Context, 10);
+  }
+  return EFI_TIMEOUT;
+}
+
+STATIC EFI_STATUS UpdateLdo (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P,
+                            UINT8 Register, UINT8 Mask, UINT8 Value)
+{
+  UINT8 Before, After;
+  EFI_STATUS Status = Query (Io, P, 0x64, Register, TRUE, &Before);
+  if (EFI_ERROR (Status)) return Status;
+  Value = (Before & (UINT8)~Mask) | (Value & Mask);
+  if (Value != Before) {
+    Status = WriteLdo (Io, P, Register, Value);
+    if (EFI_ERROR (Status)) return Status;
+  }
+  Status = Query (Io, P, 0x64, Register, TRUE, &After);
+  if (!EFI_ERROR (Status) && (After & Mask) != (Value & Mask)) Status = EFI_DEVICE_ERROR;
+  return Status;
+}
+
+STATIC EFI_STATUS VoltageOff (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P,
+                             UINT8 Control, UINT8 Selector, UINT8 Mask, UINT8 Value)
+{
+  UINT8 State;
+  for (UINT32 Attempt = 0; Attempt < 100; Attempt++) {
+    EFI_STATUS Status = Query (Io, P, 0x64, Control, TRUE, &State);
+    if (EFI_ERROR (Status)) return Status;
+    if (State & 0x40) return EFI_NOT_READY; // Never retarget an enabled rail.
+    if (!(State & 4)) return UpdateLdo (Io, P, Selector, Mask, Value);
+    Io->Delay (Io->Context, 1000); // Also wait for reported output state to fall.
+  }
+  return EFI_TIMEOUT;
+}
+STATIC EFI_STATUS PowerGood (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P,
+                            UINT8 Register, UINT8 *Active)
+{
+  for (UINT32 Attempt = 0; Attempt < 100; Attempt++) {
+    EFI_STATUS Status = Query (Io, P, 0x64, Register, TRUE, Active);
+    if (EFI_ERROR (Status)) return Status;
+    if ((*Active & 0x44) == 0x44) return EFI_SUCCESS;
+    Io->Delay (Io->Context, 1000);
+  }
+  return EFI_TIMEOUT;
+}
+
+STATIC EFI_STATUS ApplyRails (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
+{
+  UINT8 Detect;
+  EFI_STATUS Status, VmcOff, VmchOff, Undo;
+  // The first enable experiment accepts the disabled control state physically
+  // observed in CPH2205. Do not take ownership of an already powered rail.
+  if (P->VmcControl1 || P->VmchControl1 ||
+      (P->VmcControl2 & 0x7f) || (P->VmchControl2 & 0x7f)) return EFI_UNSUPPORTED;
+  Status = Query (Io, P, 0x64, 12, TRUE, &Detect);
+  if (EFI_ERROR (Status)) return Status;
+  Status = VoltageOff (Io, P, 5, 9, 0xff, 0xaa);
+  if (!EFI_ERROR (Status)) Status = VoltageOff (Io, P, 11, 15, 0x7f, 0x2a);
+  // Supply the card before its I/O rail; set SD-card detection as in the board
+  // regulator contract. Every change gets a CRC-protected masked readback.
+  if (!EFI_ERROR (Status)) Status = UpdateLdo (Io, P, 11, 0x40, 0x40);
+  if (!EFI_ERROR (Status)) Status = UpdateLdo (Io, P, 12, 0x40, 0x40);
+  if (!EFI_ERROR (Status)) Status = PowerGood (Io, P, 11, &P->ActiveVmchControl);
+  if (!EFI_ERROR (Status)) Status = UpdateLdo (Io, P, 5, 0x40, 0x40);
+  if (!EFI_ERROR (Status)) Status = PowerGood (Io, P, 5, &P->ActiveVmcControl);
+  if (!EFI_ERROR (Status)) Status = Query (Io, P, 0x64, 9, TRUE, &P->ActiveVmcVoltage);
+  if (!EFI_ERROR (Status)) Status = Query (Io, P, 0x64, 15, TRUE, &P->ActiveVmchVoltage);
+  if (!EFI_ERROR (Status) && (P->ActiveVmcVoltage != 0xaa || (P->ActiveVmchVoltage & 0x7f) != 0x2a)) {
+    P->ApplyFailureRegister = P->ActiveVmcVoltage != 0xaa ? 9 : 15;
+    Status = EFI_DEVICE_ERROR;
+  }
+  if (!EFI_ERROR (Status)) {Io->Delay (Io->Context, 20000); return EFI_SUCCESS;}
+  if (P->ApplyFailureRegister == MAX_UINT32) P->ApplyFailureRegister = P->LastRegister;
+  if (Read (Io, 0x24) & 1) {Write (Io, 0x50, 1); Io->Delay (Io->Context, 10);}
+  VmcOff = UpdateLdo (Io, P, 5, 0x40, 0);
+  VmchOff = UpdateLdo (Io, P, 11, 0x40, 0);
+  P->Rollback = EFI_ERROR (VmcOff) ? VmcOff : VmchOff;
+  Undo = UpdateLdo (Io, P, 12, 0x40, Detect);
+  if (EFI_ERROR (Undo)) P->Rollback = Undo;
+  // If disable failed, keep that rail's validated 3.0V setting rather than
+  // restore an old selector while it may still be live. Report the failure.
+  if (!EFI_ERROR (VmcOff)) {
+    Undo = VoltageOff (Io, P, 5, 9, 0xff, P->VmcVoltage);
+    if (EFI_ERROR (Undo)) P->Rollback = Undo;
+  }
+  if (!EFI_ERROR (VmchOff)) {
+    Undo = VoltageOff (Io, P, 11, 15, 0x7f, P->VmchVoltage);
+    if (EFI_ERROR (Undo)) P->Rollback = Undo;
+  }
+  return Status;
+}
+
+STATIC EFI_STATUS Inspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P, BOOLEAN Enable)
 {
   STATIC CONST UINT32 Registers[] = {0x04,0x08,0x10,0x14,0x18,0x1c,0x20,0x28,0x2c,0x30,0x34,0x44,0x48,0x4c};
   UINT32 Saved[sizeof (Registers) / sizeof (Registers[0])];
@@ -65,6 +177,8 @@ EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
   P->RestoreRegister = MAX_UINT32; P->RestoreExpected = P->RestoreObserved = 0;
   P->ChipId = P->VmcControl1 = P->VmcControl2 = P->VmcVoltage = 0;
   P->VmchControl1 = P->VmchControl2 = P->VmchVoltage = 0;
+  P->Apply = P->Rollback = EFI_NOT_STARTED; P->ApplyFailureRegister = MAX_UINT32;
+  P->ActiveVmcControl = P->ActiveVmchControl = P->ActiveVmcVoltage = P->ActiveVmchVoltage = 0;
   if (Io == NULL || Io->Read == NULL || Io->Write == NULL || Io->Delay == NULL)
     return P->Status = EFI_INVALID_PARAMETER;
   if (Read (Io, 0x24) & 1) return P->Status = EFI_NOT_READY;
@@ -91,6 +205,7 @@ EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
     P->Status = Query (Io, P, 0x64, LdoRegisters[I], TRUE, Destinations[I]);
     if (!EFI_ERROR (P->Status)) P->Valid |= 1U << (I + 1);
   }
+  if (Enable && !EFI_ERROR (P->Status)) P->Apply = ApplyRails (Io, P);
   // Abort a failed transaction before restoring the retained configuration.
   if (Read (Io, 0x24) & 1) {
     Write (Io, 0x50, 1); Io->Delay (Io->Context, 10);
@@ -116,5 +231,12 @@ EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
       }
     }
   }
-  return P->Status;
+  if (EFI_ERROR (P->Status)) return P->Status;
+  if (Enable && EFI_ERROR (P->Apply)) return P->Apply;
+  return Enable && EFI_ERROR (P->Restore) ? P->Restore : P->Status;
 }
+
+EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
+{ return Inspect (Io, P, FALSE); }
+EFI_STATUS OppoSdPowerEnable (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
+{ return Inspect (Io, P, TRUE); }

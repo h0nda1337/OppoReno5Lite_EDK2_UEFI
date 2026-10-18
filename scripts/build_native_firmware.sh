@@ -37,6 +37,13 @@ case "${NATIVE_SD_READ_LAB:-0}:${NATIVE_SD_BOOT_LAB:-0}:$mode" in
     mode=sd-boot-lab; extra=(-D OPPO_SD_READ_LAB=TRUE -D OPPO_SD_BOOT_LAB=TRUE) ;;
   *) printf '%s\n' 'SD lab flags must be 0 or 1 and cannot combine with SEC probes' >&2; exit 1 ;;
 esac
+case "${NATIVE_SD_POWER_LAB:-0}:$mode" in
+  0:*) ;;
+  1:integration) mode=sd-power-lab; extra=(-D OPPO_SD_READ_LAB=TRUE -D OPPO_SD_POWER_LAB=TRUE) ;;
+  1:sd-read-lab) mode=sd-power-lab; extra+=(-D OPPO_SD_POWER_LAB=TRUE) ;;
+  1:sd-boot-lab) extra+=(-D OPPO_SD_POWER_LAB=TRUE) ;;
+  *) printf '%s\n' 'SD power lab must be 0 or 1 and cannot combine with SEC probes' >&2; exit 1 ;;
+esac
 export WORKSPACE="$edk2" PACKAGES_PATH="$root"
 export GCC_AARCH64_PREFIX="${GCC_AARCH64_PREFIX:-aarch64-linux-gnu-}"
 export SOURCE_DATE_EPOCH="$(git -C "$edk2" show -s --format=%ct HEAD)"

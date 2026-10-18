@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-sd-power-lab-16.jpg",
+  "bytes": 2800058,
+  "sha256": "ccd254bfddc00db6459ba582358b46f0be81d35161e20c86ef848895ea2a9fbd",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "445f4c410b31f963b0e6460b574e058128a9c02b966a3608921f57f914adc1d6",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of native microSD power attempt 16: regulator apply succeeds; active controls and 3.0 V selectors read back; FAT filesystem discovery, opening BOOTAA64.EFI and its 4096-byte ARM64 UEFI prefix succeed. Windows launch is disabled in this variant"
+}

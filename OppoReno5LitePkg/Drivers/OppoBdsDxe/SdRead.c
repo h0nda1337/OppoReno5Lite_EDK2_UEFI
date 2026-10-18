@@ -98,6 +98,11 @@ VOID OppoSdReadLab (EFI_HANDLE Parent)
     Sd->Power.VmchControl1, Sd->Power.VmchControl2, Sd->Power.VmchVoltage));
   DEBUG ((DEBUG_INFO, "SD I2C restore reg=%08x expected=%04x observed=%04x\n",
     Sd->Power.RestoreRegister, Sd->Power.RestoreExpected, Sd->Power.RestoreObserved));
+  DEBUG ((DEBUG_INFO, "SD power apply=%r rollback=%r failure reg=%02x\n",
+    Sd->Power.Apply, Sd->Power.Rollback, Sd->Power.ApplyFailureRegister));
+  DEBUG ((DEBUG_INFO, "SD active VMC=%02x/%02x VMCH=%02x/%02x\n",
+    Sd->Power.ActiveVmcControl, Sd->Power.ActiveVmcVoltage,
+    Sd->Power.ActiveVmchControl, Sd->Power.ActiveVmchVoltage));
   if (EFI_ERROR (Sd->Publish)) return;
   Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiSimpleFileSystemProtocolGuid, NULL, &Count, &Handles);
   DEBUG ((DEBUG_INFO, "SD filesystem discovery: %r\n", Status));

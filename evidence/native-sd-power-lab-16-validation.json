@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-power-16",
+  "stage": "physical_filesystem_and_arm64_prefix_verified",
+  "source_base_revision": "d90dceae8021aaa0352b18ea5aa997cacf49ca41",
+  "host_evidence": "evidence/native-sd-power-lab-16-host-validation.json",
+  "candidate_sha256": "e6de8f86d37658b205eeed7d227ca038d68f51e3ba7187704f703cba52249288",
+  "native_fd_sha256": "0d12fb3deb1cc094ee8f0c6fcc177584cbd6ba23704fe83bc38776964648dddc",
+  "observation_source": "Owner photograph of running OPPO; separate read-only Android return observer",
+  "photos": [
+    "docs/images/native-sd-power-lab-16.jpg"
+  ],
+  "screen": {
+    "i2c_restore_register": "0xffffffff",
+    "i2c_restore_expected": "0x0000",
+    "i2c_restore_observed": "0x0000",
+    "power_apply": "Success",
+    "power_rollback": "Not Started",
+    "power_failure_register": "0xffffffff",
+    "active_vmc_control": "0xc4",
+    "active_vmc_voltage_selector": "0xaa",
+    "active_vmch_control": "0xc4",
+    "active_vmch_voltage_selector": "0x2a",
+    "filesystem_discovery": "Success",
+    "open_bootaa64_efi": "Success",
+    "file_prefix_read": "Success",
+    "file_prefix_bytes": 4096,
+    "arm64_uefi_header_verified": true,
+    "windows_launch_explicitly_disabled": true,
+    "total_sector_count_visible": false
+  },
+  "interpretation": {
+    "power_enable_and_status_bits_verified": true,
+    "power_selector_target_microvolts": 3000000,
+    "electrical_rail_voltage_measured": false,
+    "hardware_failure_rollback_verified": false,
+    "sector_reads_verified_by_filesystem_and_file_access": true,
+    "fat_filesystem_access_verified": true,
+    "full_efi_file_read_verified": false,
+    "efi_signature_verified": false,
+    "windows_boot_manager_started": false,
+    "windows_pe_boot_verified": false,
+    "media_write_commands_implemented": false
+  },
+  "battery_before_test_percent": 99.0,
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 201.338,
+    "bootreason": "reboot"
+  },
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_after_restoration_percent": 98.0
+}

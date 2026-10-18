@@ -5,6 +5,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+STATIC BOOLEAN mEnableLab;
+#define _PCD_GET_MODE_BOOL_PcdNativeSdPowerLab mEnableLab
 #include "../OppoReno5LitePkg/Drivers/OppoSdDxe/OppoSdDxe.c"
 
 EFI_GUID gOppoBootInfoHobGuid, gOppoSdDeviceGuid, gOppoSdStatusProtocolGuid;
@@ -24,8 +26,15 @@ EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *Power)
 {
   assert(mScenario>=14 && Io->Read==I2cRead && Io->Write==I2cWrite);
   mPowerQueries++;Power->Status=EFI_SUCCESS;
-  Power->Restore=mScenario==18 ? EFI_DEVICE_ERROR : EFI_SUCCESS;
+  Power->Restore=(mScenario==18 || mScenario==25) ? EFI_DEVICE_ERROR : EFI_SUCCESS;
   Power->Valid=0x7f;return EFI_SUCCESS;
+}
+EFI_STATUS OppoSdPowerEnable (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *Power)
+{
+  assert(mEnableLab && mScenario>=21);
+  EFI_STATUS Status=OppoSdPowerInspect(Io,Power);
+  Power->Apply=mScenario==23 ? EFI_TIMEOUT : EFI_SUCCESS;
+  return EFI_ERROR(Power->Apply) ? Power->Apply : Status;
 }
 
 VOID *EFIAPI GetFirstGuidHob (CONST EFI_GUID *Guid)
@@ -109,7 +118,7 @@ int main(void)
 {
   mBoot.InstallMultipleProtocolInterfaces=Install;
   mBoot.RaiseTPL=Raise; mBoot.RestoreTPL=Restore;
-  for (mScenario=0;mScenario<21;mScenario++) {
+  for (mScenario=0;mScenario<26;mScenario++) {
     memset(&mCard,0,sizeof(mCard)); memset(&mStatus,0,sizeof(mStatus));
     memset(&mMedia,0,sizeof(mMedia)); memset(&mHob,0,sizeof(mHob));
     mHob.Header.Header.HobLength=sizeof(mHob);
@@ -118,6 +127,10 @@ int main(void)
     mHob.Info.Flags=mScenario==2 ? 0 : mScenario==11 ? OPPO_BOOT_SD_PROFILE_VALIDATED : mScenario==12 ? OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED :
       OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED;
     if(mScenario>=14 && mScenario<20) mHob.Info.Flags|=OPPO_BOOT_SD_POWER_PROFILE_VALIDATED;
+    mEnableLab=mScenario>=21;
+    if(mScenario>=21) mHob.Info.Flags|=OPPO_BOOT_SD_POWER_PROFILE_VALIDATED;
+    if(mScenario==21 || mScenario==23 || mScenario==24 || mScenario==25) mHob.Info.Flags|=OPPO_BOOT_SD_VOLTAGE_PROFILE_VALIDATED;
+    if(mScenario==24) mHob.Info.Flags&=~OPPO_BOOT_SD_POWER_PROFILE_VALIDATED;
     mIes=0x80000000U;mSmt=0x80000001U;mPupd=0xdeadffffU;mR0=0xcafe00ffU;mR1=0x2300U;
     mReads=mWrites=mCardInits=mCardReads=mInstalls=mTpl=0;
     mPowerQueries=0;mI2cGate=1U<<18;
@@ -125,7 +138,8 @@ int main(void)
     if (mScenario==1 || mScenario==2 || mScenario==11 || mScenario==12) assert(mReads==0 && mWrites==0 && mCardInits==0);
     else if (mScenario==3) assert(mWrites==0 && mCardInits==0 && mStatus.Board==EFI_NOT_READY);
     else if (mScenario==4) assert(mWrites==0 && mCardInits==0 && mStatus.Board==EFI_UNSUPPORTED);
-    else if (mScenario==5 || mScenario==6 || mScenario==10 || mScenario==13 || mScenario==18 || mScenario==19) assert(mCardInits==0 && mStatus.Board==EFI_DEVICE_ERROR);
+    else if (mScenario==22 || mScenario==24) assert(mCardInits==0 && mWrites==0 && mStatus.Board==EFI_UNSUPPORTED);
+    else if (mScenario==5 || mScenario==6 || mScenario==10 || mScenario==13 || mScenario==18 || mScenario==19 || mScenario==23 || mScenario==25) assert(mCardInits==0 && mStatus.Board==EFI_DEVICE_ERROR);
     else if (mScenario==7) assert(mInstalls==1 && mStatus.Initialize==EFI_TIMEOUT);
     else {
       UINT8 Buffer[513];
@@ -146,7 +160,7 @@ int main(void)
     if (mCardInits==0) assert(mStatus.Cmd8FirstStatus==EFI_NOT_STARTED);
     if (mScenario==10) assert(mStatus.PadRestoreStatus==EFI_SUCCESS && mSmt==0x80000001U && mPupd==0xdeadffffU && mR0==0xcafe00ffU && mR1==0x2300U);
     if (mScenario==13) assert(mStatus.PadRestoreStatus==EFI_DEVICE_ERROR);
-    if(mScenario==14 || mScenario==18 || mScenario==19) assert(mPowerQueries==1);
+    if(mScenario==14 || mScenario==18 || mScenario==19 || mScenario==21 || mScenario==23 || mScenario==25) assert(mPowerQueries==1);
     else assert(mPowerQueries==0);
     if(mScenario==14 || mScenario==18) assert(mI2cGate==(1U<<18));
     if(mScenario==15 || mScenario==16) assert(mStatus.Power.Status==EFI_UNSUPPORTED);

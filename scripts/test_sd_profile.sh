@@ -45,8 +45,8 @@ cat > .build/msdc/profile.dts <<'EOF'
       #address-cells = <1>; #size-cells = <0>;
       subpmic_ldo@64 {
         compatible = "mediatek,subpmic_ldo"; reg = <0x64>;
-        vmc: ldo3 {regulator-name = "VMC";};
-        vmch: ldo5 {regulator-name = "VMCH";};
+        vmc: ldo3 {regulator-name = "VMC"; regulator-min-microvolt = <1200000>; regulator-max-microvolt = <3600000>;};
+        vmch: ldo5 {regulator-name = "VMCH"; regulator-min-microvolt = <2700000>; regulator-max-microvolt = <3600000>;};
       };
     };
   };

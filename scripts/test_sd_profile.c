@@ -18,6 +18,7 @@ int main(int Argc, char **Argv)
   assert(OppoFdtOpen(Original,Bytes,&V) && OppoSdProfileMatches(&V));
   assert(!OppoSdProfileMatches(NULL));
   assert(OppoSdPowerProfileMatches(&V) && !OppoSdPowerProfileMatches(NULL));
+  assert(OppoSdPowerEnableProfileMatches(&V) && !OppoSdPowerEnableProfileMatches(NULL));
   for(UINTN Case=0;Case<7;Case++) {
     CONST VOID *Value;UINT32 Length;
     memcpy(Changed,Original,Bytes);assert(OppoFdtOpen(Changed,Bytes,&V));
@@ -47,13 +48,23 @@ int main(int Argc, char **Argv)
     ((UINT8 *)Value)[Case==3 ? 5 : Length-1]^=1;
     assert(OppoSdProfileMatches(&V) && !OppoSdPowerProfileMatches(&V));
   }
+  for(UINTN Case=0;Case<4;Case++) {
+    CONST VOID *Value;UINT32 Length;
+    memcpy(Changed,Original,Bytes);assert(OppoFdtOpen(Changed,Bytes,&V));
+    CONST CHAR8 *Path=Case<2 ? "/soc/i2c5@11016000/subpmic_ldo@64/ldo3" : "/soc/i2c5@11016000/subpmic_ldo@64/ldo5";
+    CONST CHAR8 *Key=Case%2 ? "regulator-max-microvolt" : "regulator-min-microvolt";
+    assert(OppoFdtProperty(&V,Path,Key,&Value,&Length)==EFI_SUCCESS && Length==4);
+    ((UINT8 *)Value)[0]=1;
+    assert(OppoSdPowerProfileMatches(&V) && !OppoSdPowerEnableProfileMatches(&V));
+  }
   free(Changed);free(Original);
   if(Argc==3) {
     Original=Load(Argv[2],&Bytes);
-    assert(OppoFdtOpen(Original,Bytes,&V) && OppoSdProfileMatches(&V) && OppoSdPowerProfileMatches(&V));free(Original);
+    assert(OppoFdtOpen(Original,Bytes,&V) && OppoSdProfileMatches(&V) && OppoSdPowerProfileMatches(&V) && OppoSdPowerEnableProfileMatches(&V));free(Original);
     puts("Saved CPH2205 runtime FDT accepted by named-role SD profile; no MMIO or phone operation.");
   }
   puts("SD profile: wrong named bank, pinctrl alias, eMMC, width, status and controller rejected with host sanitizers.");
   puts("SD power profile: real I2C V2 role, PIO/divider contract and supply links accepted; 9 mutations rejected without MMIO.");
+  puts("SD enable profile: 4 voltage-bound mutations rejected; read-only query profile remains available.");
   return 0;
 }

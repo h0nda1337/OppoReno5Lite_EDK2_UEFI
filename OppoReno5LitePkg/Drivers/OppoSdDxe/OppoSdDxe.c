@@ -1,7 +1,8 @@
 /** @file
   Original MT6779 MSDC1 read-only laboratory binding.
   Reuses retained SD pinmux and power, sets the validated SD input/pull bank.
-  Does not program regulators, voltage, pinmux or drive strength.
+  An explicit power lab may initialize validated VMC/VMCH rails to3.0V.
+  Does not modify pinmux or drive strength; never writes card storage.
   SPDX-License-Identifier: BSD-2-Clause
 **/
 #include <Uefi.h>
@@ -14,6 +15,7 @@
 #include <Library/HobLib.h>
 #include <Library/IoLib.h>
 #include <Library/TimerLib.h>
+#include <Library/PcdLib.h>
 #include <Library/OppoMsdcLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 
@@ -41,7 +43,7 @@ STATIC VOID I2cWrite (VOID *Context, UINT32 Offset, UINT32 Value)
   if (Offset == 0) MmioWrite8 (0x11016000, (UINT8)Value);
   else MmioWrite16 (0x11016000 + Offset, (UINT16)Value);
 }
-STATIC VOID InspectPower (VOID)
+STATIC VOID InspectPower (BOOLEAN Enable)
 {
   STATIC CONST OPPO_I2C_IO Io = {NULL, I2cRead, I2cWrite, DelayUs};
   OPPO_SD_POWER *P = &mStatus.Power;
@@ -58,7 +60,8 @@ STATIC VOID InspectPower (VOID)
     MicroSecondDelay (100);
     if (MmioRead32 (0x100010ac) & (1U << 18)) {P->Status = EFI_DEVICE_ERROR; return;}
   }
-  OppoSdPowerInspect (&Io, P);
+  if (Enable) OppoSdPowerEnable (&Io, P);
+  else OppoSdPowerInspect (&Io, P);
   if (P->ClockGate & (1U << 18)) {
     MmioWrite32 (0x100010a4, 1U << 18);
     UINT32 Observed = MmioRead32 (0x100010ac);
@@ -204,6 +207,8 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
   mStatus.Power.Status = mStatus.Power.Restore = EFI_NOT_STARTED;
   mStatus.Power.LastAddress = mStatus.Power.LastRegister = MAX_UINT32;
   mStatus.Power.RestoreRegister = MAX_UINT32;
+  mStatus.Power.Apply = mStatus.Power.Rollback = EFI_NOT_STARTED;
+  mStatus.Power.ApplyFailureRegister = MAX_UINT32;
   mStatus.LastCommand = MAX_UINT32;
   // Keep diagnostics alive even if no media is found. Returning an error after
   // this installation would unload the image and leave a dangling interface.
@@ -216,12 +221,20 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
       (Info->Flags & (OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED)) !=
       (OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED)) return EFI_SUCCESS;
   mStatus.Profile = EFI_SUCCESS;
+  if (FeaturePcdGet (PcdNativeSdPowerLab) &&
+      (Info->Flags & (OPPO_BOOT_SD_POWER_PROFILE_VALIDATED | OPPO_BOOT_SD_VOLTAGE_PROFILE_VALIDATED)) !=
+      (OPPO_BOOT_SD_POWER_PROFILE_VALIDATED | OPPO_BOOT_SD_VOLTAGE_PROFILE_VALIDATED)) {
+    mStatus.Board = mStatus.Power.Apply = EFI_UNSUPPORTED; return EFI_SUCCESS;
+  }
   mStatus.Board = PrepareBoard ();
   if (EFI_ERROR (mStatus.Board)) return EFI_SUCCESS;
   if (Info->Flags & OPPO_BOOT_SD_POWER_PROFILE_VALIDATED) {
     mStatus.PowerProfile = EFI_SUCCESS;
-    InspectPower ();
+    InspectPower (FeaturePcdGet (PcdNativeSdPowerLab));
     if (mStatus.Power.Restore == EFI_DEVICE_ERROR) {mStatus.Board = EFI_DEVICE_ERROR; return EFI_SUCCESS;}
+    if (FeaturePcdGet (PcdNativeSdPowerLab) &&
+        (mStatus.Power.Apply != EFI_SUCCESS || mStatus.Power.Status != EFI_SUCCESS ||
+         mStatus.Power.Restore != EFI_SUCCESS)) {mStatus.Board = EFI_DEVICE_ERROR; return EFI_SUCCESS;}
   }
   mStatus.Initialize = OppoMsdcInitialize (&mCard, &mIo);
   RecordCard ();

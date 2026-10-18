@@ -110,3 +110,14 @@ BOOLEAN EFIAPI OppoSdPowerProfileMatches (CONST OPPO_FDT_VIEW *V)
     ((Bytes == 5 && ((CONST UINT8 *)Value)[4] == 0 && Equals (Value, 4, "okay")) ||
      (Bytes == 3 && ((CONST UINT8 *)Value)[2] == 0 && Equals (Value, 2, "ok"))));
 }
+
+BOOLEAN EFIAPI OppoSdPowerEnableProfileMatches (CONST OPPO_FDT_VIEW *V)
+{
+  CONST CHAR8 *Vmc = "/soc/i2c5@11016000/subpmic_ldo@64/ldo3";
+  CONST CHAR8 *Vmch = "/soc/i2c5@11016000/subpmic_ldo@64/ldo5";
+  return OppoSdPowerProfileMatches (V) &&
+    Scalar (V, Vmc, "regulator-min-microvolt", 1200000, 4, FALSE) &&
+    Scalar (V, Vmc, "regulator-max-microvolt", 3600000, 4, FALSE) &&
+    Scalar (V, Vmch, "regulator-min-microvolt", 2700000, 4, FALSE) &&
+    Scalar (V, Vmch, "regulator-max-microvolt", 3600000, 4, FALSE);
+}

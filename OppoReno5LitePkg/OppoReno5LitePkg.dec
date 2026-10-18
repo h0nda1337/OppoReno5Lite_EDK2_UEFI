@@ -34,3 +34,4 @@
   gOppoNativeTokenSpaceGuid.PcdNativeMmuProbe|FALSE|BOOLEAN|0x00000002
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab|FALSE|BOOLEAN|0x00000003
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab|FALSE|BOOLEAN|0x00000004
+  gOppoNativeTokenSpaceGuid.PcdNativeSdPowerLab|FALSE|BOOLEAN|0x00000005

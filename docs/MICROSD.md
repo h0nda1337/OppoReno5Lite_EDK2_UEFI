@@ -1,4 +1,4 @@
-# microSD nativa: lectura antes de Windows
+# microSD nativa: lectura física y arranque EFI experimental
 
 Se está implementando un lector propio para MSDC1 del MT6779. La meta es abrir
 el cargador ARM64 de una tarjeta preparada por el propietario y después ejecutar
@@ -18,7 +18,10 @@ pueda arrancar: aún faltan validaciones de memoria, ACPI y otros dispositivos.
   responde. Los fallos se exponen mediante un protocolo de diagnóstico propio.
 - La variante ARM64 `sd-read-lab` compiló y llegó físicamente al diagnóstico BDS.
   Su primer intento se detuvo en un error de CRC de respuesta a CMD8; no terminó
-  la enumeración ni publicó Block I/O. No se leyeron sectores ni se ejecutó Windows.
+  la enumeración ni publicó Block I/O. El intento 16, con alimentación explícita,
+  descubrió el filesystem FAT, abrió `BOOTAA64.EFI` y leyó sus primeros 4096 bytes
+  desde la microSD en EDK2. Su encabezado ARM64 UEFI pasó la comprobación.
+  Esa variante no ejecuta Windows.
 
 ## Primer intento físico (08)
 
@@ -201,8 +204,9 @@ Véase [la evidencia física filtrada](../evidence/native-sd-read-lab-11-validat
 
 ## Quinto intento físico (12): lectura I²C válida, restauración rechazada
 
-La nueva biblioteca original `OppoSdPowerLib` consulta el chip y los registros
-VMC/VMCH. No contiene una operación de escritura de registros del regulador.
+La versión de la biblioteca original `OppoSdPowerLib` utilizada en el intento 12
+consulta el chip y los registros VMC/VMCH. Esa variante no contiene una operación
+de escritura de registros del regulador.
 Usa PIO con un byte de índice y un repeated start; las únicas direcciones son
 la PMU `0x34` para su identidad y LDO `0x64` para seis registros de estado.
 La identidad debe tener el prefijo esperado antes de consultar LDO; cada byte
@@ -306,6 +310,70 @@ El observador volvió a detectar Android completo en ambos intentos, unos 199 y
 incluyen LK, Android y sondeo USB. Tras cada intento se restauró el recovery
 original y se verificó Android con batería al 100 %.
 
+## Encendido VMC/VMCH (16): lectura física de la microSD conseguida
+
+`NATIVE_SD_POWER_LAB=1` selecciona la variante separada `sd-power-lab`. El PCD
+está desactivado por defecto. La consulta `OppoSdPowerInspect` conserva su
+contrato sin escrituras LDO; la nueva operación explícita `OppoSdPowerEnable`
+solo se usa cuando el FDT valida además los límites de voltaje de las dos salidas.
+Un bit de HOB separado identifica esa comprobación. El perfil real del OPPO
+declara 1,2–3,6 V para VMC y 2,7–3,6 V para VMCH.
+
+La operación exige el estado deshabilitado observado, comprueba la identidad
+del chip y guarda sus valores originales. Solo permite escribir `0x05`, `0x09`,
+`0x0b`, `0x0c` y `0x0f` del esclavo LDO `0x64`. Los paquetes llevan CRC-8 y
+padding según la interfaz documentada; cada cambio se comprueba con una lectura
+protegida por CRC. No hay escritura de sectores, acceso a otros reguladores,
+cambio del reloj compartido ni escritura a HS.
+
+Los selectores se ajustan a 3,0 V mientras cada salida indica estar apagada.
+Después se habilitan VMCH, detección de tarjeta y VMC, con esperas acotadas para
+su estado de encendido. Si falla la aplicación, se intenta deshabilitar en orden
+inverso y reponer los valores originales. Si no se confirma el apagado de una
+salida, se conserva su selector de 3,0 V y se informa del fallo, sin cambiar su
+voltaje mientras podría seguir activa. Un fallo de restauración I²C también
+detiene MSDC, incluso si la aplicación de los rieles había terminado.
+
+Los 21 escenarios de PC modelan paquetes exactos, estado inicial ajeno, CRC,
+NACK, timeout, readback rechazado, estado de encendido que no llega, restauración
+y la prohibición de cambiar un selector activo. El lector anterior conserva sus
+11 casos; el enlace de placa pasó 26 casos y el FDT real fue aceptado, con cuatro
+mutaciones nuevas de los límites de voltaje rechazadas. La composición ARM64
+compiló en unos 27 segundos, con `PcdNativeSdPowerLab=TRUE` y
+`PcdNativeSdBootLab=FALSE` verificados en AutoGen. La recuperación ante fallos
+de alimentación sigue validada solo mediante modelos; no se inyectaron fallos
+en el teléfono.
+Véase [la validación de PC](../evidence/native-sd-power-lab-16-host-validation.json).
+
+![Alimentación aplicada y encabezado ARM64 leído desde la microSD](images/native-sd-power-lab-16.jpg)
+
+La fotografía del propietario muestra:
+
+```text
+SD POWER APPLY=SUCCESS ROLLBACK=NOT STARTED FAILURE REG=FFFFFFFF
+SD ACTIVE VMC=C4/AA VMCH=C4/2A
+SD FILESYSTEM DISCOVERY: SUCCESS
+SD OPEN BOOTAA64.EFI: SUCCESS
+SD FILE PREFIX: SUCCESS BYTES=4096
+SD ARM64 UEFI HEADER VERIFIED FROM PHYSICAL MEDIA
+SD READ LAB FINISHED; WINDOWS NOT LAUNCHED IN THIS VARIANT
+```
+
+Los controles `C4` incluyen los bits de habilitación y estado de encendido;
+`AA` y `2A` son los selectores de 3,0 V de VMC y VMCH. Son lecturas de registros,
+no medidas eléctricas. La restauración I²C no reportó diferencias. La foto
+confirma acceso al filesystem y al prefijo del archivo desde el controlador
+nativo, lo que implica lecturas de sectores correctas; no muestra el número
+total de sectores ni demuestra la lectura completa del ejecutable, su firma o
+su ejecución. No se escribió contenido en la tarjeta.
+
+La prueba comenzó al 99 %. El observador detectó Android completo unos 201
+segundos después del informe de entrada; ese tiempo incluye LK, Android y
+sondeo USB. Después se restauró el recovery original y se verificó de nuevo
+Android, con batería al 98 %. La foto conserva sus datos comprimidos y perfil
+de color; se retiraron los metadatos personales de cámara. Véase
+[la evidencia física filtrada](../evidence/native-sd-power-lab-16-validation.json).
+
 Los contratos se investigaron en el
 [controlador I²C de OPPO](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/i2c/busses/i2c-mtk.c),
 su [mapa de registros](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/i2c/busses/i2c-mtk.h)
@@ -357,6 +425,8 @@ solo compila. Las imágenes y los informes con identificadores permanecen privad
 
 La variante `sd-read-lab` muestra resultados y solicita reset a los 90 segundos,
 sin lanzar Shell ni Windows. `NATIVE_SD_BOOT_LAB=1` selecciona el modo separado
-`sd-boot-lab` e incluye las capas SD; no debe confundirse su compilación con una
-prueba física del cargador. La ruta y el plazo exactos del retorno siguen sin
+`sd-boot-lab` e incluye las capas SD. Para conservar el encendido comprobado en
+el intento 16 también se requiere `NATIVE_SD_POWER_LAB=1`; ambos controles están
+desactivados por defecto. No debe confundirse la compilación con una prueba
+física del cargador. La ruta y el plazo exactos del retorno siguen sin
 medir. La batería mínima sigue siendo 20 % antes de cada fase física.

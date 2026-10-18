@@ -34,6 +34,7 @@ typedef struct {
   UINT32 PsciVersion;
   BOOLEAN SdProfile;
   BOOLEAN SdPowerProfile;
+  BOOLEAN SdVoltageProfile;
 } BOOT_STATE;
 
 STATIC BOOLEAN mResetReady;
@@ -180,6 +181,7 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   if (State->SdProfile) Info.Flags |= OPPO_BOOT_SD_PROFILE_VALIDATED |
     OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED;
   if (State->SdPowerProfile) Info.Flags |= OPPO_BOOT_SD_POWER_PROFILE_VALIDATED;
+  if (State->SdVoltageProfile) Info.Flags |= OPPO_BOOT_SD_VOLTAGE_PROFILE_VALIDATED;
   if (BuildGuidDataHob (&gOppoBootInfoHobGuid, &Info, sizeof (Info)) == NULL) Stop ();
   Stage (2, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 255, 255, 0});
   LoadDxeCoreFromFv (NULL, 0);
@@ -217,10 +219,12 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   mResetReady = TRUE;
   State.SdProfile = FALSE;
   State.SdPowerProfile = FALSE;
+  State.SdVoltageProfile = FALSE;
   // No storage MMIO is mapped unless this boot's FDT matches the board profile.
   if (FeaturePcdGet (PcdNativeSdReadLab)) {
     State.SdProfile = OppoSdProfileMatches (&View);
     State.SdPowerProfile = State.SdProfile && OppoSdPowerProfileMatches (&View);
+    State.SdVoltageProfile = State.SdPowerProfile && OppoSdPowerEnableProfileMatches (&View);
   }
   if (!RegisterMatches (&View, "/soc/toprgu@10007000", OPPO_NATIVE_WDT_BASE, 0x1000, 0) ||
       !RegisterMatches (&View, "/soc/interrupt-controller@0c000000", OPPO_NATIVE_GICD_BASE, 0x40000, 0) ||

@@ -10,3 +10,8 @@ gcc -std=c11 -Wall -Wextra -Werror -fshort-wchar -O1 -g \
   -I"$edk2/MdePkg/Include" -I"$edk2/MdePkg/Include/X64" -IOppoReno5LitePkg/Include \
   scripts/test_sd_power.c -o .build/msdc/test-sd-power
 .build/msdc/test-sd-power
+gcc -std=c11 -Wall -Wextra -Werror -fshort-wchar -O1 -g \
+  -fsanitize=address,undefined -fno-omit-frame-pointer \
+  -I"$edk2/MdePkg/Include" -I"$edk2/MdePkg/Include/X64" -IOppoReno5LitePkg/Include \
+  scripts/test_sd_power_enable.c -o .build/msdc/test-sd-power-enable
+.build/msdc/test-sd-power-enable

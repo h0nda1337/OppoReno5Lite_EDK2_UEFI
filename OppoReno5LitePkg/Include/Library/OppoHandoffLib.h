@@ -55,5 +55,6 @@ EFI_STATUS EFIAPI OppoInspectHandoff (
     Pure inspection: no MMIO or allocations. */
 BOOLEAN EFIAPI OppoSdProfileMatches (IN CONST OPPO_FDT_VIEW *View);
 BOOLEAN EFIAPI OppoSdPowerProfileMatches (IN CONST OPPO_FDT_VIEW *View);
+BOOLEAN EFIAPI OppoSdPowerEnableProfileMatches (IN CONST OPPO_FDT_VIEW *View);
 
 #endif
