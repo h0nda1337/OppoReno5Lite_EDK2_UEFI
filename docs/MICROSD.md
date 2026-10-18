@@ -728,6 +728,23 @@ y [la revisión de la fotografía](../evidence/native-sd-fast-read-lab-24-photo.
 
 ## Aplicación EFI de la tarjeta
 
+### Combinación de lectura rápida y RAM adicional (25): observación pendiente
+
+La variante 25 combina los controles ya existentes de alimentación SD,
+lectura de cuatro bits, arranque EFI y RAM adicional. Usa las mismas fuentes
+nativas de la prueba 24, con otros valores de PCD comprobados en los archivos
+generados para SD, BDS, Runtime y SEC. Compiló para ARM64 en unos 27 segundos;
+el manifiesto y el ejecutable BDS coinciden en un plazo de 1800 segundos.
+
+Se escribió únicamente en recovery y se solicitó entrada directa, sin Android
+intermedio, con batería al 100 %. Se espera la observación del propietario.
+La ejecución de WinPE, el efecto físico de la RAM adicional y el resultado del
+cargador todavía no están confirmados para este intento. El recovery original
+se restauró después del 24; aún no se ha restaurado después del 25, en curso.
+Véase [la composición y solicitud de prueba](../evidence/native-sd-fast-boot-lab-25-host-validation.json).
+
+### Inspección y ruta de carga EFI
+
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera
 indica ARM64 y aplicación UEFI; su recurso de versión la identifica como
 **Boot Manager**, `bootmgr.exe`, versión `10.0.19041.662`, de Microsoft. El recurso
