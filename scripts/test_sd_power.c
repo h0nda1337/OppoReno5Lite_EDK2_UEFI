@@ -82,7 +82,9 @@ int main(void)
         assert(Regs[R[I]/4]==Before[R[I]/4]);
       }
     }
-    if(Scenario==9) assert(P.Restore==EFI_DEVICE_ERROR);
+    if(Scenario==9) assert(P.Restore==EFI_DEVICE_ERROR && P.RestoreRegister==0x24 && P.RestoreExpected==0 && P.RestoreObserved==1);
+    else if(Scenario==5) assert(P.RestoreRegister==0x48 && P.RestoreExpected==Before[0x48/4] && P.RestoreObserved==0xffff);
+    else assert(P.RestoreRegister==MAX_UINT32);
   }
   puts("SD power query: 10 synthetic scenarios, CRC-8 vector, exact read-only slave transactions, bounded errors, busy bus and controller restoration passed; no physical rail validation.");
 }

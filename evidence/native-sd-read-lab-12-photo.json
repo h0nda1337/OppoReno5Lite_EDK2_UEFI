@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-sd-read-lab-12.jpg",
+  "bytes": 2948221,
+  "sha256": "d403e777eda20a481341a24abb79ec9a3b6464a0581409fb216e25b6e4f39cfa",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "276dcba43a39189de045a5f0d137f8b0f2509d463997b4d05cbe9a4bb141389d",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of fifth microSD attempt: I2C5 PMU identity and six CRC-protected LDO register bytes read successfully; controller restoration guard rejects readback, so SD initialization is not attempted"
+}

@@ -62,6 +62,9 @@ EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
   if (P == NULL) return EFI_INVALID_PARAMETER;
   P->Status = P->Restore = EFI_NOT_STARTED; P->Valid = 0;
   P->Interrupt = 0; P->LastAddress = P->LastRegister = MAX_UINT32;
+  P->RestoreRegister = MAX_UINT32; P->RestoreExpected = P->RestoreObserved = 0;
+  P->ChipId = P->VmcControl1 = P->VmcControl2 = P->VmcVoltage = 0;
+  P->VmchControl1 = P->VmchControl2 = P->VmchVoltage = 0;
   if (Io == NULL || Io->Read == NULL || Io->Write == NULL || Io->Delay == NULL)
     return P->Status = EFI_INVALID_PARAMETER;
   if (Read (Io, 0x24) & 1) return P->Status = EFI_NOT_READY;
@@ -89,14 +92,25 @@ EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
     Write (Io, 0x50, 1); Io->Delay (Io->Context, 10);
   }
   Write (Io, 0x0c, 0x1ff); Write (Io, 0x38, 1);
-  P->Restore = (Read (Io, 0x24) & 1) ? EFI_DEVICE_ERROR : EFI_SUCCESS;
+  UINT32 Start = Read (Io, 0x24);
+  P->Restore = (Start & 1) ? EFI_DEVICE_ERROR : EFI_SUCCESS;
+  if (EFI_ERROR (P->Restore)) {
+    P->RestoreRegister = 0x24; P->RestoreExpected = Start & ~1U; P->RestoreObserved = Start;
+  }
   if (!EFI_ERROR (P->Restore)) {
     // Interrupt mask last; no pending interrupt is restored.
     for (UINTN I = 0; I < sizeof (Registers) / sizeof (Registers[0]); I++)
       if (Registers[I] != 0x08) Write (Io, Registers[I], Saved[I]);
     Write (Io, 0x08, Saved[1]);
-    for (UINTN I = 0; I < sizeof (Registers) / sizeof (Registers[0]); I++)
-      if (Read (Io, Registers[I]) != Saved[I]) P->Restore = EFI_DEVICE_ERROR;
+    for (UINTN I = 0; I < sizeof (Registers) / sizeof (Registers[0]); I++) {
+      UINT32 Observed = Read (Io, Registers[I]);
+      if (Observed != Saved[I]) {
+        P->Restore = EFI_DEVICE_ERROR;
+        if (P->RestoreRegister == MAX_UINT32) {
+          P->RestoreRegister = Registers[I]; P->RestoreExpected = Saved[I]; P->RestoreObserved = Observed;
+        }
+      }
+    }
   }
   return P->Status;
 }

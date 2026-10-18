@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-read-only-12",
+  "candidate_sha256": "70dddb60af9ba8f0051c2e83e18f72cdb5c8760892a89dce8d5f769cd4412416",
+  "native_fd_sha256": "2db0102785f697f8d20f19b3b7fd4aa852104491c803ac51cc33d841af67b731",
+  "host_evidence": "evidence/native-sd-read-lab-12-host-validation.json",
+  "photos": [
+    "docs/images/native-sd-read-lab-12.jpg"
+  ],
+  "observation_source": "Owner photograph of fifth microSD attempt",
+  "screen": {
+    "profile": "Success",
+    "board": "Device Error",
+    "initialize": "Not Started",
+    "publish": "Not Started",
+    "sectors": 0,
+    "last_command_sentinel": 4294967295,
+    "cmd8_first_status": "Not Started",
+    "cmd8_attempts": 0,
+    "power_profile": "Success",
+    "power_query": "Success",
+    "power_restore": "Device Error",
+    "power_valid_mask": "0x7f",
+    "i2c_clock": "0x03030302",
+    "i2c_gate": "0x00000000",
+    "i2c_pins": "0x00111010",
+    "i2c_interrupt": "0x0001",
+    "last_i2c_address": "0x64",
+    "last_i2c_register": "0x0f",
+    "pmu_id": "0x53",
+    "vmc_registers": {
+      "0x04": "0x00",
+      "0x05": "0x80",
+      "0x09": "0x80"
+    },
+    "vmch_registers": {
+      "0x0a": "0x00",
+      "0x0b": "0x80",
+      "0x0f": "0x25"
+    }
+  },
+  "interpretation": {
+    "power_register_query_verified": true,
+    "ldo_crc_verified": true,
+    "software_enable_bits_clear": true,
+    "power_good_bits_clear": true,
+    "electrical_rail_voltage_measured": false,
+    "sd_initialization_attempted": false,
+    "sd_sector_read_verified": false,
+    "windows_boot_manager_started": false,
+    "i2c_restoration_guard_rejected": true,
+    "i2c_mismatch_register_known": false,
+    "regulator_registers_written": false,
+    "next_action": "Expose exact I2C restoration offset and expected/observed values while retaining the guard"
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 201.16,
+    "bootreason": "reboot"
+  },
+  "return_mechanism_and_native_timer_interval_verified": false,
+  "stock_recovery_restored": true,
+  "stock_recovery_sha256": "ac989e3009148792101a764a82fca8ca6212ec0afdd84e13d3b85e87364903b1",
+  "android_boot_completed_after_restoration": true,
+  "battery_before_test_percent": 100.0,
+  "battery_after_restoration_percent": 100.0,
+  "minimum_battery_percent": 20,
+  "only_recovery_written": true,
+  "card_write_commands_implemented": false,
+  "other_partitions_written": false,
+  "lock_or_unlock_commands_sent": false,
+  "source_revision": "834332f0b8705b08c1f39d34c4ec1fdf4e04b82e"
+}

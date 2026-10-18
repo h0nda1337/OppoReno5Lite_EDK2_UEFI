@@ -61,7 +61,11 @@ STATIC VOID InspectPower (VOID)
   OppoSdPowerInspect (&Io, P);
   if (P->ClockGate & (1U << 18)) {
     MmioWrite32 (0x100010a4, 1U << 18);
-    if (!(MmioRead32 (0x100010ac) & (1U << 18))) P->Restore = EFI_DEVICE_ERROR;
+    UINT32 Observed = MmioRead32 (0x100010ac);
+    if (!(Observed & (1U << 18))) {
+      P->Restore = EFI_DEVICE_ERROR;
+      P->RestoreRegister = 0x100010ac; P->RestoreExpected = 1U << 18; P->RestoreObserved = Observed & (1U << 18);
+    }
   }
 }
 
@@ -199,6 +203,7 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
   mStatus.PowerProfile = EFI_UNSUPPORTED;
   mStatus.Power.Status = mStatus.Power.Restore = EFI_NOT_STARTED;
   mStatus.Power.LastAddress = mStatus.Power.LastRegister = MAX_UINT32;
+  mStatus.Power.RestoreRegister = MAX_UINT32;
   mStatus.LastCommand = MAX_UINT32;
   // Keep diagnostics alive even if no media is found. Returning an error after
   // this installation would unload the image and leave a dangling interface.

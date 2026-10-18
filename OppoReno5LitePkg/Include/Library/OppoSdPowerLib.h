@@ -17,6 +17,7 @@ typedef struct {
   UINT8 ChipId, VmcControl1, VmcControl2, VmcVoltage;
   UINT8 VmchControl1, VmchControl2, VmchVoltage;
   UINT32 ClockSelect, ClockGate, Pinmux;
+  UINT32 RestoreRegister, RestoreExpected, RestoreObserved;
 } OPPO_SD_POWER;
 // Reads ID at PMU address 0x34 and CRC-protected LDO state at 0x64.
 // No slave register writes, bus scan, DMA, voltage changes or rail enables.

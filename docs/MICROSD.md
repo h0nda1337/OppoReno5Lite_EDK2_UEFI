@@ -199,7 +199,7 @@ intervalo que incluye el arranque y el sondeo USB. Se restauró el recovery
 original y se verificó Android con batería al 99 %. La prueba comenzó al 100 %.
 Véase [la evidencia física filtrada](../evidence/native-sd-read-lab-11-validation.json).
 
-## Consulta de alimentación (12): compilada, resultado físico pendiente
+## Quinto intento físico (12): lectura I²C válida, restauración rechazada
 
 La nueva biblioteca original `OppoSdPowerLib` consulta el chip y los registros
 VMC/VMCH. No contiene una operación de escritura de registros del regulador.
@@ -226,7 +226,42 @@ identidad incorrecta, bus ocupado y restauración fallida; además, 21 escenario
 del enlace de placa y nueve mutaciones nuevas del perfil de alimentación.
 El FDT real capturado pasó el validador. La compilación ARM64 terminó en unos
 12 segundos, con las fuentes sin cambiar durante el build. Esto no demuestra
-lectura I²C física; el intento 12 está esperando la observación de pantalla.
+lectura I²C física por sí solo; la fotografía siguiente sí permite observar
+el resultado del intento 12.
+
+![Consulta I²C con seis registros LDO válidos y fallo de restauración](images/native-sd-read-lab-12.jpg)
+
+```text
+SD PROFILE=SUCCESS BOARD=DEVICE ERROR INIT=NOT STARTED PUBLISH=NOT STARTED
+SD POWER PROFILE=SUCCESS QUERY=SUCCESS RESTORE=DEVICE ERROR VALID=7F
+SD I2C CLOCK=03030302 GATE=00000000 PINS=00111010 INT=0001 ADDR=64 REG=0F
+SD PMIC ID=53 VMC=00/80/80 VMCH=00/80/25
+```
+
+`valid=7F` significa que la identidad de PMU y los seis bytes LDO se leyeron.
+Cada byte LDO pasó CRC. Los bits de habilitación por software (`0x40`) y de
+estado (`0x04`) están a cero en ambos registros de control 2 (`0x80`). Eso
+describe el estado leído del regulador; no es una medida eléctrica de voltaje.
+No se modificaron sus habilitaciones ni selectores de voltaje.
+
+La restauración de la configuración I²C no pasó el readback. El guard detuvo
+la fase antes de inicializar MSDC: el centinela de último comando y los cero
+intentos CMD8 no son una nueva respuesta CRC de la tarjeta. No hay sectores,
+filesystem ni Windows validados. La siguiente variante conservará ese guard y
+mostrará el registro de restauración, el valor esperado y el observado para
+investigar el desacuerdo sin omitir la comprobación.
+
+El observador detectó Android completo unos 201 segundos después del informe de
+entrada, incluyendo LK, Android y sondeo USB. Se restauró el recovery original
+y se verificó Android con batería al 100 %. La fotografía conserva los datos
+comprimidos originales, sin metadatos personales de cámara. Véase
+[la evidencia física](../evidence/native-sd-read-lab-12-validation.json).
+
+La variante 13 añade el registro exacto y sus valores esperado/observado al
+diagnóstico de restauración, incluyendo un START que no se detenga y una
+compuerta que no se restaure. Las pruebas de PC cubren esos reportes; compiló
+para ARM64 en unos 12 segundos. Su observación física sigue pendiente en
+[la evidencia de compilación](../evidence/native-sd-read-lab-13-host-validation.json).
 
 Los contratos se investigaron en el
 [controlador I²C de OPPO](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/i2c/busses/i2c-mtk.c),
