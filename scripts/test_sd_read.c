@@ -7,6 +7,7 @@
 #include <string.h>
 STATIC BOOLEAN mBootEnabled;
 #define _PCD_GET_MODE_BOOL_PcdNativeSdBootLab mBootEnabled
+#define _PCD_GET_MODE_BOOL_PcdNativeSdFastReadLab FALSE
 #include "../OppoReno5LitePkg/Drivers/OppoBdsDxe/SdRead.c"
 EFI_GUID gOppoSdStatusProtocolGuid, gOppoSdDeviceGuid;
 EFI_GUID gEfiSimpleFileSystemProtocolGuid, gEfiDevicePathProtocolGuid;
@@ -35,6 +36,7 @@ VOID *EFIAPI AllocatePool(UINTN Bytes)
 {if(mScenario==26 && Bytes==480)return NULL;mAllocations++;return malloc(Bytes);}
 VOID EFIAPI FreePool(VOID *P) {assert(P && mAllocations);mAllocations--;free(P);}
 VOID *EFIAPI CopyMem(VOID *To, CONST VOID *From, UINTN Bytes) {return memcpy(To,From,Bytes);}
+VOID *EFIAPI ZeroMem(VOID *To, UINTN Bytes) {return memset(To,0,Bytes);}
 STATIC EFI_STATUS ExpectedMap(VOID)
 {
   if(mScenario==23)return EFI_DEVICE_ERROR;

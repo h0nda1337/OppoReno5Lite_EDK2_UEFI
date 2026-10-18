@@ -80,6 +80,9 @@ STATIC VOID RecordCard (VOID)
   mStatus.InitialIocon = mCard.InitialIocon;
   mStatus.Cmd8Attempts = mCard.Cmd8Attempts;
   mStatus.Cmd8FirstStatus = mCard.Cmd8FirstStatus;
+  mStatus.BusWidth = mCard.BusWidth; mStatus.ClockHz = mCard.ClockHz;
+  mStatus.MaximumClockHz = mCard.MaximumClockHz;
+  mStatus.FastSamplesVerified = mCard.FastSamplesVerified;
   mStatus.ActiveIocon = MmioRead32 (0x11240004);
   mStatus.Config = MmioRead32 (0x11240000);
   mStatus.Signal = MmioRead32 (0x11240008);
@@ -151,6 +154,18 @@ STATIC EFI_STATUS PrepareBoard (VOID)
   return (MmioRead32 (0x10001094) & ((1U << 4) | (1U << 16))) ? EFI_DEVICE_ERROR : EFI_SUCCESS;
 }
 
+STATIC EFI_STATUS InitializeCard (VOID)
+{
+  EFI_STATUS Status = OppoMsdcInitialize (&mCard, &mIo);
+  mStatus.FastSetup = EFI_NOT_STARTED;
+  if (!EFI_ERROR (Status) && FeaturePcdGet (PcdNativeSdFastReadLab)) {
+    mStatus.FastSetup = OppoMsdcEnableFastRead (&mCard);
+    Status = mStatus.FastSetup;
+  }
+  mStatus.Initialize = Status; RecordCard ();
+  return Status;
+}
+
 STATIC EFI_STATUS EFIAPI Reset (EFI_BLOCK_IO_PROTOCOL *This, BOOLEAN Extended)
 {
   EFI_STATUS Status;
@@ -158,8 +173,7 @@ STATIC EFI_STATUS EFIAPI Reset (EFI_BLOCK_IO_PROTOCOL *This, BOOLEAN Extended)
   (VOID)This; (VOID)Extended;
   Old = gBS->RaiseTPL (TPL_CALLBACK);
   mMedia.MediaId++;
-  Status = OppoMsdcInitialize (&mCard, &mIo);
-  mStatus.Initialize = Status; RecordCard ();
+  Status = InitializeCard ();
   gBS->RestoreTPL (Old);
   return Status;
 }
@@ -203,6 +217,7 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
   mStatus.Profile = EFI_UNSUPPORTED;
   mStatus.Board = mStatus.Initialize = mStatus.Publish = EFI_NOT_STARTED;
   mStatus.Cmd8FirstStatus = mStatus.PadRestoreStatus = EFI_NOT_STARTED;
+  mStatus.FastSetup = EFI_NOT_STARTED;
   mStatus.PowerProfile = EFI_UNSUPPORTED;
   mStatus.Power.Status = mStatus.Power.Restore = EFI_NOT_STARTED;
   mStatus.Power.LastAddress = mStatus.Power.LastRegister = MAX_UINT32;
@@ -236,8 +251,7 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
         (mStatus.Power.Apply != EFI_SUCCESS || mStatus.Power.Status != EFI_SUCCESS ||
          mStatus.Power.Restore != EFI_SUCCESS)) {mStatus.Board = EFI_DEVICE_ERROR; return EFI_SUCCESS;}
   }
-  mStatus.Initialize = OppoMsdcInitialize (&mCard, &mIo);
-  RecordCard ();
+  mStatus.Initialize = InitializeCard ();
   if (EFI_ERROR (mStatus.Initialize)) return EFI_SUCCESS;
   mMedia.MediaId = 1; mMedia.RemovableMedia = TRUE; mMedia.ReadOnly = TRUE;
   mMedia.BlockSize = 512; mMedia.IoAlign = 1;

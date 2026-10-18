@@ -38,6 +38,7 @@
   gEfiEndOfDxeEventGroupGuid
   gEfiEventReadyToBootGuid
 [FeaturePcd]
+  gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab
   gOppoNativeTokenSpaceGuid.PcdNativeExtraMemoryLab

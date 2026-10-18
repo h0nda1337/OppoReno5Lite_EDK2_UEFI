@@ -27,7 +27,8 @@ Las fotografías de la prueba MMU, de los cuatro primeros intentos integrados
 y las del sexto y séptimo intento solicitadas
 por el propietario, las dos del primer laboratorio microSD, las del segundo al séptimo
 y la primera lectura física de la tarjeta en el intento 16, la carga rechazada del 17
-y las solicitudes de apagado del 19 y 20 y el error de ramdisk de Windows del 21,
+y las solicitudes de apagado del 19 y 20, el error de ramdisk de Windows del 21
+y el benchmark físico de lectura de cuatro bits del 24,
 están revisadas y fijadas por ruta, tamaño y SHA-256 en
 `check_publication.py`. Se retiraron los
 metadatos personales de cámara; se conservaron orientación y perfil de color,
@@ -43,7 +44,8 @@ a `docs/images/native-mmu-probe.jpg`, `docs/images/native-dxe-shell-lab-01.jpg`,
 `docs/images/native-sd-power-lab-16.jpg`, `docs/images/native-sd-boot-lab-17.jpg`
 `docs/images/native-sd-boot-lab-19.jpg`, `docs/images/native-sd-boot-lab-20-reset.jpg`
 `docs/images/native-sd-boot-lab-20-context.jpg`, `docs/images/native-sd-boot-lab-21-reset.jpg`
-y `docs/images/native-sd-boot-lab-21-context.jpg`;
+`docs/images/native-sd-boot-lab-21-context.jpg`
+y `docs/images/native-sd-fast-read-lab-24.jpg`;
 las demás imágenes y binarios siguen
 requiriendo revisión y no se aceptan automáticamente.
 

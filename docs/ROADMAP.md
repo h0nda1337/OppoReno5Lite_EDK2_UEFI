@@ -122,9 +122,11 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
 - [x] Implementar lector MSDC1 propio mediante PIO y enlace Block I/O de solo lectura.
 - [x] Probar capacidad, direccionamiento, fallos y aislamiento con modelos de PC.
 - [x] Compilar variante ARM64 con particiones y FAT de la dependencia EDK2.
-- [ ] Verificar enumeración y lectura de la tarjeta desde el firmware físico.
-- [ ] Abrir y cargar BOOTAA64.EFI desde esa tarjeta en el OPPO.
-- [ ] Observar Windows Boot Manager y documentar el punto alcanzado.
+- [x] Verificar enumeración y lectura de la tarjeta desde el firmware físico.
+- [x] Abrir y cargar BOOTAA64.EFI desde esa tarjeta en el OPPO.
+- [x] Observar Windows Boot Manager y documentar el punto alcanzado.
+- [x] Verificar lectura de cuatro bits a 13 MHz y comparar un prefijo de 16 MiB con Android.
+- [ ] Confirmar RAM adicional en ejecución y avanzar desde el error de ramdisk a WinPE.
 
 Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.
 

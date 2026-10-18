@@ -659,18 +659,72 @@ y [la compilación 23 con plazo de 1800 segundos](../evidence/native-sd-boot-lab
 
 La sesión 23 se escribió únicamente en recovery y Fastboot confirmó la solicitud
 de entrada directa, sin Android intermedio, con batería verificada al 100 %.
-El propietario comunicó pantalla negra y pidió dejar el intento en curso mientras
-se documentaba la sesión. Todavía no hay foto ni valores nativos de `MAP/FREE`:
-no se confirma que la RAM adicional haya llegado a los servicios UEFI, que el WIM
-esté siendo leído ni que WinPE haya arrancado. El estado del recovery original
-restaurado corresponde al intento 21; la restauración posterior al 23 sigue
-pendiente del regreso a Android. Se conserva un observador ADB de solo lectura,
-sin escrituras ni reinicios, para registrar ese regreso si ocurre.
+El propietario comunicó pantalla negra y después estuvo ausente: al volver
+encontró Android y no pudo observar si apareció Windows. El observador ADB de
+solo lectura detectó Android completo a los 1168,863 segundos, con motivo `usb`.
+Ese dato no identifica la etapa nativa alcanzada ni la causa del retorno.
+No hay foto ni valores de `MAP/FREE`: la RAM adicional, la lectura del WIM y el
+arranque de WinPE continúan sin confirmar. Al retomar la sesión se restauró el
+recovery original y se verificó Android con batería al 99 %.
 
 El archivo WIM y el reloj SD de un bit permiten calcular un mínimo teórico de
 unos 12 minutos para leerlo completo; las demoras de PIO, comandos y filesystem
 pueden aumentarlo. Ese cálculo no mide el progreso del intento en curso y la
 pantalla negra por sí sola no distingue lectura de bloqueo.
+
+## Lectura SD de cuatro bits (24): verificada en el teléfono
+
+`NATIVE_SD_FAST_READ_LAB=1`, desactivado por defecto y limitado a los laboratorios
+SD, habilita una negociación propia de SDR de cuatro bits a 13 MHz. La fuente
+verificada de 26 MHz, la tensión y los pads se conservan. No se selecciona el
+modo High Speed ni UHS. El reloj cero del divisor legacy divide esa fuente por
+dos, según el [contrato MSDC de la referencia OPPO fijada](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/mmc/host/mediatek/ComboA/sd.c).
+No se ha importado su implementación.
+
+El lector comprueba `TRAN_SPEED` de CSD, lee los ocho bytes de SCR con CRC,
+exige aceptación de `APP_CMD` y soporte de cuatro bits, y negocia `ACMD6` antes
+de cambiar el ancho del host. Lee de vuelta ancho y divisor; compara byte por
+byte cuatro sectores con muestras tomadas antes en un bit. Un error de protocolo,
+CRC o datos invalida la sesión hasta una reinicialización completa. Se mantienen
+PIO, `CMD17`, almacenamiento de solo lectura y rechazo de DMA/escrituras.
+Las especificaciones simplificadas están publicadas por la
+[SD Association](https://www.sdcard.org/downloads/pls/).
+
+La variante 24 mide un prefijo de 16 MiB de `sources/boot.wim`, usando un buffer
+de 64 KiB y como máximo 1024 lecturas. Registra bytes, contador, KiB/s y una
+huella FNV-1a original. La medida incluye filesystem y cálculo de la huella;
+no es ancho de banda puro del bus, una firma criptográfica ni una validación
+de todo el WIM. Se obtuvo privadamente una referencia del mismo prefijo desde
+Android mediante ADB de solo lectura, sin publicar el contenido ni la identidad
+de la tarjeta. Esta primera variante tiene el arranque de Windows y la RAM
+adicional desactivados: comprobará lectura e integridad antes de combinarlos.
+
+Pasan modelos SDHC/SDSC, once fallos de negociación, ocho codificaciones de
+velocidad CSD, CRC tardío y las regresiones anteriores con sanitizadores.
+Quince escenarios del benchmark comprueban lecturas cortas, límites, cierre,
+fallos y envoltura del contador, con una comprobación independiente de la
+huella de una secuencia de ceros. Los 33 casos SD/EFI anteriores también pasan.
+ARM64 compiló en unos 24 segundos; véase
+[la composición y pruebas de PC](../evidence/native-sd-fast-read-lab-24-host-validation.json).
+
+![Lectura física de cuatro bits y benchmark del prefijo del WIM](images/native-sd-fast-read-lab-24.jpg)
+
+La foto del propietario confirma `fast=SUCCESS`, ancho 4, reloj de 13 MHz,
+máximo CSD de 25 MHz y muestras de sectores verificadas. El filesystem, la
+apertura de `BOOTAA64.EFI` y su cabecera ARM64 UEFI también pasan. El benchmark
+leyó 16 777 216 bytes a **1141 KiB/s**, con 186 627 222 ticks a 13 MHz: unos
+14,356 segundos. Su FNV `c0952962189313d4` coincide con la referencia privada
+obtenida desde Android. Esto comprueba ese prefijo, sin afirmar integridad de
+todo el WIM ni una aceleración medida respecto al modo anterior.
+
+Si el ritmo se mantuviera, los 562 366 404 bytes del WIM tardarían unos ocho
+minutos en leerse. Es una extrapolación; no incluye una medida de descompresión
+o del arranque de Windows. La variante 24 no lanzó Windows ni habilitó RAM
+adicional. ADB detectó Android completo a los 200,323 segundos, con motivo
+`reboot`; ese tiempo incluye el arranque Android y no mide el temporizador BDS.
+Se restauró el recovery original y se verificó Android al 100 %.
+Véanse [el resultado físico](../evidence/native-sd-fast-read-lab-24-validation.json)
+y [la revisión de la fotografía](../evidence/native-sd-fast-read-lab-24-photo.json).
 
 ## Aplicación EFI de la tarjeta
 

@@ -11,6 +11,7 @@
 #include <Library/DevicePathLib.h>
 #include <Library/PcdLib.h>
 #include <Library/OppoDebugLog.h>
+#include <Library/TimerLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 
 STATIC BOOLEAN IsOurSd (EFI_HANDLE Handle)
@@ -138,6 +139,50 @@ STATIC VOID BootFromSd (EFI_HANDLE Parent, EFI_HANDLE Medium)
   DEBUG ((DEBUG_INFO, "SD EFI StartImage returned: %r\n", Status));
 }
 
+typedef struct {
+  UINT64 Bytes, Hash, ElapsedTicks, CounterHz, KiBPerSecond;
+} OPPO_SD_BENCHMARK;
+
+STATIC EFI_STATUS BenchmarkSd (EFI_FILE_PROTOCOL *Root, OPPO_SD_BENCHMARK *Result)
+{
+  EFI_FILE_PROTOCOL *File = NULL;
+  UINT64 First, Last, Start;
+  UINT8 *Buffer;
+  EFI_STATUS Status, Closed;
+  if (Root == NULL || Result == NULL || Root->Open == NULL) return EFI_INVALID_PARAMETER;
+  ZeroMem (Result, sizeof (*Result));
+  Result->CounterHz = GetPerformanceCounterProperties (&First, &Last);
+  if (First != 0 || Last != MAX_UINT64 || !Result->CounterHz || Result->CounterHz > 1000000000)
+    return EFI_UNSUPPORTED;
+  Status = Root->Open (Root, &File, L"\\sources\\boot.wim", EFI_FILE_MODE_READ, 0);
+  if (EFI_ERROR (Status)) return Status;
+  if (File == NULL) return EFI_DEVICE_ERROR;
+  Buffer = AllocatePool (65536);
+  if (Buffer == NULL) {File->Close (File); return EFI_OUT_OF_RESOURCES;}
+  Result->Hash = 14695981039346656037ULL;
+  Start = GetPerformanceCounter ();
+  for (UINTN Calls = 0; Calls < 1024 && Result->Bytes < 16 * 1024 * 1024; Calls++) {
+    UINTN Bytes = 65536;
+    if (Bytes > 16 * 1024 * 1024 - Result->Bytes) Bytes = (UINTN)(16 * 1024 * 1024 - Result->Bytes);
+    UINTN Requested = Bytes;
+    Status = File->Read (File, &Bytes, Buffer);
+    if (EFI_ERROR (Status)) break;
+    if (Bytes == 0 || Bytes > Requested) {Status = EFI_BAD_BUFFER_SIZE; break;}
+    for (UINTN I = 0; I < Bytes; I++) Result->Hash = (Result->Hash ^ Buffer[I]) * 1099511628211ULL;
+    Result->Bytes += Bytes;
+  }
+  Result->ElapsedTicks = GetPerformanceCounter () - Start;
+  FreePool (Buffer);
+  Closed = File->Close (File);
+  if (EFI_ERROR (Status)) return Status;
+  if (EFI_ERROR (Closed)) return Closed;
+  if (Result->Bytes != 16 * 1024 * 1024 || Result->ElapsedTicks == 0) return EFI_NOT_READY;
+  // Measures filesystem reads plus the original FNV-1a fingerprint, not raw
+  // wire bandwidth. The bounded byte count/frequency cannot overflow uint64.
+  Result->KiBPerSecond = (Result->Bytes / 1024) * Result->CounterHz / Result->ElapsedTicks;
+  return EFI_SUCCESS;
+}
+
 VOID OppoSdReadLab (EFI_HANDLE Parent)
 {
   OPPO_SD_STATUS *Sd;
@@ -178,6 +223,8 @@ VOID OppoSdReadLab (EFI_HANDLE Parent)
   DEBUG ((DEBUG_INFO, "SD active VMC=%02x/%02x VMCH=%02x/%02x\n",
     Sd->Power.ActiveVmcControl, Sd->Power.ActiveVmcVoltage,
     Sd->Power.ActiveVmchControl, Sd->Power.ActiveVmchVoltage));
+  DEBUG ((DEBUG_INFO, "SD fast=%r width=%u clock=%u max=%u samples=%u\n",
+    Sd->FastSetup, Sd->BusWidth, Sd->ClockHz, Sd->MaximumClockHz, (UINT32)Sd->FastSamplesVerified));
   if (EFI_ERROR (Sd->Publish)) return;
   Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiSimpleFileSystemProtocolGuid, NULL, &Count, &Handles);
   DEBUG ((DEBUG_INFO, "SD filesystem discovery: %r\n", Status));
@@ -211,6 +258,14 @@ VOID OppoSdReadLab (EFI_HANDLE Parent)
       }
       if (Header != NULL) FreePool (Header);
       File->Close (File);
+    }
+    if (Verified && FeaturePcdGet (PcdNativeSdFastReadLab)) {
+      OPPO_SD_BENCHMARK Benchmark;
+      Status = BenchmarkSd (Root, &Benchmark);
+      DEBUG ((DEBUG_INFO, "SD benchmark=%r bytes=%Lu KiBps=%Lu\n", Status, Benchmark.Bytes, Benchmark.KiBPerSecond));
+      DEBUG ((DEBUG_INFO, "SD benchmark FNV=%016Lx ticks=%Lu Hz=%Lu\n",
+              Benchmark.Hash, Benchmark.ElapsedTicks, Benchmark.CounterHz));
+      if (EFI_ERROR (Status)) Verified = FALSE;
     }
     Root->Close (Root);
     if (Verified && FeaturePcdGet (PcdNativeSdBootLab)) {

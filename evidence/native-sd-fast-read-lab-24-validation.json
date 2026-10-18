@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-fast-read-24",
+  "stage": "physical_4bit_13mhz_file_prefix_read_with_matching_android_fingerprint",
+  "host_evidence": "evidence/native-sd-fast-read-lab-24-host-validation.json",
+  "source_base_revision": "8f7905b227b318267281a71b441fd9a54f02179c",
+  "candidate_sha256": "b5aa5ce55ae8ad629c60fc9031adcaea887fc3693efa3e787af04b15b6fed634",
+  "native_fd_sha256": "02e404e228014c90e21759e9e2595c931e076cbf3f06ab7056b3c6872173e465",
+  "photo": "docs/images/native-sd-fast-read-lab-24.jpg",
+  "observation_source": "Owner photograph of the physical OPPO",
+  "screen": {
+    "fast_setup": "SUCCESS",
+    "bus_width": 4,
+    "clock_hz": 13000000,
+    "csd_maximum_clock_hz": 25000000,
+    "sector_samples_verified": true,
+    "filesystem_discovery": "SUCCESS",
+    "open_bootaa64_efi": "SUCCESS",
+    "arm64_uefi_header_verified": true,
+    "benchmark_status": "SUCCESS",
+    "benchmark_bytes": 16777216,
+    "benchmark_kib_per_second": 1141,
+    "benchmark_fnv1a64": "c0952962189313d4",
+    "benchmark_counter_ticks": 186627222,
+    "counter_hz": 13000000
+  },
+  "android_reference": {
+    "prefix_bytes": 16777216,
+    "fnv1a64": "c0952962189313d4",
+    "sha256": "f73768aa6f8ca3b78295a331792a243cb5a21eec24197d734e2132e90b81baaa",
+    "native_fnv_matches": true,
+    "capture_was_read_only": true
+  },
+  "interpretation": {
+    "elapsed_seconds_derived": 14.35594,
+    "scope": "File prefix reads including filesystem and FNV calculation; not raw bus bandwidth",
+    "whole_wim_integrity_or_read_speed_verified": false,
+    "legacy_speedup_factor_measured": false,
+    "fnv_is_not_cryptographic_authentication": true,
+    "windows_boot_enabled": false,
+    "extra_memory_enabled": false,
+    "windows_pe_boot_verified": false
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 200.323,
+    "bootreason": "reboot"
+  },
+  "automatic_android_return_owner_confirmed": false,
+  "reset_timer_duration_measured": false,
+  "battery_before_test_percent": 100,
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_after_restoration_percent": 100.0
+}

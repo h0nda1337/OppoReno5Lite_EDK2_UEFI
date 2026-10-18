@@ -1,0 +1,14 @@
+{
+  "public_path": "docs/images/native-sd-fast-read-lab-24.jpg",
+  "bytes": 2990554,
+  "sha256": "f5986632f5208c358a725ac0bf91b31e289c9635930eafcb9830cb8b625f2cd9",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "compressed_scan_sha256": "6487461363eaec0449f9aea64a943915feef1f1d8012a12a1bceaedc11d8e623",
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_documentation": true,
+  "visual_review": "Physical OPPO display shows successful four-bit 13MHz setup and 16MiB file benchmark. No personal identifiers visible."
+}

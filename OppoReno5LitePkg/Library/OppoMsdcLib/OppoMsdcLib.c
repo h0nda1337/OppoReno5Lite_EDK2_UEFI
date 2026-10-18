@@ -57,16 +57,21 @@ STATIC EFI_STATUS EmptyFifo (OPPO_MSDC *C)
 
 STATIC EFI_STATUS Clock (OPPO_MSDC *C, UINT32 Divisor)
 {
-  // Legacy SDR: input/(4*divisor). 17 gives 382352 Hz; 1 gives 6.5 MHz.
+  // Legacy SDR: zero divides input by2; nonzero divides by4*divisor.
+  // The board source remains26MHz: 17 ->382352Hz, 1 ->6.5MHz, 0 ->13MHz.
   UINT32 Value = Rd (C, CFG);
   Value &= ~((0x7fffU << 8) | CFG_RST);
   Value |= (Divisor << 8) | 0x0bU; // SD mode, continuous clock, PIO.
   Wr (C, CFG, Value);
-  return WaitBits (C, CFG, CFG_STABLE, CFG_STABLE, 100000);
+  EFI_STATUS Status = WaitBits (C, CFG, CFG_STABLE, CFG_STABLE, 100000);
+  if (!EFI_ERROR (Status) && (Rd (C, CFG) & (0x7fffU << 8)) != Divisor << 8)
+    Status = EFI_DEVICE_ERROR;
+  C->ClockHz = EFI_ERROR (Status) ? 0 : Divisor == 0 ? 13000000 : 26000000 / (4 * Divisor);
+  return Status;
 }
 
-STATIC EFI_STATUS Command (OPPO_MSDC *C, UINT32 Opcode, UINT32 Argument,
-                          UINT32 ResponseType, BOOLEAN Data, UINT32 Response[4])
+STATIC EFI_STATUS SendCommand (OPPO_MSDC *C, UINT32 Opcode, UINT32 Argument,
+                              UINT32 ResponseType, UINT32 DataBytes, UINT32 Response[4])
 {
   UINT32 Busy = Opcode == 0 ? 2 : 3;
   EFI_STATUS Status = WaitBits (C, STS, Busy, 0, 100000);
@@ -74,7 +79,7 @@ STATIC EFI_STATUS Command (OPPO_MSDC *C, UINT32 Opcode, UINT32 Argument,
   C->LastCommand = Opcode;
   Wr (C, INT, CMD_EVENTS);
   Wr (C, ARG, Argument);
-  Wr (C, CMD, Opcode | (ResponseType << 7) | (Data ? (1U << 11) | (512U << 16) : 0));
+  Wr (C, CMD, Opcode | (ResponseType << 7) | (DataBytes ? (1U << 11) | (DataBytes << 16) : 0));
   for (UINT32 Time = 0; Time < 100000; Time += 10) {
     UINT32 Events = Rd (C, INT) & CMD_EVENTS;
     C->LastInterrupt = Events;
@@ -87,6 +92,41 @@ STATIC EFI_STATUS Command (OPPO_MSDC *C, UINT32 Opcode, UINT32 Argument,
       } else if (ResponseType != 0) Response[0] = Rd (C, RESP0);
       if (ResponseType == 7)
         return WaitBits (C, PS, 1U << 16, 1U << 16, 500000);
+      return EFI_SUCCESS;
+    }
+    Delay (C, 10);
+  }
+  return EFI_TIMEOUT;
+}
+
+STATIC EFI_STATUS Command (OPPO_MSDC *C, UINT32 Opcode, UINT32 Argument,
+                          UINT32 ResponseType, BOOLEAN Data, UINT32 Response[4])
+{ return SendCommand (C, Opcode, Argument, ResponseType, Data ? 512U : 0U, Response); }
+
+STATIC EFI_STATUS ReadData (OPPO_MSDC *C, UINT8 *Destination, UINT32 Bytes)
+{
+  UINT32 Copied = 0;
+  BOOLEAN Done = FALSE;
+  for (UINT32 Time = 0; Time < 1000000; Time += 10) {
+    UINT32 Events = Rd (C, INT) & DATA_EVENTS;
+    C->LastInterrupt = Events;
+    if (Events & (DATA_TIMEOUT | DATA_CRC)) {
+      Wr (C, INT, Events);
+      return Events & DATA_CRC ? EFI_CRC_ERROR : EFI_TIMEOUT;
+    }
+    if (Events & DATA_DONE) Done = TRUE;
+    UINT32 Available = Rd (C, FIFO) & 0xff;
+    while (Available >= 4 && Copied < Bytes) {
+      UINT32 Value = Rd (C, RXDATA);
+      for (UINT32 I = 0; I < 4; I++) Destination[Copied + I] = (UINT8)(Value >> (I * 8));
+      Copied += 4; Available -= 4;
+    }
+    if (Copied == Bytes && Done) {
+      // Include errors reported with completion or the last FIFO drain.
+      Events = Rd (C, INT) & DATA_EVENTS; C->LastInterrupt = Events;
+      Wr (C, INT, DATA_EVENTS);
+      if (Events & DATA_CRC) return EFI_CRC_ERROR;
+      if (Events & DATA_TIMEOUT) return EFI_TIMEOUT;
       return EFI_SUCCESS;
     }
     Delay (C, 10);
@@ -112,6 +152,7 @@ EFI_STATUS OppoMsdcInitialize (OPPO_MSDC *C, CONST OPPO_MSDC_IO *Io)
   C->Io = *Io; C->Ready = FALSE; C->Blocks = 0; C->Rca = 0;
   C->LastCommand = MAX_UINT32; C->LastInterrupt = 0; C->BlockAddressed = FALSE;
   C->InitialIocon = C->Cmd8Attempts = 0; C->Cmd8FirstStatus = EFI_NOT_STARTED;
+  C->BusWidth = 1; C->ClockHz = C->MaximumClockHz = 0; C->FastSamplesVerified = FALSE;
   Wr (C, INTEN, 0);
   Wr (C, CFG, Rd (C, CFG) | CFG_RST);
   Status = WaitBits (C, CFG, CFG_RST, 0, 100000);
@@ -166,6 +207,12 @@ EFI_STATUS OppoMsdcInitialize (OPPO_MSDC *C, CONST OPPO_MSDC_IO *Io)
   C->Rca = Response[0] & 0xffff0000U;
   Status = Command (C, 9, C->Rca, 2, FALSE, Csd);
   if (EFI_ERROR (Status)) return Status;
+  // TRAN_SPEED, CSD bits103:96. Reserved encodings never justify acceleration.
+  STATIC CONST UINT32 Units[] = {100000, 1000000, 10000000, 100000000};
+  STATIC CONST UINT8 Multipliers[] = {0,10,12,13,15,20,25,30,35,40,45,50,55,60,70,80};
+  UINT32 Speed = Csd[0] & 255;
+  if (!(Speed & 128) && (Speed & 7) < ARRAY_SIZE (Units))
+    C->MaximumClockHz = (UINT32)((UINT64)Units[Speed & 7] * Multipliers[(Speed >> 3) & 15] / 10);
   if ((Csd[0] >> 30) == 1 && C->BlockAddressed) {
     UINT32 Size = ((Csd[1] & 0x3f) << 16) | (Csd[2] >> 16);
     C->Blocks = ((UINT64)Size + 1) * 1024;
@@ -208,33 +255,70 @@ EFI_STATUS OppoMsdcRead (OPPO_MSDC *C, UINT64 Lba, UINTN Blocks, VOID *Buffer)
     Status = Command (C, 17, (UINT32)(C->BlockAddressed ? Sector : Sector * 512), 1, TRUE, Response);
     if (EFI_ERROR (Status)) goto Failed;
     if (Response[0] & R1_ERRORS) { Status = EFI_DEVICE_ERROR; goto Failed; }
-    UINT32 Copied = 0;
-    BOOLEAN Done = FALSE;
-    for (UINT32 Time = 0; Time < 1000000; Time += 10) {
-      UINT32 Events = Rd (C, INT) & DATA_EVENTS;
-      C->LastInterrupt = Events;
-      if (Events & (DATA_TIMEOUT | DATA_CRC)) {
-        Wr (C, INT, Events);
-        Status = (Events & DATA_CRC) ? EFI_CRC_ERROR : EFI_TIMEOUT;
-        goto Failed;
-      }
-      if (Events & DATA_DONE) Done = TRUE;
-      UINT32 Available = Rd (C, FIFO) & 0xff;
-      while (Available >= 4 && Copied < 512) {
-        UINT32 Value = Rd (C, RXDATA);
-        for (UINT32 I = 0; I < 4; I++) Destination[Copied + I] = (UINT8)(Value >> (I * 8));
-        Copied += 4; Available -= 4;
-      }
-      if (Copied == 512 && Done) break;
-      if (Time == 999990) { Status = EFI_TIMEOUT; goto Failed; }
-      Delay (C, 10);
-    }
-    Wr (C, INT, DATA_EVENTS);
+    Status = ReadData (C, Destination, 512);
+    if (EFI_ERROR (Status)) goto Failed;
     Destination += 512;
   }
   return EFI_SUCCESS;
 Failed:
   // Require explicit reinitialization after an uncertain transfer/card state.
+  C->Ready = FALSE;
+  return Status;
+}
+
+STATIC EFI_STATUS AppPrefix (OPPO_MSDC *C)
+{
+  UINT32 Response[4];
+  EFI_STATUS Status = Command (C, 55, C->Rca, 1, FALSE, Response);
+  if (!EFI_ERROR (Status) && ((Response[0] & R1_ERRORS) || !(Response[0] & (1U << 5))))
+    return EFI_DEVICE_ERROR;
+  return Status;
+}
+
+EFI_STATUS OppoMsdcEnableFastRead (OPPO_MSDC *C)
+{
+  UINT8 Baseline[4][512], Compared[512], Scr[8];
+  UINT32 Response[4];
+  EFI_STATUS Status;
+  if (C == NULL || !C->Ready) return EFI_NOT_READY;
+  if (C->FastSamplesVerified) return EFI_ALREADY_STARTED;
+  if (C->BusWidth != 1 || C->ClockHz != 6500000 || C->MaximumClockHz < 13000000 || C->Blocks < 4)
+    return EFI_UNSUPPORTED;
+  UINT64 Sectors[] = {0, 1, C->Blocks / 2, C->Blocks - 1};
+  for (UINTN I = 0; I < ARRAY_SIZE (Sectors); I++) {
+    Status = OppoMsdcRead (C, Sectors[I], 1, Baseline[I]);
+    if (EFI_ERROR (Status)) goto Failed;
+  }
+  Status = AppPrefix (C);
+  if (EFI_ERROR (Status)) goto Failed;
+  Status = EmptyFifo (C);
+  if (EFI_ERROR (Status)) goto Failed;
+  Wr (C, INT, DATA_EVENTS); Wr (C, BLK_NUM, 1);
+  Status = SendCommand (C, 51, 0, 1, 8, Response);
+  if (EFI_ERROR (Status)) goto Failed;
+  if (Response[0] & R1_ERRORS) {Status = EFI_DEVICE_ERROR; goto Failed;}
+  Status = ReadData (C, Scr, sizeof (Scr));
+  if (EFI_ERROR (Status)) goto Failed;
+  if ((Scr[0] >> 4) != 0 || (Scr[1] & 5) != 5) {Status = EFI_UNSUPPORTED; goto Failed;}
+  Status = AppPrefix (C);
+  if (EFI_ERROR (Status)) goto Failed;
+  Status = R1 (C, 6, 2, 1); // ACMD6: volatile bus-width selection, not a storage write.
+  if (EFI_ERROR (Status)) goto Failed;
+  UINT32 Config = (Rd (C, SDC_CFG) & ~(3U << 16)) | (1U << 16);
+  Wr (C, SDC_CFG, Config);
+  if (Rd (C, SDC_CFG) != Config) {Status = EFI_DEVICE_ERROR; goto Failed;}
+  C->BusWidth = 4;
+  Status = Clock (C, 0);
+  if (EFI_ERROR (Status)) goto Failed;
+  for (UINTN I = 0; I < ARRAY_SIZE (Sectors); I++) {
+    Status = OppoMsdcRead (C, Sectors[I], 1, Compared);
+    if (EFI_ERROR (Status)) goto Failed;
+    for (UINTN B = 0; B < sizeof (Compared); B++)
+      if (Compared[B] != Baseline[I][B]) {Status = EFI_COMPROMISED_DATA; goto Failed;}
+  }
+  C->FastSamplesVerified = TRUE;
+  return EFI_SUCCESS;
+Failed:
   C->Ready = FALSE;
   return Status;
 }

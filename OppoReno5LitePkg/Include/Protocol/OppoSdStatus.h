@@ -16,6 +16,9 @@ typedef struct {
   EFI_STATUS PadRestoreStatus;
   EFI_STATUS PowerProfile;
   OPPO_SD_POWER Power;
+  EFI_STATUS FastSetup;
+  UINT32 BusWidth, ClockHz, MaximumClockHz;
+  BOOLEAN FastSamplesVerified;
 } OPPO_SD_STATUS;
 extern EFI_GUID gOppoSdStatusProtocolGuid;
 extern EFI_GUID gOppoSdDeviceGuid;

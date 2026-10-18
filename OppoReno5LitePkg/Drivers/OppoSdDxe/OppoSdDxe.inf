@@ -29,4 +29,5 @@
 [Depex]
   gEfiCpuArchProtocolGuid
 [FeaturePcd]
+  gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdPowerLab

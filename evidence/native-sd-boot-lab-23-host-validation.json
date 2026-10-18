@@ -121,7 +121,7 @@
     "unresolved reservations reject the plan",
     "disabled by default; SD boot lab required"
   ],
-  "physical_observation_pending": true,
+  "physical_observation_pending": false,
   "physical_extra_dram_allocation_verified": false,
   "windows_pe_boot_verified": false,
   "reset_request_after_seconds": 1800,
@@ -129,5 +129,15 @@
   "owner_screen_report": "Black screen; owner requested leaving the attempt running while ending the chat turn",
   "native_map_and_free_fields_captured": false,
   "battery_before_test_percent": 100,
-  "stock_recovery_restored_after_this_attempt": false
+  "stock_recovery_restored_after_this_attempt": true,
+  "owner_final_report": "Owner was away and found the phone in Android; did not observe whether Windows or WinPE appeared",
+  "battery_after_restoration_percent": 99.0,
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 1168.863,
+    "bootreason": "usb"
+  }
 }
