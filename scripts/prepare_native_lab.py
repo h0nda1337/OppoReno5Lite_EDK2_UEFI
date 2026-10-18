@@ -20,7 +20,7 @@ def require_lab_manifest(manifest, explicit_lab, direct_entry):
     if (not explicit_lab or not direct_entry or
             manifest.get('purpose') != 'native-dxe-shell-lab' or
             manifest.get('probe_only') is not False or
-            manifest.get('reset_request_after_seconds') != 90 or
+            manifest.get('reset_request_after_seconds') not in (90, 1800) or
             manifest.get('kernel_transport') != 'gzip' or
             manifest.get('bootshim_used') is not False):
         raise ValueError('Expected an explicit reviewed DXE/Shell laboratory image')
@@ -28,7 +28,11 @@ def require_lab_manifest(manifest, explicit_lab, direct_entry):
 
 def validate_candidate(stock, candidate, manifest):
     require_lab_manifest(manifest, True, True)
-    validate_transport(stock, candidate, manifest, require_native_lab)
+    def validate_deadline(fd):
+        report = require_native_lab(fd)
+        if report['reset_request_after_seconds'] != manifest['reset_request_after_seconds']:
+            raise ValueError('Laboratory deadline differs between the BDS executable and manifest')
+    validate_transport(stock, candidate, manifest, validate_deadline)
 
 
 def prepare(stock_path, fd_path, output, avbtool):
@@ -49,7 +53,7 @@ def prepare(stock_path, fd_path, output, avbtool):
         'stock_sha256': STOCK_SHA256, 'candidate_sha256': digest(candidate),
         'native_fd_sha256': inspected['fd_sha256'], 'kernel_transport': 'gzip',
         'compressed_kernel_sha256': digest(AndroidV2(candidate).components['kernel']),
-        'reset_request_after_seconds': 90, 'reset_return_path_verified': False,
+        'reset_request_after_seconds': inspected['reset_request_after_seconds'], 'reset_return_path_verified': False,
         'reset_timer_execution_verified_on_phone': False,
         'bootshim_used': False, 'linux_kernel_retained': False,
         'oem_ramdisk_retained': False, 'ramdisk_paths': [],

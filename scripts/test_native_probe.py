@@ -3,11 +3,13 @@ import gzip
 import hashlib
 import struct
 import unittest
+from unittest.mock import patch
 
 from prepare_native_probe import FD_SIZE, inflate_native_kernel, probe_ramdisk, repack
 from recovery_image import AndroidV2, align, parse_newc
 from recovery_diagnostic_session import require_native_probe, require_minimal_readout
-from prepare_native_lab import require_lab_manifest
+from prepare_native_lab import require_lab_manifest, validate_candidate as validate_lab
+from test_native_firmware import fixture as lab_fixture, NATIVE_MEMORY_LAB_MARKER
 
 
 def stock_fixture():
@@ -79,6 +81,7 @@ class NativeProbeTests(unittest.TestCase):
         manifest={'purpose':'native-dxe-shell-lab','probe_only':False,'reset_request_after_seconds':90,
                   'kernel_transport':'gzip','bootshim_used':False}
         require_lab_manifest(manifest,True,True)
+        require_lab_manifest(dict(manifest,reset_request_after_seconds=1800),True,True)
         for explicit,direct in [(False,True),(True,False),(False,False)]:
             with self.assertRaises(ValueError):require_lab_manifest(manifest,explicit,direct)
         for changed in [dict(manifest,probe_only=True),dict(manifest,reset_request_after_seconds=10),
@@ -86,6 +89,16 @@ class NativeProbeTests(unittest.TestCase):
             with self.assertRaises(ValueError):require_lab_manifest(changed,True,True)
         with self.assertRaises(ValueError):require_native_probe(manifest,True,True)
         with self.assertRaises(ValueError):require_minimal_readout(manifest,True,True)
+
+    def test_lab_manifest_deadline_must_match_the_executable(self):
+        manifest={'purpose':'native-dxe-shell-lab','probe_only':False,'reset_request_after_seconds':90,
+                  'kernel_transport':'gzip','bootshim_used':False}
+        raw=lab_fixture(lab=True,lab_marker=NATIVE_MEMORY_LAB_MARKER)
+        def transport(stock,candidate,declared,validator):
+            validator(raw)
+        with patch('prepare_native_lab.validate_transport',side_effect=transport):
+            with self.assertRaises(ValueError):validate_lab(b'',b'',manifest)
+            validate_lab(b'',b'',dict(manifest,reset_request_after_seconds=1800))
 
 
 if __name__=='__main__':unittest.main()

@@ -8,6 +8,10 @@
 #define OPPO_NATIVE_FV_BYTES      0x007ff000
 #define OPPO_NATIVE_POOL_BASE     0x43000000
 #define OPPO_NATIVE_POOL_BYTES    0x04000000
+/* Optional SD boot laboratory window; every live fixed reservation is carved
+ * out by the original planner before HOB publication or MMU mapping. */
+#define OPPO_NATIVE_EXTRA_BASE    0x80000000ULL
+#define OPPO_NATIVE_EXTRA_BYTES   0x80000000ULL
 #define OPPO_NATIVE_STACK_BYTES   0x00010000
 #define OPPO_NATIVE_DEBUG_BASE    (OPPO_NATIVE_POOL_BASE + OPPO_NATIVE_POOL_BYTES - OPPO_NATIVE_STACK_BYTES - 4096)
 #define OPPO_NATIVE_DRAM_BASE     0x40000000

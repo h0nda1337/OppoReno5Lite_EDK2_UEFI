@@ -8,6 +8,9 @@
 #include <string.h>
 #include <stdio.h>
 #define _PCD_GET_MODE_BOOL_PcdNativeSdReadLab FALSE
+STATIC BOOLEAN mExtraMemory;
+STATIC UINTN mMemoryCase;
+#define _PCD_GET_MODE_BOOL_PcdNativeExtraMemoryLab mExtraMemory
 #include "../OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.c"
 
 EFI_GUID gEfiBdsArchProtocolGuid, gEfiGraphicsOutputProtocolGuid;
@@ -97,7 +100,7 @@ STATIC EFI_STATUS EFIAPI Create(UINT32 Type, EFI_TPL Tpl, EFI_EVENT_NOTIFY Notif
 }
 STATIC EFI_STATUS EFIAPI SetTimer(EFI_EVENT Event, EFI_TIMER_DELAY Type, UINT64 Ticks)
 {
-  assert(Event==(EFI_EVENT)(UINTN)5 && Type==TimerRelative && Ticks==900000000);
+  assert(Event==(EFI_EVENT)(UINTN)5 && Type==TimerRelative && Ticks==(mExtraMemory ? 1800ULL : 90ULL)*10000000);
   if(mScenario==2)return EFI_DEVICE_ERROR;
   mSetTimer=TRUE;return EFI_SUCCESS;
 }
@@ -189,7 +192,8 @@ int main(void)
   mInfo.HorizontalResolution=1080;mInfo.VerticalResolution=2400;
   mOut.ClearScreen=Clear;mOut.OutputString=Output;mOut.QueryMode=Query;mOut.SetMode=SetMode;
   mVolume.ReadSection=ReadSection;
-  for(mScenario=0;mScenario<14;mScenario++) {
+  for(mMemoryCase=0;mMemoryCase<2;mMemoryCase++)for(mScenario=0;mScenario<14;mScenario++) {
+    mExtraMemory=(BOOLEAN)mMemoryCase;
     mAllocated=mFreed=mStarts=mUnloads=mClosed=0;
     mModeSets=mClears=0;mOut.Mode=&mTextMode;mTextMode.Mode=-1;mTextMode.MaxMode=5;
     if(mScenario==7)mTextMode.MaxMode=0;
@@ -208,7 +212,8 @@ int main(void)
     assert(mEventFired==(mScenario==0 || mScenario==4));
     assert(mClosed==(mScenario==2?1U:0U));
     assert(mCounterDeadlineReady==(mScenario!=4) && mSystem.Hdr.CRC32==0x1234);
+    if(mCounterDeadlineReady)assert(mCounterTicks==13000000ULL*(mExtraMemory ? 1800ULL : 90ULL));
   }
-  puts("Original BDS: 14 scenarios passed host sanitizers, including explicit activation of a preferred index and rejection of a producer that fails to commit SetMode; no hardware test.");
+  puts("Original BDS: 28 host scenarios across 90s/1800s deadlines, event and counter fallback, console activation and failure cleanup passed sanitizers; no hardware test.");
   return 0;
 }

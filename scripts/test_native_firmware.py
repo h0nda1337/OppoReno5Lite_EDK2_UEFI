@@ -5,7 +5,7 @@ import unittest
 from uuid import UUID
 
 from inspect_native_firmware import (FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect,
-    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, PCD_DRIVER_GUID,
+    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, NATIVE_MEMORY_LAB_MARKER, PCD_DRIVER_GUID,
     require_entry_probe, require_native_lab)
 
 
@@ -31,7 +31,8 @@ def file_fixture(identifier, kind, section_type, payload, depex=None):
     return header + section
 
 
-def fixture(probe=False, mmu=False, lab=False, pcd_depex=b'\x06\x08', pcd_present=True):
+def fixture(probe=False, mmu=False, lab=False, pcd_depex=b'\x06\x08', pcd_present=True,
+            lab_marker=NATIVE_LAB_MARKER):
     raw = bytearray(b'\xff' * FD_SIZE)
     raw[:64] = b'\0' * 64
     struct.pack_into('<IIQQ', raw, 0, 0x14000400, 0xd503201f, 0x80000, FD_SIZE)
@@ -54,7 +55,7 @@ def fixture(probe=False, mmu=False, lab=False, pcd_depex=b'\x06\x08', pcd_presen
     struct.pack_into('<H', header, 50, checksum)
     raw[FV_START:FV_START + len(header)] = header
     for identifier, (_, kind) in REQUIRED.items():
-        pe = pe_fixture() + (NATIVE_LAB_MARKER if lab and REQUIRED[identifier][0]=='original-bds' else b'')
+        pe = pe_fixture() + (lab_marker if lab and REQUIRED[identifier][0]=='original-bds' else b'')
         data = file_fixture(identifier, kind, 0x12 if kind == 3 else 0x10,
                             te if kind == 3 else pe)
         raw[position:position + len(data)] = data
@@ -94,6 +95,12 @@ class NativeFirmwareTests(unittest.TestCase):
         self.assertEqual(len(result['files']), 7)
         self.assertFalse(result['uefi_execution_observed'])
         self.assertFalse(result['bootshim_used'])
+
+    def test_exactly_one_deadline_is_extracted_from_bds(self):
+        for marker, seconds in [(NATIVE_LAB_MARKER,90),(NATIVE_MEMORY_LAB_MARKER,1800)]:
+            self.assertEqual(require_native_lab(fixture(lab=True,lab_marker=marker))['reset_request_after_seconds'],seconds)
+        for marker in [NATIVE_LAB_MARKER+NATIVE_MEMORY_LAB_MARKER,NATIVE_MEMORY_LAB_MARKER*2,b'unknown']:
+            with self.assertRaises(ValueError): require_native_lab(fixture(lab=True,lab_marker=marker))
 
     def test_lab_rejects_pcd_self_dependency_and_missing_bootstrap(self):
         circular = b'\x02' + UUID('13a3f0f6-264a-3ef0-f2e0-dec512342f34').bytes_le + b'\x08'

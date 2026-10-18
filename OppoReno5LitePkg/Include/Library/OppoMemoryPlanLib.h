@@ -18,6 +18,12 @@ typedef struct {
   UINT32 EmptyNodesIgnored;
 } OPPO_EARLY_MEMORY_PLAN;
 
+typedef struct {
+  OPPO_MEMORY_RANGE Free[OPPO_MAX_BOOT_RESERVATIONS + 2];
+  UINTN Count;
+  UINT64 TotalBytes;
+} OPPO_ADDITIONAL_MEMORY_PLAN;
+
 /**
   Plan a bounded pool, firmware image and page-rounded fixed exclusions. No HOBs,
   allocations, page-table changes or hardware accesses are made. Only the image
@@ -29,6 +35,17 @@ typedef struct {
 EFI_STATUS EFIAPI OppoPlanEarlyMemory (
   IN CONST OPPO_BOOT_HANDOFF *Handoff, IN OPPO_MEMORY_RANGE Image,
   IN OPPO_MEMORY_RANGE Pool, OUT OPPO_EARLY_MEMORY_PLAN *Plan
+  );
+
+/** Plan additional RAM within one bounded, page-aligned window (16 MiB..2 GiB).
+    Revalidates the early plan, requires declared RAM, excludes every rounded
+    fixed reservation, image and initial pool, and rejects ambiguous RAM banks.
+    Dynamic OS reservations are not allocated here. No physical access occurs;
+    failure leaves Additional unchanged. */
+EFI_STATUS EFIAPI OppoPlanAdditionalMemory (
+  IN CONST OPPO_BOOT_HANDOFF *Handoff,
+  IN OPPO_MEMORY_RANGE Image, IN OPPO_MEMORY_RANGE Pool,
+  IN OPPO_MEMORY_RANGE Window, OUT OPPO_ADDITIONAL_MEMORY_PLAN *Additional
   );
 
 #endif

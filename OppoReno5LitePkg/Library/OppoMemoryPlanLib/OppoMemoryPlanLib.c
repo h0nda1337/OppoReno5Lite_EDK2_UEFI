@@ -58,3 +58,55 @@ EFI_STATUS EFIAPI OppoPlanEarlyMemory (
   for (Index = 0; Index < sizeof (Candidate); Index++) Destination[Index] = Source[Index];
   return EFI_SUCCESS;
 }
+
+EFI_STATUS EFIAPI OppoPlanAdditionalMemory (
+  IN CONST OPPO_BOOT_HANDOFF *Handoff,
+  IN OPPO_MEMORY_RANGE Image, IN OPPO_MEMORY_RANGE Pool,
+  IN OPPO_MEMORY_RANGE Window, OUT OPPO_ADDITIONAL_MEMORY_PLAN *Additional
+  )
+{
+  OPPO_EARLY_MEMORY_PLAN Early;
+  OPPO_ADDITIONAL_MEMORY_PLAN Candidate;
+  UINTN I, J;
+  if (Additional == NULL || !AlignedRange (Window) ||
+      Window.Length < 16 * 1024 * 1024 || Window.Length > 0x80000000ULL)
+    return EFI_INVALID_PARAMETER;
+  EFI_STATUS Status = OppoPlanEarlyMemory (Handoff, Image, Pool, &Early);
+  if (Status != EFI_SUCCESS) return Status;
+  // A window must fit a declared bank, and may not reuse the initial regions.
+  if (!OppoLoadRegionIsUsable (TRUE, Window.Base, Window.Length, Handoff->Ram,
+      Handoff->RamCount, &Pool, 1) ||
+      (Window.Base < Image.Base + Image.Length && Image.Base < Window.Base + Window.Length))
+    return EFI_ACCESS_DENIED;
+  for (I = 0; I < Handoff->RamCount; I++)
+    for (J = 0; J < I; J++) {
+      OPPO_MEMORY_RANGE A = Handoff->Ram[I], B = Handoff->Ram[J];
+      if (A.Base < B.Base + B.Length && B.Base < A.Base + A.Length)
+        return EFI_COMPROMISED_DATA;
+    }
+  volatile UINT8 *Clear = (volatile UINT8 *)&Candidate;
+  for (I = 0; I < sizeof (Candidate); I++) Clear[I] = 0;
+  UINT64 Cursor = Window.Base, End = Window.Base + Window.Length;
+  while (Cursor < End) {
+    UINT64 Next = End, Skip = Cursor;
+    for (I = 0; I < Early.ProtectedCount; I++) {
+      OPPO_MEMORY_RANGE R = Early.Protected[I];
+      UINT64 REnd = R.Base + R.Length;
+      if (R.Base <= Cursor && Cursor < REnd) Skip = REnd < End ? REnd : End;
+      else if (R.Base > Cursor && R.Base < Next) Next = R.Base;
+    }
+    if (Skip != Cursor) {Cursor = Skip; continue;}
+    if (Candidate.Count >= ARRAY_SIZE (Candidate.Free)) return EFI_OUT_OF_RESOURCES;
+    OPPO_MEMORY_RANGE R = {Cursor, Next - Cursor};
+    if (!OppoLoadRegionIsUsable (TRUE, R.Base, R.Length, Handoff->Ram, Handoff->RamCount,
+        Early.Protected, Early.ProtectedCount)) return EFI_ACCESS_DENIED;
+    Candidate.Free[Candidate.Count++] = R;
+    Candidate.TotalBytes += R.Length; // Disjoint slices of the bounded window.
+    Cursor = Next;
+  }
+  if (Candidate.Count == 0) return EFI_NOT_FOUND;
+  volatile UINT8 *Destination = (volatile UINT8 *)Additional;
+  CONST UINT8 *Source = (CONST UINT8 *)&Candidate;
+  for (I = 0; I < sizeof (Candidate); I++) Destination[I] = Source[I];
+  return EFI_SUCCESS;
+}

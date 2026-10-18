@@ -19,6 +19,8 @@ ENTRY_PROBE_MARKER = b'OPPO_SEC_PROBE_ONLY_V1\0'
 MMU_PROBE_MARKER = b'OPPO_SEC_MMU_PROBE_ONLY_V1\0'
 PROBE_MARKERS = {'handoff': ENTRY_PROBE_MARKER, 'mmu': MMU_PROBE_MARKER}
 NATIVE_LAB_MARKER = b'OPPO_NATIVE_DXE_SHELL_LAB_90S_V1\0'
+NATIVE_MEMORY_LAB_MARKER = b'OPPO_NATIVE_DXE_SHELL_LAB_1800S_V1\0'
+LAB_DEADLINES = {NATIVE_LAB_MARKER: 90, NATIVE_MEMORY_LAB_MARKER: 1800}
 PCD_DRIVER_GUID = '80cf7257-87ab-47f9-a3fe-d50b76d89541'
 REQUIRED = {
     '2bf0a605-3974-4d50-b19b-e0b1a6a4667e': ('original-sec', 3),
@@ -172,8 +174,11 @@ def require_native_lab(raw):
     if len(executables) != 1:
         raise ValueError('Expected one BDS executable')
     pe = executables[0]
-    if raw[pe['offset']:pe['offset'] + pe['size']].count(NATIVE_LAB_MARKER) != 1:
-        raise ValueError('Expected the reviewed 90-second laboratory BDS marker')
+    payload = raw[pe['offset']:pe['offset'] + pe['size']]
+    present = [marker for marker in LAB_DEADLINES if marker in payload]
+    if len(present) != 1 or payload.count(present[0]) != 1:
+        raise ValueError('Expected exactly one reviewed laboratory BDS deadline marker')
+    report['reset_request_after_seconds'] = LAB_DEADLINES[present[0]]
     # Check the emitted FFS bytecode, not only the DSC source: the producer
     # must bootstrap without the protocol that its consumers wait for.
     producers = [item for item in report['files'] if item['guid'] == PCD_DRIVER_GUID]

@@ -40,5 +40,6 @@
 [FeaturePcd]
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab
+  gOppoNativeTokenSpaceGuid.PcdNativeExtraMemoryLab
 [Depex]
   TRUE

@@ -31,6 +31,7 @@ typedef struct {
   CONST OPPO_SEC_ENTRY_CONTEXT *Entry;
   OPPO_BOOT_HANDOFF Handoff;
   OPPO_EARLY_MEMORY_PLAN Plan;
+  OPPO_ADDITIONAL_MEMORY_PLAN Extra;
   UINT32 PsciVersion;
   BOOLEAN SdProfile;
   BOOLEAN SdPowerProfile;
@@ -115,16 +116,20 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   EFI_RESOURCE_ATTRIBUTE_TYPE Attributes = EFI_RESOURCE_ATTRIBUTE_PRESENT |
     EFI_RESOURCE_ATTRIBUTE_INITIALIZED | EFI_RESOURCE_ATTRIBUTE_TESTED |
     EFI_RESOURCE_ATTRIBUTE_WRITE_BACK_CACHEABLE | EFI_RESOURCE_ATTRIBUTE_UNCACHEABLE;
-  ARM_MEMORY_REGION_DESCRIPTOR Map[ARRAY_SIZE (Plan->Protected) + 13];
+  ARM_MEMORY_REGION_DESCRIPTOR Map[ARRAY_SIZE (Plan->Protected) + ARRAY_SIZE (State->Extra.Free) + 13];
   UINTN MapCount = 0, Index;
   EFI_STATUS Status;
   OPPO_BOOT_INFO Info;
   (VOID)Unused;
-  if (Plan->ProtectedCount > ARRAY_SIZE (Plan->Protected)) Stop ();
+  if (Plan->ProtectedCount > ARRAY_SIZE (Plan->Protected) || State->Extra.Count > ARRAY_SIZE (State->Extra.Free)) Stop ();
   Hobs = HobConstructor ((VOID *)(UINTN)Plan->Pool.Base, (UINTN)Plan->Pool.Length,
                          (VOID *)(UINTN)Plan->Pool.Base, (VOID *)(UINTN)OPPO_NATIVE_DEBUG_BASE);
   if (Hobs == NULL || PrePeiSetHobList (Hobs) != EFI_SUCCESS) Stop ();
   BuildResourceDescriptorHob (EFI_RESOURCE_SYSTEM_MEMORY, Attributes, Plan->Pool.Base, Plan->Pool.Length);
+  for (Index = 0; Index < State->Extra.Count; Index++) {
+    OPPO_MEMORY_RANGE R = State->Extra.Free[Index];
+    BuildResourceDescriptorHob (EFI_RESOURCE_SYSTEM_MEMORY, Attributes, R.Base, R.Length);
+  }
   for (Index = 0; Index < Plan->ProtectedCount; Index++) {
     OPPO_MEMORY_RANGE R = Plan->Protected[Index];
     EFI_MEMORY_TYPE Type = Plan->ProtectedType[Index];
@@ -141,6 +146,8 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   ZeroMem (Map, sizeof (Map));
   MapRegion (Map, ARRAY_SIZE (Map), &MapCount, Plan->Image, ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
   MapRegion (Map, ARRAY_SIZE (Map), &MapCount, Plan->Pool, ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
+  for (Index = 0; Index < State->Extra.Count; Index++)
+    MapRegion (Map, ARRAY_SIZE (Map), &MapCount, State->Extra.Free[Index], ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
   for (Index = 0; Index < Plan->ProtectedCount; Index++)
     if (Plan->ProtectedType[Index] == EfiBootServicesData)
       MapRegion (Map, ARRAY_SIZE (Map), &MapCount, Plan->Protected[Index], ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
@@ -220,6 +227,7 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   State.SdProfile = FALSE;
   State.SdPowerProfile = FALSE;
   State.SdVoltageProfile = FALSE;
+  ZeroMem (&State.Extra, sizeof (State.Extra));
   // No storage MMIO is mapped unless this boot's FDT matches the board profile.
   if (FeaturePcdGet (PcdNativeSdReadLab)) {
     State.SdProfile = OppoSdProfileMatches (&View);
@@ -243,6 +251,12 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   if (Status != EFI_SUCCESS || !State.Handoff.NativePanelFound ||
       !State.Handoff.NativeFramebufferCoveredByReservation ||
       State.Handoff.NativeFramebuffer.Base != OPPO_NATIVE_FB_BASE) Stop ();
+  if (FeaturePcdGet (PcdNativeExtraMemoryLab)) {
+    if (!FeaturePcdGet (PcdNativeSdBootLab) || !State.SdProfile) Stop ();
+    Status = OppoPlanAdditionalMemory (&State.Handoff, State.Plan.Image, State.Plan.Pool,
+      (OPPO_MEMORY_RANGE){OPPO_NATIVE_EXTRA_BASE, OPPO_NATIVE_EXTRA_BYTES}, &State.Extra);
+    if (Status != EFI_SUCCESS) Stop ();
+  }
   OPPO_FB_LAYOUT Layout = {OPPO_NATIVE_FB_WIDTH, OPPO_NATIVE_FB_HEIGHT, OPPO_NATIVE_FB_STRIDE,
                            OPPO_NATIVE_FB_RED_SHIFT, OPPO_NATIVE_FB_BLUE_SHIFT, TRUE};
   if (!OppoFbInitialize (&mMarker, (VOID *)(UINTN)State.Handoff.NativeFramebuffer.Base,
@@ -252,6 +266,8 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   if (!OppoDebugStart ()) Stop ();
   DEBUG ((DEBUG_INFO, "SEC handoff validated; EL %u, counter %Lu\n",
           (UINT32)Entry->ExceptionLevel, Entry->CounterFrequency));
+  DEBUG ((DEBUG_INFO, "SEC extra RAM: %u ranges, %Lu MiB; initial pool unchanged\n",
+          (UINT32)State.Extra.Count, State.Extra.TotalBytes / (1024 * 1024)));
   if (FeaturePcdGet (PcdNativeEntryProbe)) EntryProbe (Entry);
   SwitchStack (ContinueBoot, &State, NULL,
                (VOID *)(UINTN)(State.Plan.Pool.Base + State.Plan.Pool.Length));

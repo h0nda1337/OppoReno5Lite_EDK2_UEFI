@@ -607,6 +607,56 @@ orientación y perfil de color, sin metadatos personales. Véanse
 [la evidencia física](../evidence/native-sd-boot-lab-21-validation.json) y
 [la revisión de las fotografías](../evidence/native-sd-boot-lab-21-photos.json).
 
+## RAM adicional para el ramdisk (22 y 23): preparación en PC
+
+El código propio añade un plan opcional dentro de `0x80000000..0x100000000`,
+sin ampliar ni mover el pool inicial de 64 MiB, la pila o la página de bitácora.
+Revalida el plan temprano, exige RAM declarada sin bancos solapados y descuenta
+todas las reservas fijas redondeadas a páginas. Si hay nodos sin resolver,
+desbordamientos o conflictos con imagen/pool, rechaza el plan sin modificar
+la salida. Las reservas dinámicas del sistema operativo siguen sin asignarse.
+
+Con el FDT capturado, la inspección de PC produce cuatro tramos:
+
+| Base | Tamaño |
+| --- | --- |
+| `0x80000000` | `0x3ff00000` |
+| `0xbff40000` | `0x30000` |
+| `0xbfff0000` | `0xf000` |
+| `0xc0000000` | `0x40000000` |
+
+Suman 2 146 693 120 bytes, unos 2047 MiB adicionales. Es una propuesta con una
+dirección de FDT suministrada para la inspección, no una medición del handoff
+nativo futuro. SEC recalcula las exclusiones con el FDT y su dirección reales
+en cada arranque. Solo entonces publica los tramos libres mediante HOBs de
+memoria del sistema y los mapea como RAM con caché. Las reservas y el framebuffer
+mantienen su tratamiento anterior. No se está entregando toda la RAM física ni
+realizando una prueba de estrés de DRAM.
+
+El control `NATIVE_EXTRA_MEMORY_LAB=1` está desactivado por defecto y requiere
+`NATIVE_SD_BOOT_LAB=1`. Trece fallos de entrada mantienen intacta la salida;
+32 comparaciones contra un bitmap de páginas verifican cobertura sin solapes,
+reservas desordenadas y límites. También pasan los casos originales del plan
+temprano y el FDT privado con sanitizadores; la biblioteca compila para ARM64.
+La composición 22 compiló pero **no se probó en el teléfono**: se detectó que
+su temporizador de 90 segundos podía cortar la lectura del ramdisk.
+
+La composición 23 usa un plazo de laboratorio de 1800 segundos solo cuando
+está activo ese control. Las demás variantes conservan 90 segundos. El BDS
+incluye exactamente una marca con el plazo elegido; el inspector la extrae
+del ejecutable y el empaquetador rechaza un manifiesto que declare otro plazo.
+Se mantienen el evento y la comprobación alternativa del contador, sin afirmar
+que rescaten una excepción o un controlador bloqueado. Pasan 28 escenarios
+de BDS para ambos plazos y 15 pruebas de contenedores/transporte, incluidas
+marcas ambiguas y manifiestos inconsistentes.
+
+La inspección de solo lectura desde Android midió 562 366 404 bytes para el WIM
+de la tarjeta; no se publica ese archivo. El controlador SD actual trabaja en
+PIO de un bit, por lo que su lectura puede tardar varios minutos. La memoria
+y el arranque de WinPE siguen pendientes de una prueba física de esta variante.
+Véanse [la compilación 22 sin ejecución física](../evidence/native-sd-boot-lab-22-host-validation.json)
+y [la compilación 23 con plazo de 1800 segundos](../evidence/native-sd-boot-lab-23-host-validation.json).
+
 ## Aplicación EFI de la tarjeta
 
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera

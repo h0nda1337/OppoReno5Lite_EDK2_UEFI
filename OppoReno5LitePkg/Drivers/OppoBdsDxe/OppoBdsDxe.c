@@ -23,7 +23,19 @@
 
 STATIC EFI_HANDLE mImage;
 VOID OppoSdReadLab (EFI_HANDLE Parent);
-STATIC CONST volatile CHAR8 mLabIdentity[] = "OPPO_NATIVE_DXE_SHELL_LAB_90S_V1";
+STATIC UINT32 DeadlineSeconds (VOID)
+{ return FeaturePcdGet (PcdNativeExtraMemoryLab) ? 1800U : 90U; }
+
+STATIC BOOLEAN LabIdentityValid (VOID)
+{
+  if (FeaturePcdGet (PcdNativeExtraMemoryLab)) {
+    STATIC CONST volatile CHAR8 Identity[] = "OPPO_NATIVE_DXE_SHELL_LAB_1800S_V1";
+    return (BOOLEAN)(Identity[0] == 'O');
+  } else {
+    STATIC CONST volatile CHAR8 Identity[] = "OPPO_NATIVE_DXE_SHELL_LAB_90S_V1";
+    return (BOOLEAN)(Identity[0] == 'O');
+  }
+}
 STATIC EFI_GUID mShellFile = {0x7c04a583, 0x9e3e, 0x4f1c, {0xad, 0x65, 0xe0, 0x52, 0x68, 0xd0, 0xb4, 0xd1}};
 STATIC BOOLEAN mCounterDeadlineReady;
 STATIC UINT64 mCounterStart, mCounterTicks;
@@ -87,7 +99,7 @@ STATIC VOID StartDeadline (VOID)
   // The validated ARM counter counts upward. Do not guess for another source.
   if (First == 0 && Last == MAX_UINT64 && Frequency != 0 && Frequency <= 1000000000ULL) {
     mCounterStart = GetPerformanceCounter ();
-    mCounterTicks = Frequency * 90;
+    mCounterTicks = Frequency * DeadlineSeconds ();
     mCounterDeadlineReady = TRUE;
   }
   DEBUG ((DEBUG_INFO, "BDS IRQ enabled=%u; counter=%Lu Hz; fallback=%u\n",
@@ -96,7 +108,7 @@ STATIC VOID StartDeadline (VOID)
   mEventStatus = Status;
   DEBUG ((DEBUG_INFO, "BDS CreateEvent: %r\n", Status));
   if (!EFI_ERROR (Status)) {
-    Status = gBS->SetTimer (Event, TimerRelative, 90ULL * 10000000);
+    Status = gBS->SetTimer (Event, TimerRelative, (UINT64)DeadlineSeconds () * 10000000);
     mTimerStatus = Status;
     DEBUG ((DEBUG_INFO, "BDS SetTimer: %r\n", Status));
     if (EFI_ERROR (Status)) gBS->CloseEvent (Event);
@@ -129,7 +141,7 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   EFI_STATUS ConsoleStatus = EFI_NOT_FOUND, HiiDatabase, HiiFont, HiiString;
   OPPO_TEXT_SETUP Text = {-1, -1, 0, 0, EFI_NOT_STARTED, EFI_NOT_STARTED};
   (VOID)This;
-  if (mLabIdentity[0] != 'O') {
+  if (!LabIdentityValid ()) {
     gRT->ResetSystem (EfiResetCold, EFI_COMPROMISED_DATA, 0, NULL);
     for (;;) gBS->Stall (100000);
   }
@@ -166,7 +178,9 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
         gST->ConsoleOutHandle = Handles[Index]; gST->ConOut = Out;
         gST->StandardErrorHandle = Handles[Index]; gST->StdErr = Out;
         Out->OutputString (Out, L"OPPO CPH2205 - experimental native EDK2\r\n");
-        Out->OutputString (Out, L"Laboratory timer: reset requested after 90 seconds.\r\n\r\n");
+        Out->OutputString (Out, FeaturePcdGet (PcdNativeExtraMemoryLab) ?
+          L"SD memory lab: reset requested after 1800 seconds.\r\n\r\n" :
+          L"Laboratory timer: reset requested after 90 seconds.\r\n\r\n");
         break;
       }
     }
