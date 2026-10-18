@@ -11,6 +11,10 @@ Volvió automáticamente a Android y se restauró recovery original. La entrada
 de usuario y ejecución de comandos siguen pendientes.
 Las etapas, sus límites y las fotos se detallan abajo.
 
+La [preparación ACPI](ACPI.md) contiene un generador original validado en PC.
+Todavía no forma parte del FD nativo ni se ha instalado en el OPPO; no cambia
+el resultado físico de Windows o la Shell descrito aquí.
+
 La imagen tiene 8 MiB y comienza en `0x40080000`. Su cabecera ARM64 salta
 directamente al volumen FV situado en `0x40081000`; el vector de ese volumen
 entra en la SEC propia. No hay BootShim, un cargador de otro port, una copia

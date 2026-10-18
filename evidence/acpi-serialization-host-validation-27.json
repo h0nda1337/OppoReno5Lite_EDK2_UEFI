@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "phase": "acpi-serialization-host-27",
+  "base_revision": "e2444814071972791aeef01fbb6bd00ace7c67ad",
+  "scope": "Original table serialization prototype tested on PC; no runtime installer, native FD rebuild or phone test",
+  "edk2_revision": "b03a21a63e3bd001f52c527e5a57feddb53a690b",
+  "source_files": {
+    "OppoReno5LitePkg/Include/Library/OppoAcpiLib.h": {
+      "bytes": 2001,
+      "sha256": "f73cf0af68a70aaddcb289fb0efa9ba6e2832ee76c667996c29dcd642c1e3ea2"
+    },
+    "OppoReno5LitePkg/Library/OppoAcpiLib/OppoAcpiLib.c": {
+      "bytes": 9062,
+      "sha256": "e1472e16c1b2e83dd1fdadc6db8029c58d7aa4b84803283fd5b6f30a821a70dc"
+    },
+    "OppoReno5LitePkg/Library/OppoAcpiLib/OppoAcpiLib.inf": {
+      "bytes": 469,
+      "sha256": "d1eeabd72d37e664a416f28d0dc5f06c1b1a0b11aec9d378bda078b1734795b8"
+    },
+    "OppoReno5LitePkg/OppoReno5LitePkg.dec": {
+      "bytes": 1839,
+      "sha256": "11afb1184fed7eeb81bf7534351776545a41c44d0b50645fff76cbab5affc2b8"
+    },
+    "scripts/test_acpi.c": {
+      "bytes": 5719,
+      "sha256": "854fc874352cdeb5c8047c5863171732a74e0f21c97e4bc578497dd54aa47077"
+    },
+    "scripts/test_acpi.sh": {
+      "bytes": 2279,
+      "sha256": "f3c3a672ef78ed023e138e266fe2880399068dbc0f199c1627d9b1f3f87c7c7e"
+    },
+    "scripts/test_acpi_bytes.py": {
+      "bytes": 3800,
+      "sha256": "020ac522a2a8e6768bb26259f4d968053c4667e42fcd92052e83c4a9fdc7db49"
+    }
+  },
+  "filtered_platform_input": {
+    "runtime_fdt_sha256": "15b90220d0658920d37b7756d20c58cd4933190b186cb1e0e099ba18408fddf4",
+    "cpu_pmu": {
+      "path": "/pmu",
+      "compatible": [
+        "arm,armv8-pmuv3"
+      ],
+      "interrupt_cells": [
+        1,
+        7,
+        8
+      ],
+      "decoded_gsiv": 23,
+      "trigger": "level",
+      "polarity": "low"
+    },
+    "gic_redistributor_region_count": 1,
+    "other_platform_facts": "evidence/acpi-platform-prerequisites-26.json",
+    "individual_cpu_redistributor_mapping_observed": false
+  },
+  "checks": {
+    "host_c_asan_ubsan": "passed",
+    "short_buffers": "all byte lengths below required1528; output and result unchanged",
+    "profile_validation": "boot CPU, affinity set, uniqueness, range, alignment, overlap and absent mapping rejection",
+    "success_cases": "synthetic normal, high physical address, final frame boundary and shuffled affinity/address mapping",
+    "independent_byte_parser": "all checksums, pointers, lengths, revisions, reserved bytes, CPU mapping, IRQs and zero padding passed",
+    "acpica_version": "20250404",
+    "aml_disassembly": "passed",
+    "aml_recompile": "0 errors,0 warnings,0 remarks,3 optimizations",
+    "aml_interpreter": "UID0=0,UID7=7,STA7=15; no regions or methods; no outstanding interpreter allocations",
+    "aml_interpreter_scope": "CPU-only DSDT in ACPICA test harness, not an integrated test of the generated FADT/MADT/GTDT",
+    "arm64_object": "ELF64 little-endian AArch64 relocatable; unresolved references onlyCopyMem andZeroMem"
+  },
+  "private_build_artifact_metadata": {
+    "low.bin": {
+      "bytes": 1528,
+      "sha256": "58fcac208bb9072ebd4fe3abe9adf3f1ce0106a937e7dbb70392c0290dcdfe6c"
+    },
+    "high.bin": {
+      "bytes": 1528,
+      "sha256": "f20e9d17a9e7418f1b7f2588e5d958b69e275a82d64a127ed165feec8d27bb1b"
+    },
+    "last-frame.bin": {
+      "bytes": 1528,
+      "sha256": "8d18752bef1014949139218c25c6827a39ee0b1f748b07f09f2b6b782e660c34"
+    },
+    "shuffled.bin": {
+      "bytes": 1528,
+      "sha256": "857a2c6e7e7ae5895e48ca3f16badc85b23686048c3ab824648ec7b9ce578c36"
+    },
+    "generated-dsdt.aml": {
+      "bytes": 332,
+      "sha256": "57c523c39190abce870c4c6ab4e097f54d18cd513159c9763f07742aef668b63"
+    },
+    "OppoAcpiLib.o": {
+      "bytes": 5640,
+      "sha256": "fff3fa5d9e38681f32bd3e7cc0464fcef35c58063d5794fd5b75878ea9f04a2c"
+    }
+  },
+  "implementation_properties": {
+    "allocations": false,
+    "mmio": false,
+    "uefi_services_called": false,
+    "configuration_tables_installed": false,
+    "native_dsc_or_fdf_integration": false,
+    "imported_platform_code_or_tables": false,
+    "base_edk2_format_headers_used": true
+  },
+  "remaining_before_installation": [
+    "Read and validate individual GICR affinity mappings",
+    "Bind all constants to the received FDT and validate CPU/PSCI readiness",
+    "Confirm GICv2 compatibility and classify third GIC register range",
+    "Allocate and preserve ACPI reclaim pages and install RSDP atomically",
+    "Complete remaining Windows platform services and device descriptions"
+  ],
+  "phone_test_performed": false,
+  "windows_error_cause_identified": false,
+  "winpe_boot_verified": false
+}

@@ -11,6 +11,7 @@
   Include
 
 [LibraryClasses]
+  OppoAcpiLib|Include/Library/OppoAcpiLib.h
   OppoPlatformLib|Include/Library/OppoPlatformLib.h
   OppoBgrtLib|Include/Library/OppoBgrtLib.h
   OppoFrameBufferLib|Include/Library/OppoFrameBufferLib.h

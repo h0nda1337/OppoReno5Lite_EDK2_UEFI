@@ -1,0 +1,21 @@
+## @file
+# Original serializer prototype; intentionally absent from OppoNative.dsc/fdf.
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  INF_VERSION    = 0x0001001B
+  BASE_NAME      = OppoAcpiLib
+  FILE_GUID      = a4c72e61-2e76-4fce-99d5-492326321921
+  MODULE_TYPE    = BASE
+  VERSION_STRING = 0.1
+  LIBRARY_CLASS  = OppoAcpiLib
+
+[Sources]
+  OppoAcpiLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
