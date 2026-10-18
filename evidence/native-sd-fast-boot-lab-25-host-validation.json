@@ -80,12 +80,17 @@
   "physical_read_baseline": "evidence/native-sd-fast-read-lab-24-validation.json",
   "additional_memory_planner_host_evidence": "evidence/native-sd-boot-lab-23-host-validation.json",
   "physical_launch_requested": true,
-  "physical_observation_pending": true,
+  "physical_observation_pending": false,
   "physical_extra_dram_allocation_verified": false,
   "windows_pe_boot_verified": false,
-  "stock_recovery_restored_after_this_attempt": false,
+  "stock_recovery_restored_after_this_attempt": true,
   "battery_before_test_percent": 100,
   "direct_recovery_request_confirmed": true,
   "android_intermediate_boot": false,
-  "owner_screen_report": "Black screen again; owner will wait to observe whether it starts and requested pausing the chat turn"
+  "owner_screen_report": "Black screen for several minutes, followed by the photographed Windows Recovery error and reset capture",
+  "physical_additional_memory_exposed_to_uefi_verified": true,
+  "pre_start_conventional_memory_whole_mib": 2100,
+  "windows_error_code": "0xc0000225",
+  "physical_evidence": "evidence/native-sd-fast-boot-lab-25-validation.json",
+  "battery_after_restoration_percent": 100.0
 }

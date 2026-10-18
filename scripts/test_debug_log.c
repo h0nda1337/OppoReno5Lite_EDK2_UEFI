@@ -71,6 +71,28 @@ int main(void)
   assert(memcmp(before,frame,bytes)==0 && memmem(state,4096,&Flow,sizeof(Flow))!=NULL);
   UINT8 flow_state[4096];memcpy(flow_state,state,4096);
   OppoDebugRecordBootFlow(NULL);assert(memcmp(flow_state,state,4096)==0);
+  OppoDebugRecordSdRead(EFI_SUCCESS,1234567);
+  OppoDebugRecordSdRead(EFI_CRC_ERROR,512);
+  OppoDebugRecordSdRead(EFI_MEDIA_CHANGED,512);
+  OppoDebugRecordSdReset(EFI_SUCCESS,FALSE);
+  OppoDebugRecordSdReset(EFI_SUCCESS,TRUE);
+  OppoDebugRecordSdReset(EFI_DEVICE_ERROR,TRUE);
+  OPPO_SD_FLOW Sd;memset(&Sd,0,sizeof(Sd));
+  Sd.ReadBytes=1234567;Sd.ReadCalls=3;Sd.Resets=3;Sd.FailedResets=1;Sd.MediaChanges=1;Sd.FirstReadError=EFI_CRC_ERROR;
+  assert(memmem(state,4096,&Sd,sizeof(Sd))!=NULL && memcmp(before,frame,bytes)==0);
+  OppoDebugRecordBootFlow(&Flow); // Refreshing the active stage preserves counters.
+  assert(memmem(state,4096,&Sd,sizeof(Sd))!=NULL);
+  Flow.Stage=OPPO_BOOT_START_RETURNED;OppoDebugRecordBootFlow(&Flow);
+  memcpy(flow_state,state,4096);
+  OppoDebugRecordSdRead(EFI_SUCCESS,123);OppoDebugRecordSdReset(EFI_SUCCESS,TRUE);
+  assert(memcmp(flow_state,state,4096)==0);
+  Flow.Stage=OPPO_BOOT_START_ACTIVE;OppoDebugRecordBootFlow(&Flow);
+  OppoDebugRecordSdRead(EFI_SUCCESS,MAX_UINTN);OppoDebugRecordSdRead(EFI_SUCCESS,1);
+  memset(&Sd,0,sizeof(Sd));Sd.ReadBytes=MAX_UINT64;Sd.ReadCalls=2;
+  OPPO_SD_FLOW *Trace=memmem(state,4096,&Sd,sizeof(Sd));assert(Trace!=NULL);
+  Trace->Resets=Trace->FailedResets=Trace->MediaChanges=MAX_UINT32;
+  OppoDebugRecordSdReset(EFI_DEVICE_ERROR,FALSE);OppoDebugRecordSdReset(EFI_SUCCESS,TRUE);
+  assert(Trace->Resets==MAX_UINT32 && Trace->FailedResets==MAX_UINT32 && Trace->MediaChanges==MAX_UINT32);
   memcpy(before,frame,bytes);
   assert(OppoDebugConstructor()==RETURN_SUCCESS);
   assert(memcmp(before,frame,bytes)==0); /* Core binding keeps the SEC log. */

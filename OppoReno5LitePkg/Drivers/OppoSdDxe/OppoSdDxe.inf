@@ -11,6 +11,7 @@
   MdePkg/MdePkg.dec
   OppoReno5LitePkg/OppoReno5LitePkg.dec
 [LibraryClasses]
+  DebugLib
   UefiDriverEntryPoint
   UefiBootServicesTableLib
   HobLib

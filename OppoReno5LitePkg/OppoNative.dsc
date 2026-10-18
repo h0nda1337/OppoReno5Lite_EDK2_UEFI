@@ -169,7 +169,10 @@
   OppoReno5LitePkg/Drivers/OppoRuntimeDxe/OppoRuntimeDxe.inf
   OppoReno5LitePkg/Drivers/OppoGopDxe/OppoGopDxe.inf
 !if $(OPPO_SD_READ_LAB) == TRUE
-  OppoReno5LitePkg/Drivers/OppoSdDxe/OppoSdDxe.inf
+  OppoReno5LitePkg/Drivers/OppoSdDxe/OppoSdDxe.inf {
+    <LibraryClasses>
+      DebugLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoDebugLib.inf
+  }
   MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
   FatPkg/EnhancedFatDxe/Fat.inf

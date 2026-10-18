@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-fast-boot-25",
+  "stage": "windows_recovery_new_error_with_additional_uefi_memory_visible",
+  "source_base_revision": "3ec756c8ffee672fb77967be8245c5bec8188c01",
+  "host_evidence": "evidence/native-sd-fast-boot-lab-25-host-validation.json",
+  "candidate_sha256": "c248317df6799320e6f14a24223f45a0a9916b288829dff51ee66189d4dafc9b",
+  "native_fd_sha256": "f18e97b99dd260c69bca6ddc36cd9a2fabf1bd5ff5ccd0f2323de44989f7e677",
+  "photos": [
+    "docs/images/native-sd-fast-boot-lab-25-context.jpg",
+    "docs/images/native-sd-fast-boot-lab-25-error.jpg"
+  ],
+  "windows_recovery_screen": {
+    "title": "Recovery",
+    "error_code": "0xc0000225",
+    "message": "An unexpected error has occurred.",
+    "windows_boot_manager_recovery_ui_verified": true,
+    "windows_pe_boot_verified": false,
+    "windows_kernel_bsod_verified": false
+  },
+  "reset_capture": {
+    "reset_type": 2,
+    "request": "POWER OFF",
+    "efi_status": "0x0000000000000000",
+    "boot_stage": 3,
+    "load_status": "0x0000000000000000",
+    "start_status_marker": "0x8000000000000013",
+    "map_status": "0x0000000000000000",
+    "pre_start_conventional_memory_whole_mib": 2100,
+    "alpha_pixels_changed": 130708,
+    "changed_pixels_with_nonzero_rgb": 130708
+  },
+  "interpretation": {
+    "additional_memory_visible_in_pre_start_uefi_map": true,
+    "previous_0xc0000017_message_not_displayed": true,
+    "whole_wim_read_or_decompression_verified": false,
+    "additional_dram_stress_or_integrity_verified": false,
+    "exact_failed_object_or_boot_stage_identified": false,
+    "missing_bcd_or_acpi_is_not_yet_a_diagnosis": true,
+    "pre_start_snapshot_is_not_live_shutdown_memory": true,
+    "start_image_return_verified": false,
+    "not_started_marker_and_shutdown_status_are_not_windows_errors": true,
+    "capture_hold_duration_measured_on_phone": false
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 562.592,
+    "bootreason": "usb"
+  },
+  "automatic_android_return_owner_confirmed": false,
+  "owner_power_on_method": null,
+  "battery_before_test_percent": 100,
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_after_restoration_percent": 100.0
+}

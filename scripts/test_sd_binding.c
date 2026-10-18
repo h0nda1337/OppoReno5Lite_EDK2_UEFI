@@ -6,7 +6,10 @@
 #include <stdio.h>
 #include <string.h>
 STATIC BOOLEAN mEnableLab;
+STATIC BOOLEAN mFastLab, mFailFast, mFailInitialize, mResize;
+STATIC UINTN mIdentityChangeIndex = MAX_UINTN, mFastCalls;
 #define _PCD_GET_MODE_BOOL_PcdNativeSdPowerLab mEnableLab
+#define _PCD_GET_MODE_BOOL_PcdNativeSdFastReadLab mFastLab
 #include "../OppoReno5LitePkg/Drivers/OppoSdDxe/OppoSdDxe.c"
 
 EFI_GUID gOppoBootInfoHobGuid, gOppoSdDeviceGuid, gOppoSdStatusProtocolGuid;
@@ -18,6 +21,11 @@ STATIC UINTN mScenario, mReads, mWrites, mCardInits, mCardReads, mInstalls, mTpl
 STATIC CONST UINT32 Gates = (1U << 4) | (1U << 16);
 STATIC UINT32 mIes, mSmt, mPupd, mR0, mR1;
 STATIC UINT32 mPowerQueries, mI2cGate;
+STATIC UINTN mTraceReads, mTraceResets;
+VOID EFIAPI OppoDebugRecordSdRead(EFI_STATUS Status,UINTN Bytes)
+{ (VOID)Status;(VOID)Bytes;mTraceReads++; }
+VOID EFIAPI OppoDebugRecordSdReset(EFI_STATUS Status,BOOLEAN Changed)
+{assert(!EFI_ERROR(Status) || !Changed);mTraceResets++;}
 UINT8 EFIAPI MmioRead8 (UINTN A) {(VOID)A;assert(!"I2C without power profile");return 0;}
 UINT16 EFIAPI MmioRead16 (UINTN A) {(VOID)A;assert(!"I2C without power profile");return 0;}
 UINT8 EFIAPI MmioWrite8 (UINTN A,UINT8 V) {(VOID)A;(VOID)V;assert(!"I2C without power profile");return 0;}
@@ -85,9 +93,19 @@ UINTN EFIAPI MicroSecondDelay (UINTN Us) { assert(Us <= 100); return Us; }
 EFI_STATUS OppoMsdcInitialize (OPPO_MSDC *Card, CONST OPPO_MSDC_IO *Io)
 {
   assert(Io->Read32 == Read32 && Io->Write32 == Write32 && Io->DelayUs == DelayUs);
-  mCardInits++; Card->Blocks=8192; Card->LastCommand=8; Card->LastInterrupt=512;
-  Card->Ready=mScenario != 7;
+  mCardInits++; Card->Blocks=mResize ? 16384 : 8192; Card->LastCommand=8; Card->LastInterrupt=512;
+  for(UINTN I=0;I<4;I++)Card->Identity[I]=(UINT32)(0x10203040U+I)^(I==mIdentityChangeIndex ? 0x10000U : 0);
+  Card->BusWidth=1;Card->ClockHz=6500000;Card->MaximumClockHz=25000000;
+  Card->FastSamplesVerified=FALSE;
+  Card->Ready=mScenario != 7 && !mFailInitialize;
   return Card->Ready ? EFI_SUCCESS : EFI_TIMEOUT;
+}
+EFI_STATUS OppoMsdcEnableFastRead (OPPO_MSDC *Card)
+{
+  assert(mFastLab && Card==&mCard && Card->Ready);mFastCalls++;
+  if(mFailFast) {Card->Ready=FALSE;return EFI_CRC_ERROR;}
+  Card->BusWidth=4;Card->ClockHz=13000000;Card->FastSamplesVerified=TRUE;
+  return EFI_SUCCESS;
 }
 EFI_STATUS OppoMsdcRead (OPPO_MSDC *Card, UINT64 Lba, UINTN Blocks, VOID *Buffer)
 {
@@ -154,7 +172,7 @@ int main(void)
       assert(ReadBlocks(&mBlock,1,8192,512,Buffer)==EFI_INVALID_PARAMETER);
       assert(ReadBlocks(&mBlock,1,0,512,Buffer+1)==(mScenario==9 ? EFI_CRC_ERROR : EFI_SUCCESS));
       if(mScenario==9) assert(ReadBlocks(&mBlock,1,0,512,Buffer)==EFI_NO_MEDIA);
-      assert(Reset(&mBlock,FALSE)==EFI_SUCCESS && mMedia.MediaId==2 && mMedia.MediaPresent);
+      assert(Reset(&mBlock,FALSE)==EFI_SUCCESS && mMedia.MediaId==(mScenario==9 ? 2U : 1U) && mMedia.MediaPresent);
       assert(mTpl==0);
     }
     if (mCardInits==0) assert(mStatus.Cmd8FirstStatus==EFI_NOT_STARTED);
@@ -166,6 +184,43 @@ int main(void)
     if(mScenario==15 || mScenario==16) assert(mStatus.Power.Status==EFI_UNSUPPORTED);
     if(mScenario==17) assert(mStatus.Power.Status==EFI_DEVICE_ERROR && mI2cGate==(1U<<18));
   }
+  // The consumer keeps its original MediaId across a reset of the same card.
+  // A new card with identical geometry must still invalidate that cached ID.
+  mScenario=20;mEnableLab=FALSE;mFastLab=TRUE;
+  mHob.Info.Flags=OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED;
+  memset(&mCard,0,sizeof(mCard));memset(&mMedia,0,sizeof(mMedia));memset(&mStatus,0,sizeof(mStatus));
+  mIes=0x80000000U;mSmt=0x80000001U;mPupd=0xdeadffffU;mR0=0xcafe00ffU;mR1=0x2300U;
+  mInstalls=mFastCalls=mCardInits=mCardReads=0;
+  assert(OppoSdEntry(NULL,NULL)==EFI_SUCCESS && mInstalls==2 && mFastCalls==1);
+  UINT8 Buffer[512];
+  for(UINTN Extended=0;Extended<2;Extended++) {
+    assert(Reset(&mBlock,(BOOLEAN)Extended)==EFI_SUCCESS && mMedia.MediaId==1);
+    assert(mMedia.MediaPresent && mStatus.FastSetup==EFI_SUCCESS && mStatus.FastSamplesVerified);
+    assert(mStatus.BusWidth==4 && mStatus.ClockHz==13000000);
+    assert(ReadBlocks(&mBlock,1,0,512,Buffer)==EFI_SUCCESS);
+  }
+  assert(mCardInits==3 && mFastCalls==3);
+  for(UINTN I=0;I<4;I++) {
+    UINT32 Previous=mMedia.MediaId;mIdentityChangeIndex=I;
+    assert(Reset(&mBlock,FALSE)==EFI_SUCCESS && mMedia.MediaId==Previous+1);
+    assert(ReadBlocks(&mBlock,Previous,0,512,Buffer)==EFI_MEDIA_CHANGED);
+    assert(ReadBlocks(&mBlock,Previous+1,0,512,Buffer)==EFI_SUCCESS);
+  }
+  UINT32 Previous=mMedia.MediaId;mResize=TRUE;
+  assert(Reset(&mBlock,TRUE)==EFI_SUCCESS && mMedia.MediaId==Previous+1 && mMedia.LastBlock==16383);
+  Previous=mMedia.MediaId;mFailInitialize=TRUE;
+  assert(Reset(&mBlock,FALSE)==EFI_TIMEOUT && mMedia.MediaId==Previous && !mMedia.MediaPresent);
+  mFailInitialize=FALSE;
+  assert(Reset(&mBlock,FALSE)==EFI_SUCCESS && mMedia.MediaId==Previous+1);
+  Previous=mMedia.MediaId;mFailFast=TRUE;
+  assert(Reset(&mBlock,FALSE)==EFI_CRC_ERROR && mMedia.MediaId==Previous && !mMedia.MediaPresent);
+  UINTN Reads=mCardReads;
+  assert(ReadBlocks(&mBlock,Previous,0,512,Buffer)==EFI_NO_MEDIA && mCardReads==Reads);
+  mInstalls=0;mResize=FALSE;
+  assert(OppoSdEntry(NULL,NULL)==EFI_SUCCESS && mInstalls==1 && mStatus.Publish==EFI_NOT_STARTED);
+  assert(mStatus.Initialize==EFI_CRC_ERROR && mStatus.FastSetup==EFI_CRC_ERROR && mTpl==0);
+  assert(mTraceReads>0 && mTraceResets>0);
+  puts("SD reset/fast binding: stable cached-ID reads, all four identity words, geometry change, failed reset/recovery, fast renegotiation and failure withholding publication passed synthetic sanitizers.");
   puts("SD binding: missing/untrusted HOB and mux rejection, clock readback faults, read-only/media API and recovery passed synthetic host tests; physical board untested.");
   return 0;
 }

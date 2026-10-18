@@ -63,6 +63,10 @@ REVIEWED_IMAGES = {
         (4448260, '08b208f6a0ce20d815d0c4ee48275a81ed6fcff9d683860336026440474317cb'),
     'docs/images/native-sd-fast-read-lab-24.jpg':
         (2990554, 'f5986632f5208c358a725ac0bf91b31e289c9635930eafcb9830cb8b625f2cd9'),
+    'docs/images/native-sd-fast-boot-lab-25-context.jpg':
+        (2175806, 'bcd037a1950ed57ace0779ee2e6a8f91666adf4a9ecbd2bde244c2e31976224c'),
+    'docs/images/native-sd-fast-boot-lab-25-error.jpg':
+        (1970667, '67537688219648a5904ef8ccb93c64608c6d93c787b12925abea0e09795def91'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

@@ -14,7 +14,7 @@ STATIC EFI_RESET_TYPE mExpectedType;
 STATIC EFI_STATUS mExpectedStatus;
 STATIC UINTN mFormats;
 STATIC OPPO_BOOT_FLOW mExpectedFlow;
-STATIC UINT32 mExpectedChanged, mExpectedColored;
+STATIC OPPO_SD_FLOW mExpectedSd;
 VOID EFIAPI MemoryFence(VOID) {__sync_synchronize();}
 UINTN EFIAPI AsciiSPrint(CHAR8 *Buffer, UINTN Bytes, CONST CHAR8 *Format, ...)
 {
@@ -26,13 +26,17 @@ UINTN EFIAPI AsciiSPrint(CHAR8 *Buffer, UINTN Bytes, CONST CHAR8 *Format, ...)
   assert(va_arg(Args,UINT64)==mExpectedStatus && va_arg(Args,UINT32)==mExpectedFlow.Stage);
   assert(va_arg(Args,UINT64)==mExpectedFlow.LoadStatus && va_arg(Args,UINT64)==mExpectedFlow.StartStatus);
   assert(va_arg(Args,UINT64)==mExpectedFlow.MapStatus && va_arg(Args,UINT64)==mExpectedFlow.ConventionalBytes/(1024*1024));
-  assert(va_arg(Args,UINT32)==mExpectedChanged && va_arg(Args,UINT32)==mExpectedColored);
+  assert(va_arg(Args,UINT64)==mExpectedSd.ReadBytes/(1024*1024));
+  assert(va_arg(Args,UINT64)==mExpectedSd.FirstReadError);
+  assert(va_arg(Args,UINT32)==mExpectedSd.Resets && va_arg(Args,UINT32)==mExpectedSd.FailedResets);
+  assert(va_arg(Args,UINT32)==mExpectedSd.MediaChanges);
   va_end(Args);mFormats++;
-  return (UINTN)snprintf(Buffer,Bytes,"OPPO RESET CAPTURE\r\nTYPE=%u REQUEST=%s\r\nEFI STATUS=%016llx\r\nSTAGE=%u LOAD=%016llx\r\nRETURN=%016llx\r\nMAP=%016llx FREE=%lluM\r\nALPHA FIX=%u COLOR=%u\r\n15 SECOND CAPTURE HOLD\r\n",
+  return (UINTN)snprintf(Buffer,Bytes,"OPPO RESET CAPTURE\r\nTYPE=%u REQUEST=%s\r\nEFI STATUS=%016llx\r\nSTAGE=%u LOAD=%016llx\r\nRETURN=%016llx\r\nMAP=%016llx FREE=%lluM\r\nSD READ=%lluM ERR=%016llx\r\nSD RESET=%u FAIL=%u CHANGE=%u\r\n",
     mExpectedType,Kind,(unsigned long long)mExpectedStatus,mExpectedFlow.Stage,
     (unsigned long long)mExpectedFlow.LoadStatus,(unsigned long long)mExpectedFlow.StartStatus,
     (unsigned long long)mExpectedFlow.MapStatus,(unsigned long long)(mExpectedFlow.ConventionalBytes/(1024*1024)),
-    mExpectedChanged,mExpectedColored);
+    (unsigned long long)(mExpectedSd.ReadBytes/(1024*1024)),(unsigned long long)mExpectedSd.FirstReadError,
+    mExpectedSd.Resets,mExpectedSd.FailedResets,mExpectedSd.MediaChanges);
 }
 STATIC UINT8 *Guarded(UINTN Base,UINTN Bytes)
 {
@@ -56,12 +60,12 @@ int main(void)
     S->Signature=Case==4 ? 0 : LOG_SIGNATURE;S->Revision=LOG_REVISION;S->Busy=Case==5;
     S->FlowSignature=Case==6 ? 0 : FLOW_SIGNATURE;
     S->Flow=(OPPO_BOOT_FLOW){OPPO_BOOT_START_ACTIVE,EFI_SUCCESS,EFI_NOT_STARTED,EFI_SUCCESS,33ULL*1024*1024+1234};
+    S->Sd=(OPPO_SD_FLOW){16ULL*1024*1024+512,100,3,1,2,EFI_CRC_ERROR};
     if(Case==7) {S->Flow.MapStatus=EFI_DEVICE_ERROR;S->Flow.ConventionalBytes=0;}
     mExpectedFlow=Case==6 ? (OPPO_BOOT_FLOW){0,EFI_NOT_STARTED,EFI_NOT_STARTED,EFI_NOT_STARTED,0} : S->Flow;
+    mExpectedSd=Case==6 ? (OPPO_SD_FLOW){0} : S->Sd;
     BOOLEAN Valid=Case!=4 && Case!=5;
     BOOLEAN Repair=Valid && mExpectedFlow.Stage==OPPO_BOOT_START_ACTIVE;
-    mExpectedChanged=Repair && (Raw>>24)!=255 ? OPPO_NATIVE_FB_WIDTH*OPPO_NATIVE_FB_HEIGHT : 0;
-    mExpectedColored=(Raw & 0x00ffffff) ? mExpectedChanged : 0;
     mExpectedType=(EFI_RESET_TYPE)(Case%4);mExpectedStatus=Case%2 ? EFI_ABORTED : EFI_SUCCESS;
     OppoBootLogReset(mExpectedType,mExpectedStatus);
     assert(mFormats==(Valid ? 1U : 0U));

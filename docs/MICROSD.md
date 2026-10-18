@@ -728,7 +728,7 @@ y [la revisión de la fotografía](../evidence/native-sd-fast-read-lab-24-photo.
 
 ## Aplicación EFI de la tarjeta
 
-### Combinación de lectura rápida y RAM adicional (25): observación pendiente
+### Combinación de lectura rápida y RAM adicional (25): nuevo error de Windows
 
 La variante 25 combina los controles ya existentes de alimentación SD,
 lectura de cuatro bits, arranque EFI y RAM adicional. Usa las mismas fuentes
@@ -737,13 +737,86 @@ generados para SD, BDS, Runtime y SEC. Compiló para ARM64 en unos 27 segundos;
 el manifiesto y el ejecutable BDS coinciden en un plazo de 1800 segundos.
 
 Se escribió únicamente en recovery y se solicitó entrada directa, sin Android
-intermedio, con batería al 100 %. El propietario comunica otra vez pantalla
-negra y deja el intento en curso mientras espera; todavía no hay foto ni
-diagnóstico nuevo. La pantalla negra por sí sola no demuestra carga o bloqueo.
-La ejecución de WinPE, el efecto físico de la RAM adicional y el resultado del
-cargador todavía no están confirmados para este intento. El recovery original
-se restauró después del 24; aún no se ha restaurado después del 25, en curso.
-Véase [la composición y solicitud de prueba](../evidence/native-sd-fast-boot-lab-25-host-validation.json).
+intermedio, con batería al 100 %. Después de varios minutos de pantalla negra,
+el propietario fotografió la pantalla Recovery de Windows con **0xc0000225**
+y un mensaje de error inesperado. Esta vez no aparece el error anterior de
+memoria insuficiente para crear el ramdisk.
+
+![Nuevo error de Windows tras el intento con RAM adicional](images/native-sd-fast-boot-lab-25-error.jpg)
+
+La [foto del diagnóstico de apagado](images/native-sd-fast-boot-lab-25-context.jpg)
+muestra mapa correcto y **2100 MiB convencionales libres** antes de entrar al
+cargador, frente a los 52 MiB anteriores. Confirma memoria adicional visible
+en UEFI; no es una medición de memoria libre durante el fallo ni una prueba de
+estrés de esos tramos. Se mantienen carga EFI correcta, etapa 3 y solicitud
+`TYPE=2 REQUEST=POWER OFF` con estado EFI cero. El marcador de retorno
+`EFI_NOT_STARTED` significa que `StartImage` seguía activo, no que sea el error
+de Windows. La captura cambió la opacidad de 130 708 píxeles con RGB distinto
+de cero. WinPE y su kernel siguen sin arranque verificado.
+
+[Microsoft define 0xc0000225 como STATUS_NOT_FOUND](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55).
+El código por sí solo no identifica el objeto, archivo, dispositivo o servicio
+que falta; no demuestra que el BCD esté dañado ni identifica un controlador.
+El port todavía carece de tablas ACPI/SMBIOS y de servicios de tiempo completos,
+que forman parte de los [requisitos de firmware de Windows](https://learn.microsoft.com/en-us/windows-hardware/drivers/bringup/uefi-requirements-that-apply-to-all-windows-platforms).
+Son limitaciones conocidas, sin atribuirles todavía este fallo concreto.
+
+ADB detectó Android completo a los 562,592 segundos, con motivo `usb`. No se
+confirmó por separado cómo lo encendió el propietario, por lo que no se afirma
+retorno automático. Se restauró el recovery original y se verificó Android al
+100 %. Véanse [la composición](../evidence/native-sd-fast-boot-lab-25-host-validation.json),
+[el resultado físico](../evidence/native-sd-fast-boot-lab-25-validation.json)
+y [la revisión de las fotos](../evidence/native-sd-fast-boot-lab-25-photos.json).
+
+La inspección posterior de solo lectura obtuvo una copia privada del WIM de
+562 366 404 bytes. 7-Zip 25.01 probó sus 7564 archivos sin errores de datos,
+con una advertencia de recuentos de referencias inconsistentes. Se pudo extraer
+`Windows/System32/Boot/winload.efi` y comprobar su máquina PE ARM64; coincide
+con la otra copia en `Windows/System32`. La metadata declara WindowsPE
+10.0.19041.662, una imagen de arranque y compresión LZX. Esto no prueba que el
+cargador de Windows acepte el WIM ni que el lector nativo haya leído todo sin
+alteraciones.
+
+El BCD está presente en `EFI/Microsoft/Boot/BCD`. Su contenido incluye las
+rutas esperadas de WIM, SDI y `winload.efi`, y esos archivos se localizaron.
+Todavía no se han decodificado las asociaciones activas de sus dispositivos:
+las API de lectura del host no aceptaron la copia del hive. No se cambió el
+BCD de la tarjeta ni se concluye que ese rechazo del host sea el fallo del
+teléfono. Véase [la inspección filtrada](../evidence/sd-winpe-media-inspection-25.json).
+
+### Reset de SD y contadores del cargador (26): preparación en PC
+
+La revisión encontró que el controlador incrementaba `MediaId` en cada
+`Reset`, incluso sin sustituir la tarjeta. Un cliente que conserve el ID
+anterior recibe entonces `EFI_MEDIA_CHANGED`. La corrección conserva el ID
+cuando el medio estaba disponible y coinciden identidad y capacidad después
+de reinicializarlo. Si cambian o reaparece tras una indisponibilidad, cambia
+el ID; un reset fallido no anuncia un nuevo medio listo. La identidad opaca
+se conserva solo en RAM, sin registrarla ni exponerla en el protocolo de
+diagnóstico. Es la separación entre reset y cambio de medio descrita por
+[Block I/O de UEFI](https://uefi.org/specs/UEFI/2.11/13_Protocols_Media_Access.html).
+
+Una regresión de PC falló con el código anterior y pasa con la corrección.
+También pasan ambos modos de reset conservando el ID, cambio de cada una de
+las cuatro palabras de identidad, capacidad distinta, fallo y recuperación,
+renegociación rápida y rechazo de publicación cuando falla esa negociación.
+Se mantienen las pruebas MSDC SDHC/SDSC y CRC con sanitizadores. No se ha
+demostrado que Windows llame a ese reset ni que sea la causa de `0xc0000225`.
+
+El panel de apagado del siguiente candidato conserva ocho líneas y añade
+`SD READ`, `ERR`, `SD RESET`, `FAIL` y `CHANGE`. Los contadores se reinician al
+entrar en `StartImage` y solo cuentan mientras el hijo sigue activo: el
+benchmark previo queda excluido. `SD READ` suma bytes de solicitudes correctas,
+incluidas posibles relecturas; no demuestra avance único del WIM. `ERR` retiene
+el primer error de Block I/O, sin identificar un archivo que falte por encima
+de esa capa. Los contadores saturan sin desbordarse y solo usan la página RAM
+de diagnóstico. La captura final sigue normalizando opacidad y esperando
+15 segundos, aunque las dos líneas de contadores sustituyen su texto anterior.
+Los modelos de logger SEC y núcleo, once casos del panel con páginas protegidas,
+el alcance de los contadores y su saturación pasan con ASan/UBSan. La variante
+ARM64 compiló en 24,211 segundos, con los controles SD/boot/RAM comprobados y
+plazo de 1800 segundos validado en el ejecutable empaquetado. Su ejecución
+física sigue pendiente; véase [la composición 26](../evidence/native-sd-reset-trace-lab-26-host-validation.json).
 
 ### Inspección y ruta de carga EFI
 

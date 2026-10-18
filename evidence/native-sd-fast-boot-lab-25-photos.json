@@ -1,0 +1,31 @@
+{
+  "photos": [
+    {
+      "public_path": "docs/images/native-sd-fast-boot-lab-25-context.jpg",
+      "bytes": 2175806,
+      "sha256": "bcd037a1950ed57ace0779ee2e6a8f91666adf4a9ecbd2bde244c2e31976224c",
+      "orientation": 6,
+      "icc_segments_preserved": 1,
+      "compressed_pixel_scans_preserved": true,
+      "compressed_scan_sha256": "115f6feceb827ec88c331f5a4bc9394f52f3ab63ecba2623e948e866497d0626",
+      "retained_exif_tags": [
+        "Orientation"
+      ],
+      "owner_requested_documentation": true
+    },
+    {
+      "public_path": "docs/images/native-sd-fast-boot-lab-25-error.jpg",
+      "bytes": 1970667,
+      "sha256": "67537688219648a5904ef8ccb93c64608c6d93c787b12925abea0e09795def91",
+      "orientation": 6,
+      "icc_segments_preserved": 1,
+      "compressed_pixel_scans_preserved": true,
+      "compressed_scan_sha256": "d0cd9c81c57ff96f7f65a5acc8224a90cf8e1779ec0e79ee609292370f84a871",
+      "retained_exif_tags": [
+        "Orientation"
+      ],
+      "owner_requested_documentation": true
+    }
+  ],
+  "visual_review": "Owner photos show Windows Recovery error0xc0000225 and reset panel with2100MiB pre-start free memory. No readable personal identifiers in scene or background."
+}

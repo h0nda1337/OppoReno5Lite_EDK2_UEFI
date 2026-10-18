@@ -20,8 +20,9 @@ El intento 21 hizo legible la pantalla de recuperación de Windows Boot Manager
 al ajustar la opacidad antes del apagado. Muestra `0xc0000017`: memoria insuficiente
 para crear el ramdisk. EDK2 aún entrega un pool inicial de solo 64 MiB, con
 52 MiB convencionales libres antes de entrar al cargador. El plan opcional de
-RAM adicional ya compiló y respeta las reservas del handoff; su efecto físico
-aún no se confirmó. WinPE y el kernel siguen sin arranque verificado.
+RAM adicional respeta las reservas del handoff; el intento 25 confirmó
+2100 MiB convencionales libres antes de entrar al cargador y mostró un nuevo
+error de Windows, `0xc0000225`. WinPE y el kernel siguen sin arranque verificado.
 Las dos fotos, el diagnóstico y la restauración
 del recovery original están documentados en [el intento 21](docs/MICROSD.md#diagnóstico-de-opacidad-21).
 
@@ -29,6 +30,8 @@ El intento 24 verificó lectura SD de cuatro bits a 13 MHz: 16 MiB del WIM a
 1141 KiB/s, con huella coincidente con Android. Esa variante no lanzó Windows.
 La foto, los límites de la medición y la restauración del recovery están en
 [el benchmark físico](docs/MICROSD.md#lectura-sd-de-cuatro-bits-24-verificada-en-el-teléfono).
+El [intento combinado 25](docs/MICROSD.md#combinación-de-lectura-rápida-y-ram-adicional-25-nuevo-error-de-windows)
+documenta el nuevo error y el regreso a Android con recovery original restaurado.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -57,7 +60,7 @@ Véase
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
-| microSD y cargador ARM64 | FAT, carga EFI y pantalla Recovery de Windows Boot Manager verificados; lectura de cuatro bits a 13 MHz y prefijo de 16 MiB a 1141 KiB/s. WinPE pendiente tras error `0xc0000017` de ramdisk |
+| microSD y cargador ARM64 | FAT, carga EFI y pantalla Recovery de Windows Boot Manager verificados; cuatro bits a 13 MHz, 16 MiB a 1141 KiB/s y 2100 MiB libres antes del cargador. Nuevo error `0xc0000225`; WinPE pendiente |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el

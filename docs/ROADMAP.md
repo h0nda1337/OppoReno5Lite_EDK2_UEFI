@@ -126,7 +126,8 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
 - [x] Abrir y cargar BOOTAA64.EFI desde esa tarjeta en el OPPO.
 - [x] Observar Windows Boot Manager y documentar el punto alcanzado.
 - [x] Verificar lectura de cuatro bits a 13 MHz y comparar un prefijo de 16 MiB con Android.
-- [ ] Confirmar RAM adicional en ejecución y avanzar desde el error de ramdisk a WinPE.
+- [x] Confirmar RAM adicional visible en el mapa UEFI: 2100 MiB libres antes del cargador.
+- [ ] Avanzar desde la pantalla Recovery de Windows al arranque de WinPE.
 
 Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.
 

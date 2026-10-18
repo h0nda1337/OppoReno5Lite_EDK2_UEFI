@@ -199,8 +199,10 @@ EFI_STATUS OppoMsdcInitialize (OPPO_MSDC *C, CONST OPPO_MSDC_IO *Io)
     Delay (C, 10000);
   }
   C->BlockAddressed = Version2 && (Response[0] & (1U << 30)) != 0;
-  Status = Command (C, 2, 0, 2, FALSE, Response); // CID is neither stored nor logged.
+  Status = Command (C, 2, 0, 2, FALSE, Response);
   if (EFI_ERROR (Status)) return Status;
+  // Compare only in volatile RAM; never log or publish the card identity.
+  for (UINTN I = 0; I < ARRAY_SIZE (C->Identity); I++) C->Identity[I] = Response[I];
   Status = Command (C, 3, 0, 1, FALSE, Response);
   if (EFI_ERROR (Status)) return Status;
   if ((Response[0] & 0xe000) || (Response[0] >> 16) == 0) return EFI_DEVICE_ERROR;

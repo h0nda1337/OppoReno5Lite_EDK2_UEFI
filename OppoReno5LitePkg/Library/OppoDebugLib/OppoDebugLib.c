@@ -14,7 +14,7 @@
 #include <Library/OppoBootLogLib.h>
 
 #define LOG_SIGNATURE 0x31474c4fU
-#define LOG_REVISION 2U
+#define LOG_REVISION 3U
 #define FLOW_SIGNATURE 0x31464c42U
 #define RESET_REPORT_TOP 1792U
 #define RESET_REPORT_HEIGHT 256U
@@ -35,6 +35,7 @@ typedef struct {
   OPPO_FB_CONTEXT Frame;
   UINT32 FlowSignature;
   OPPO_BOOT_FLOW Flow;
+  OPPO_SD_FLOW Sd;
 } LOG_STATE;
 STATIC_ASSERT (sizeof (LOG_STATE) <= 4096, "Log state exceeds its reserved page");
 #ifndef OPPO_LOG_BOOT_API_ONLY
@@ -188,15 +189,18 @@ VOID EFIAPI OppoBootLogReset (EFI_RESET_TYPE Type, EFI_STATUS Status)
   CHAR8 Buffer[384];
   UINT32 Changed = 0, Colored = 0;
   OPPO_BOOT_FLOW Flow = {0, EFI_NOT_STARTED, EFI_NOT_STARTED, EFI_NOT_STARTED, 0};
+  OPPO_SD_FLOW Sd = {0};
   if (S == NULL || S->Busy) return;
-  if (S->FlowSignature == FLOW_SIGNATURE) Flow = S->Flow;
+  if (S->FlowSignature == FLOW_SIGNATURE) {Flow = S->Flow; Sd = S->Sd;}
   S->Busy = 1; MemoryFence ();
   if (Flow.Stage == OPPO_BOOT_START_ACTIVE) OpaqueCapture (S, &Changed, &Colored);
   UINTN Bytes = AsciiSPrint (Buffer, sizeof (Buffer),
-    "OPPO RESET CAPTURE\nTYPE=%u REQUEST=%a\nEFI STATUS=%016Lx\nSTAGE=%u LOAD=%016Lx\nRETURN=%016Lx\nMAP=%016Lx FREE=%LuM\nALPHA FIX=%u COLOR=%u\n15 SECOND CAPTURE HOLD\n",
+    "OPPO RESET CAPTURE\nTYPE=%u REQUEST=%a\nEFI STATUS=%016Lx\nSTAGE=%u LOAD=%016Lx\nRETURN=%016Lx\nMAP=%016Lx FREE=%LuM\nSD READ=%LuM ERR=%016Lx\nSD RESET=%u FAIL=%u CHANGE=%u\n",
     (UINT32)Type, Type == EfiResetShutdown ? "POWER OFF" : "RESET", (UINT64)Status,
     Flow.Stage, (UINT64)Flow.LoadStatus, (UINT64)Flow.StartStatus,
-    (UINT64)Flow.MapStatus, Flow.ConventionalBytes / (1024 * 1024), Changed, Colored);
+    (UINT64)Flow.MapStatus, Flow.ConventionalBytes / (1024 * 1024),
+    Sd.ReadBytes / (1024 * 1024), (UINT64)Sd.FirstReadError,
+    Sd.Resets, Sd.FailedResets, Sd.MediaChanges);
   LargeReport (S, Buffer, Bytes);
   S->Busy = 0; MemoryFence ();
 }
@@ -240,8 +244,43 @@ VOID EFIAPI OppoDebugRecordBootFlow (CONST OPPO_BOOT_FLOW *Flow)
   LOG_STATE *S = ReadyState ();
   if (S == NULL || S->Busy || Flow == NULL) return;
   S->Busy = 1; MemoryFence ();
+  if (Flow->Stage == OPPO_BOOT_START_ACTIVE &&
+      (S->FlowSignature != FLOW_SIGNATURE || S->Flow.Stage != OPPO_BOOT_START_ACTIVE))
+    ZeroMem (&S->Sd, sizeof (S->Sd));
   S->Flow = *Flow; MemoryFence ();
   S->FlowSignature = FLOW_SIGNATURE; MemoryFence ();
+  S->Busy = 0; MemoryFence ();
+}
+
+STATIC UINT64 SaturatingAdd (UINT64 A, UINT64 B)
+{ return B > MAX_UINT64 - A ? MAX_UINT64 : A + B; }
+
+STATIC LOG_STATE *SdTraceState (VOID)
+{
+  LOG_STATE *S = ReadyState ();
+  return S != NULL && !S->Busy && S->FlowSignature == FLOW_SIGNATURE &&
+    S->Flow.Stage == OPPO_BOOT_START_ACTIVE ? S : NULL;
+}
+
+VOID EFIAPI OppoDebugRecordSdRead (EFI_STATUS Status, UINTN Bytes)
+{
+  LOG_STATE *S = SdTraceState ();
+  if (S == NULL) return;
+  S->Busy = 1; MemoryFence ();
+  S->Sd.ReadCalls = SaturatingAdd (S->Sd.ReadCalls, 1);
+  if (!EFI_ERROR (Status)) S->Sd.ReadBytes = SaturatingAdd (S->Sd.ReadBytes, Bytes);
+  else if (S->Sd.FirstReadError == EFI_SUCCESS) S->Sd.FirstReadError = Status;
+  S->Busy = 0; MemoryFence ();
+}
+
+VOID EFIAPI OppoDebugRecordSdReset (EFI_STATUS Status, BOOLEAN MediaChanged)
+{
+  LOG_STATE *S = SdTraceState ();
+  if (S == NULL) return;
+  S->Busy = 1; MemoryFence ();
+  if (S->Sd.Resets != MAX_UINT32) S->Sd.Resets++;
+  if (EFI_ERROR (Status) && S->Sd.FailedResets != MAX_UINT32) S->Sd.FailedResets++;
+  if (!EFI_ERROR (Status) && MediaChanged && S->Sd.MediaChanges != MAX_UINT32) S->Sd.MediaChanges++;
   S->Busy = 0; MemoryFence ();
 }
 

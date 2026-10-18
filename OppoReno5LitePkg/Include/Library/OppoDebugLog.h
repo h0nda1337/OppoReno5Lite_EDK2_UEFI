@@ -16,4 +16,13 @@ typedef struct {
 } OPPO_BOOT_FLOW;
 /* Stores a diagnostic copy in the reserved log page, with no persistence. */
 VOID EFIAPI OppoDebugRecordBootFlow (CONST OPPO_BOOT_FLOW *Flow);
+typedef struct {
+  UINT64 ReadBytes, ReadCalls;
+  UINT32 Resets, FailedResets, MediaChanges;
+  EFI_STATUS FirstReadError;
+} OPPO_SD_FLOW;
+/* Counts only while the child StartImage call is active. No IDs, file data,
+ * framebuffer writes, allocations or Boot Services are used by these hooks. */
+VOID EFIAPI OppoDebugRecordSdRead (EFI_STATUS Status, UINTN Bytes);
+VOID EFIAPI OppoDebugRecordSdReset (EFI_STATUS Status, BOOLEAN MediaChanged);
 #endif

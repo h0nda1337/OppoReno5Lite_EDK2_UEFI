@@ -12,6 +12,9 @@ typedef struct {
 typedef struct {
   OPPO_MSDC_IO Io;
   UINT64 Blocks;
+  // Opaque identity retained only in RAM to distinguish media across Reset.
+  // Never copied into the public status protocol or diagnostic output.
+  UINT32 Identity[4];
   UINT32 Rca;
   UINT32 LastCommand, LastInterrupt;
   UINT32 InitialIocon, Cmd8Attempts;

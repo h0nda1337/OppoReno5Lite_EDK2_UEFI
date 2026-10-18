@@ -106,7 +106,10 @@ STATIC VOID Write(VOID *Context, UINT32 Offset, UINT32 Value)
       M.Attempts++;M.Response[0]=0x00ff8000U;
       if(!M.OcrBusy && M.Attempts>=2)M.Response[0]|=0x80000000U|(M.Legacy?0:0x40000000U);
       return;
-    case 2:assert(((Value>>7)&7)==2);return;
+    case 2:
+      assert(((Value>>7)&7)==2);
+      for(UINT32 I=0;I<4;I++)M.Response[I]=0x10203040U+I;
+      return;
     case 3:M.Response[0]=0x12340000;return;
     case 9:
       assert(M.Argument==0x12340000 && ((Value>>7)&7)==2);
@@ -147,6 +150,7 @@ int main(void)
   UINT8 Buffer[1026];
   assert(Init(&C,FALSE)==EFI_SUCCESS && C.Ready && C.BlockAddressed);
   assert(C.BusWidth==1 && C.ClockHz==6500000 && C.MaximumClockHz==25000000);
+  for(UINTN I=0;I<4;I++)assert(C.Identity[I]==0x10203040U+(3-I));
   assert(C.Blocks==134217728 && M.Attempts==2); // 64 GiB synthetic SDHC CSD.
   memset(Buffer,0xcc,sizeof(Buffer));M.EarlyDone=TRUE;
   assert(OppoMsdcRead(&C,37,2,Buffer+1)==EFI_SUCCESS);

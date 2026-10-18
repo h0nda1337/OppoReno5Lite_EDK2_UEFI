@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "scope": "Read-only Android capture and PC inspection after physical attempt25; no card or firmware modifications by this inspection",
+  "files": {
+    "EFI/Microsoft/Boot/BCD": {
+      "bytes": 16384,
+      "sha256": "0865e42902204badb7f07f0b91bc30c8f58e7336f8f3a0687a355e933c70fc41"
+    },
+    "boot/boot.sdi": {
+      "bytes": 3170304,
+      "sha256": "cd2c00ce027687ce4a8bdc967f26a8ab82f651c9becd703658ba282ec49702bd"
+    },
+    "EFI/BOOT/BOOTAA64.EFI": {
+      "bytes": 1538888,
+      "sha256": "501fbc16120c43027d8ecab4482f6571adbdc9dd75048472ffc3031662bb1be1"
+    },
+    "sources/boot.wim": {
+      "bytes": 562366404,
+      "sha256": "d00bfd4a17a257d6fa0861e09a1c7cf76f5ba3638026ab17cdb768d56152698a"
+    }
+  },
+  "battery_percent": 100.0,
+  "wim": {
+    "images": 1,
+    "boot_image": 1,
+    "metadata_arch_code": 12,
+    "installation_type": "WindowsPE",
+    "metadata_version": "10.0.19041.662",
+    "compression": "LZX:15",
+    "uncompressed_file_bytes": 1538264423,
+    "tool": "7-Zip25.01",
+    "test_reported_data_errors": false,
+    "warning": "Some files have incorrect reference count",
+    "windows_loader_acceptance_or_entire_image_validity_proven": false
+  },
+  "extracted_winload": {
+    "path": "Windows/System32/Boot/winload.efi",
+    "bytes": 1791192,
+    "sha256": "d60768fc9797918564be354d5262f0ad94b7bf401d5b24cd4c1e30c9f54dadb9",
+    "machine": "0xaa64",
+    "arm64": true,
+    "same_as_Windows_System32_winload": true
+  },
+  "bcd": {
+    "utf16_paths_observed": [
+      "\\sources\\boot.wim",
+      "\\boot\\boot.sdi",
+      "\\windows\\system32\\boot\\winload.efi"
+    ],
+    "active_entry_and_device_references_decoded": false,
+    "native_bcdedit_read_result": "Access denied",
+    "private_RegLoadAppKey_read_status": 1009,
+    "failed_host_api_is_not_a_boot_corruption_diagnosis": true
+  },
+  "binaries_published": false,
+  "physical_entire_wim_read_or_integrity_verified": false
+}

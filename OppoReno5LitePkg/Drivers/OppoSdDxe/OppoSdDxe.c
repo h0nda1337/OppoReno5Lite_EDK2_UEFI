@@ -16,6 +16,7 @@
 #include <Library/IoLib.h>
 #include <Library/TimerLib.h>
 #include <Library/PcdLib.h>
+#include <Library/OppoDebugLog.h>
 #include <Library/OppoMsdcLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 
@@ -170,10 +171,24 @@ STATIC EFI_STATUS EFIAPI Reset (EFI_BLOCK_IO_PROTOCOL *This, BOOLEAN Extended)
 {
   EFI_STATUS Status;
   EFI_TPL Old;
+  UINT32 Identity[4];
+  UINT64 Blocks;
+  BOOLEAN Same;
   (VOID)This; (VOID)Extended;
   Old = gBS->RaiseTPL (TPL_CALLBACK);
-  mMedia.MediaId++;
+  Same = mMedia.MediaPresent;
+  Blocks = mCard.Blocks;
+  for (UINTN I = 0; I < ARRAY_SIZE (Identity); I++) Identity[I] = mCard.Identity[I];
   Status = InitializeCard ();
+  if (!EFI_ERROR (Status)) {
+    if (Blocks != mCard.Blocks) Same = FALSE;
+    for (UINTN I = 0; I < ARRAY_SIZE (Identity); I++)
+      if (Identity[I] != mCard.Identity[I]) Same = FALSE;
+    // Resetting the same available medium does not replace it. Changing its
+    // ID here makes cached partition/filesystem handles reject valid reads.
+    if (!Same) mMedia.MediaId++;
+  }
+  OppoDebugRecordSdReset (Status, (BOOLEAN)(!EFI_ERROR (Status) && !Same));
   gBS->RestoreTPL (Old);
   return Status;
 }
@@ -184,15 +199,18 @@ STATIC EFI_STATUS EFIAPI ReadBlocks (EFI_BLOCK_IO_PROTOCOL *This, UINT32 MediaId
   EFI_STATUS Status;
   EFI_TPL Old;
   (VOID)This;
-  if (MediaId != mMedia.MediaId) return EFI_MEDIA_CHANGED;
-  if (!mMedia.MediaPresent) return EFI_NO_MEDIA;
-  if (Bytes == 0) return EFI_SUCCESS;
-  if (Buffer == NULL) return EFI_INVALID_PARAMETER;
-  if (Bytes % 512) return EFI_BAD_BUFFER_SIZE;
-  Old = gBS->RaiseTPL (TPL_CALLBACK);
-  Status = OppoMsdcRead (&mCard, Lba, Bytes / 512, Buffer);
-  RecordCard ();
-  gBS->RestoreTPL (Old);
+  if (MediaId != mMedia.MediaId) Status = EFI_MEDIA_CHANGED;
+  else if (!mMedia.MediaPresent) Status = EFI_NO_MEDIA;
+  else if (Bytes == 0) Status = EFI_SUCCESS;
+  else if (Buffer == NULL) Status = EFI_INVALID_PARAMETER;
+  else if (Bytes % 512) Status = EFI_BAD_BUFFER_SIZE;
+  else {
+    Old = gBS->RaiseTPL (TPL_CALLBACK);
+    Status = OppoMsdcRead (&mCard, Lba, Bytes / 512, Buffer);
+    RecordCard ();
+    gBS->RestoreTPL (Old);
+  }
+  OppoDebugRecordSdRead (Status, Bytes);
   return Status;
 }
 
