@@ -7,11 +7,12 @@
 #include <string.h>
 
 typedef struct {
-  UINT32 Cfg, Ps, Config, Interrupt, Argument, Response[4];
+  UINT32 Cfg, Iocon, Ps, Config, Interrupt, Argument, Response[4];
   UINT32 Opcode, Previous, Position, Attempts, Commands, Reads, Writes;
   UINT64 Sector, Delay;
   BOOLEAN Legacy, EarlyDone, NoClock, StuckReset, StuckFifo;
   BOOLEAN CommandCrc, DataCrc, DataTimeout, NoDone, OcrBusy, R1Error;
+  BOOLEAN Cmd8NeedsFalling, Cmd8AlwaysCrc, Cmd8AlternateTimeout;
 } MODEL;
 STATIC MODEL M;
 STATIC UINT8 Pattern(UINT64 Sector, UINT32 Offset)
@@ -21,6 +22,7 @@ STATIC UINT32 Read(VOID *Context, UINT32 Offset)
   assert(Context==&M);M.Reads++;
   switch(Offset) {
     case 0x00:return M.Cfg;
+    case 0x04:return M.Iocon;
     case 0x08:return M.Ps|(1U<<16);
     case 0x0c:
       if(M.Opcode==17 && M.Position>=64 && M.DataCrc)M.Interrupt|=1U<<15;
@@ -52,6 +54,7 @@ STATIC VOID Write(VOID *Context, UINT32 Offset, UINT32 Value)
       if(!M.NoClock)M.Cfg|=1U<<7;
       return;
     case 0x08:M.Ps=Value;return;
+    case 0x04:M.Iocon=Value;return;
     case 0x0c:M.Interrupt&=~Value;return;
     case 0x10:assert(Value==0);return;
     case 0x14:assert(Value==(1U<<31));return;
@@ -70,6 +73,13 @@ STATIC VOID Write(VOID *Context, UINT32 Offset, UINT32 Value)
     case 0:assert(M.Argument==0 && ((Value>>7)&7)==0);return;
     case 8:
       assert(M.Argument==0x1aa && ((Value>>7)&7)==1);
+      assert((M.Iocon & 0x00ff003dU)==0);
+      if(M.Cmd8AlwaysCrc || (M.Cmd8NeedsFalling && !(M.Iocon & 2))) {
+        M.Interrupt|=1U<<10;return;
+      }
+      if(M.Cmd8AlternateTimeout && (M.Iocon & 2)) {
+        M.Interrupt=1U<<9;return;
+      }
       if(M.Legacy) {M.Interrupt&=~(1U<<8);M.Interrupt|=1U<<9;}
       else M.Response[0]=0x1aa;
       return;
@@ -141,6 +151,18 @@ int main(void)
     assert(M.Delay<3000000 && M.Attempts<=200);
   }
   assert(OppoMsdcInitialize(NULL,&Io)==EFI_INVALID_PARAMETER);
+  // Dirty inherited timing is cleared without changing unrelated write fields.
+  memset(&M,0,sizeof(M));M.Iocon=0x00ff033f;
+  assert(OppoMsdcInitialize(&C,&Io)==EFI_SUCCESS && C.Cmd8Attempts==1);
+  assert(C.InitialIocon==0x00ff033f && M.Iocon==0x300);
+  memset(&M,0,sizeof(M));M.Cmd8NeedsFalling=TRUE;
+  assert(OppoMsdcInitialize(&C,&Io)==EFI_SUCCESS && C.Cmd8Attempts==2 && M.Iocon==2);
+  assert(C.Cmd8FirstStatus==EFI_CRC_ERROR && OppoMsdcRead(&C,0,1,Buffer)==EFI_SUCCESS);
+  memset(&M,0,sizeof(M));M.Cmd8AlwaysCrc=TRUE;
+  assert(OppoMsdcInitialize(&C,&Io)==EFI_CRC_ERROR && !C.Ready && C.Cmd8Attempts==2);
+  assert(M.Opcode==8 && M.Attempts==0 && M.Delay<500000);
+  memset(&M,0,sizeof(M));M.Cmd8NeedsFalling=TRUE;M.Cmd8AlternateTimeout=TRUE;
+  assert(OppoMsdcInitialize(&C,&Io)==EFI_TIMEOUT && !C.Ready && M.Attempts==0);
   OPPO_MSDC_IO Bad=Io;Bad.Read32=NULL;
   assert(OppoMsdcInitialize(&C,&Bad)==EFI_INVALID_PARAMETER);
   puts("Original MSDC PIO reader: SDHC/SDSC capacity and addressing, data, bounded faults and no-write/DMA guards passed host sanitizers; board and physical SD untested.");

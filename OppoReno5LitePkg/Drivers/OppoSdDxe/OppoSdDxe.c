@@ -36,6 +36,13 @@ STATIC VOID RecordCard (VOID)
   mStatus.LastCommand = mCard.LastCommand;
   mStatus.LastInterrupt = mCard.LastInterrupt;
   mStatus.Blocks = mCard.Blocks;
+  mStatus.InitialIocon = mCard.InitialIocon;
+  mStatus.Cmd8Attempts = mCard.Cmd8Attempts;
+  mStatus.Cmd8FirstStatus = mCard.Cmd8FirstStatus;
+  mStatus.ActiveIocon = MmioRead32 (0x11240004);
+  mStatus.Config = MmioRead32 (0x11240000);
+  mStatus.Signal = MmioRead32 (0x11240008);
+  mStatus.PadTune0 = MmioRead32 (0x112400f0);
   mMedia.MediaPresent = mCard.Ready;
   mMedia.LastBlock = mCard.Blocks ? mCard.Blocks - 1 : 0;
 }

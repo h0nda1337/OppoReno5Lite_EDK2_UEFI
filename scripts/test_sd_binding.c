@@ -27,6 +27,10 @@ UINT32 EFIAPI MmioRead32 (UINTN Address)
     case 0x10005310: return 0x11111100;
     case 0x10000080: return mScenario == 5 ? 0x80 : 0;
     case 0x10001094: return mScenario == 6 ? Gates : 0;
+    case 0x11240000: return 0x18b;
+    case 0x11240004: return 0;
+    case 0x11240008: return 1U << 16;
+    case 0x112400f0: return 0;
     default: assert(!"unapproved register read"); return 0;
   }
 }

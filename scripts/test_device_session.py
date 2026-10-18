@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 """Offline checks of the phone-selection and battery boundaries."""
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from device_session import BatteryBelowMinimum, ReadOnlyAdb, parse_battery, parse_properties
@@ -45,6 +46,30 @@ class SessionTests(unittest.TestCase):
     def test_unknown_battery_fails_closed(self):
         with self.assertRaises(ValueError):
             parse_battery('level: 50\n')
+
+    def binary_read(self, tree):
+        payload = b'MZ\x00\x0a\x0d\xff\nPE\x00\x00\r\n'
+        def process(command, **kwargs):
+            self.assertEqual(command[:3], ['adb', '-s', 'EXAMPLE_TEST_TARGET'])
+            self.assertTrue(kwargs['capture_output'])
+            if command[-1] == 'battery':
+                result = battery(20)
+            else:
+                # Reproduce the observed shell transport damage; arbitrary
+                # NUL, CR and LF bytes must survive the public read methods.
+                result = payload if command[3] == 'exec-out' else payload.replace(b'\n', b'\r\n')
+            return SimpleNamespace(returncode=0, stdout=result, stderr=b'')
+        with patch('device_session.shutil.which', return_value='adb'), patch('device_session.subprocess.run', side_effect=process):
+            session = ReadOnlyAdb('EXAMPLE_TEST_TARGET')
+            actual = session.device_tree_tar() if tree else session.read_file('/example/binary')
+        self.assertEqual(actual, payload)
+        self.assertEqual(len(session.battery_samples), 1)
+
+    def test_file_read_preserves_binary_transport(self):
+        self.binary_read(False)
+
+    def test_tree_archive_preserves_binary_transport(self):
+        self.binary_read(True)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "scope": "Read-only Android/host inspection of owner-provided microSD EFI application; not execution in native UEFI",
+  "path_on_media": "EFI/BOOT/BOOTAA64.EFI",
+  "file_bytes": 1538888,
+  "sha256": "501fbc16120c43027d8ecab4482f6571adbdc9dd75048472ffc3031662bb1be1",
+  "pe_machine": "0xaa64",
+  "pe_optional_header_magic": "0x20b",
+  "pe_subsystem": 10,
+  "image_bytes_in_memory": 1814528,
+  "stack_reserve_bytes": 1048576,
+  "version_resource": {
+    "description": "Boot Manager",
+    "product": "Microsoft Windows Operating System",
+    "original_filename": "bootmgr.exe",
+    "company": "Microsoft Corporation",
+    "file_version": "10.0.19041.662"
+  },
+  "version_resource_is_not_signature_verification": true,
+  "binary_published": false,
+  "sd_enumeration_from_edk2_verified": false,
+  "windows_boot_manager_started": false,
+  "transport_note": "Full binary preserved using adb exec-out; shell -T expanded LF bytes to CRLF on this host and was rejected by PE validation"
+}

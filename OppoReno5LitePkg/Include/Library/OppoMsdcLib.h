@@ -14,6 +14,8 @@ typedef struct {
   UINT64 Blocks;
   UINT32 Rca;
   UINT32 LastCommand, LastInterrupt;
+  UINT32 InitialIocon, Cmd8Attempts;
+  EFI_STATUS Cmd8FirstStatus;
   BOOLEAN Ready, BlockAddressed;
 } OPPO_MSDC;
 EFI_STATUS OppoMsdcInitialize (OPPO_MSDC *Card, CONST OPPO_MSDC_IO *Io);

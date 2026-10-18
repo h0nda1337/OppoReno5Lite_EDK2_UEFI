@@ -44,6 +44,10 @@ VOID OppoSdReadLab (VOID)
           Sd->PadMode, Sd->GpioMisc, Sd->GpioMode16, Sd->GpioMode17, Sd->GpioMode1));
   DEBUG ((DEBUG_INFO, "SD sectors=%Lu last CMD=%u INT=%08x\n",
           Sd->Blocks, Sd->LastCommand, Sd->LastInterrupt));
+  DEBUG ((DEBUG_INFO, "SD IOCON before=%08x active=%08x CFG=%08x PS=%08x\n",
+          Sd->InitialIocon, Sd->ActiveIocon, Sd->Config, Sd->Signal));
+  DEBUG ((DEBUG_INFO, "SD CMD8 first=%r attempts=%u PAD_TUNE0=%08x\n",
+          Sd->Cmd8FirstStatus, Sd->Cmd8Attempts, Sd->PadTune0));
   if (EFI_ERROR (Sd->Publish)) return;
   Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiSimpleFileSystemProtocolGuid, NULL, &Count, &Handles);
   DEBUG ((DEBUG_INFO, "SD filesystem discovery: %r\n", Status));

@@ -93,6 +93,58 @@ Block I/O. El diagnóstico de filesystem rechaza otras unidades y cabeceras PE
 truncadas, de otra arquitectura o con offsets fuera del prefijo leído.
 Son modelos de PC: no prueban señales eléctricas ni lectura física.
 
+La segunda variante establece el muestreo común de lectura para SD legado y
+limita el reintento de CMD8 a un segundo flanco de respuesta, únicamente después
+de un CRC. Un segundo CRC o timeout detiene la enumeración; no se interpreta como
+permiso para ignorar errores ni para reintentar lecturas de sectores fallidas.
+También registra IOCON, CFG, PS y PAD_TUNE0 para comprobar el estado retenido.
+La revisión compiló y pasó los modelos de PC; su prueba física mantuvo el error.
+
+## Segundo intento físico (09)
+
+![CMD8 mantiene CRC con ambos flancos](images/native-sd-read-lab-09.jpg)
+
+La fotografía muestra el mismo resultado de perfil, placa e inicialización del
+primer intento, y añade:
+
+```text
+SD IOCON BEFORE=00000000 ACTIVE=00000002 CFG=0200119B PS=00000002
+SD CMD8 FIRST=CRC ERROR ATTEMPTS=2 PAD_TUNE0=00000000
+```
+
+El IOCON inicial ya estaba en cero; el alternativo tampoco resolvió el CRC.
+PS no muestra altos en los bits de DAT/CMD. La foto no distingue entre entradas
+inhabilitadas, alimentación ausente u otra condición eléctrica; no se concluye
+la causa. La siguiente comprobación será la habilitación de entrada y el estado
+de los pads específicos, antes de alterar reguladores. No se leyeron sectores.
+La imagen conserva sus datos comprimidos; solo se retiraron metadatos personales.
+Véase [la evidencia de este intento](../evidence/native-sd-read-lab-09-validation.json).
+
+## Aplicación EFI de la tarjeta
+
+Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera
+indica ARM64 y aplicación UEFI; su recurso de versión la identifica como
+**Boot Manager**, `bootmgr.exe`, versión `10.0.19041.662`, de Microsoft. El recurso
+no equivale a verificar una firma digital. La imagen declara unos 1,73 MiB en
+memoria y una reserva de pila de 1 MiB; esos números no son un requisito total
+de RAM para Windows PE. Véase [la inspección](../evidence/sd-windows-loader-inspection.json).
+No se publica la copia del ejecutable ni contenido de la tarjeta.
+
+Una vez leída desde UEFI, se probarán por separado `LoadImage` y `StartImage`
+con la ruta de esa microSD, conservando el resultado exacto de cada servicio.
+La [especificación UEFI](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#image-services)
+define esas operaciones y la carga desde un filesystem. Los
+[requisitos de Windows sobre SoC](https://learn.microsoft.com/en-us/windows-hardware/drivers/bringup/uefi-requirements-that-apply-to-all-windows-platforms)
+incluyen servicios de firmware y tablas de plataforma que aún no se han
+validado aquí. Ver una pantalla del cargador no demostraría que WinPE o su
+kernel puedan completar el arranque.
+
+Durante la inspección se detectó que `adb shell -T` alteraba los bytes LF del
+archivo en este equipo. La cabecera inválida fue rechazada; `exec-out` conservó
+el PE válido. Los métodos de captura binaria ahora utilizan esa vía, con pruebas
+de bytes NUL/CR/LF y el mismo mínimo de batería. Los diagnósticos nativos MSDC
+no utilizan ADB para leer la tarjeta.
+
 Para compilar esta variante, se añade `NATIVE_SD_READ_LAB=1` al entorno de
 `scripts/build_native_firmware.sh`. Su salida se separa en
 `.build/native/sd-read-lab/`; no sustituye el FD anterior de Shell. El script

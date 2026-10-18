@@ -8,6 +8,9 @@ typedef struct {
   UINT32 PadMode, GpioMisc, GpioMode16, GpioMode17, GpioMode1;
   UINT32 LastCommand, LastInterrupt;
   UINT64 Blocks;
+  UINT32 InitialIocon, ActiveIocon, Config, Signal, PadTune0;
+  UINT32 Cmd8Attempts;
+  EFI_STATUS Cmd8FirstStatus;
 } OPPO_SD_STATUS;
 extern EFI_GUID gOppoSdStatusProtocolGuid;
 extern EFI_GUID gOppoSdDeviceGuid;

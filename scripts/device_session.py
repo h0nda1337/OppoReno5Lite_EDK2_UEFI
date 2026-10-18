@@ -83,9 +83,11 @@ class ReadOnlyAdb:
 
     def read_file(self, path):
         self.battery()
-        return self._run('shell', '-T', 'cat', path)
+        # exec-out preserves binary bytes on the Windows ADB transport used here.
+        # A shell -T full-file read expanded LF to CRLF during the SD inspection.
+        return self._run('exec-out', 'cat', path)
 
     def device_tree_tar(self):
         self.battery()
-        return self._run('shell', '-T', 'tar', '-C', '/sys/firmware/devicetree/base',
+        return self._run('exec-out', 'tar', '-C', '/sys/firmware/devicetree/base',
                          '-cf', '-', '.', timeout=60)

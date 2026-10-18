@@ -7,6 +7,7 @@
 #include <Library/OppoMsdcLib.h>
 
 #define CFG       0x00
+#define IOCON     0x04
 #define PS        0x08
 #define INT       0x0c
 #define INTEN     0x10
@@ -110,6 +111,7 @@ EFI_STATUS OppoMsdcInitialize (OPPO_MSDC *C, CONST OPPO_MSDC_IO *Io)
     return EFI_INVALID_PARAMETER;
   C->Io = *Io; C->Ready = FALSE; C->Blocks = 0; C->Rca = 0;
   C->LastCommand = MAX_UINT32; C->LastInterrupt = 0; C->BlockAddressed = FALSE;
+  C->InitialIocon = C->Cmd8Attempts = 0; C->Cmd8FirstStatus = EFI_NOT_STARTED;
   Wr (C, INTEN, 0);
   Wr (C, CFG, Rd (C, CFG) | CFG_RST);
   Status = WaitBits (C, CFG, CFG_RST, 0, 100000);
@@ -121,10 +123,27 @@ EFI_STATUS OppoMsdcInitialize (OPPO_MSDC *C, CONST OPPO_MSDC_IO *Io)
   Wr (C, INT, 0xffffffffU);
   Wr (C, SDC_CFG, (Rd (C, SDC_CFG) & ~((3U << 16) | (1U << 20))) | (1U << 19) | (0xffU << 24));
   Wr (C, PS, Rd (C, PS) & ~1U); // Do not enable the controller's card-detect IRQ.
+  C->InitialIocon = Rd (C, IOCON);
+  // Legacy one-bit SDR uses a common rising data edge, no per-line sampling,
+  // no DDR50/SDR104 clock selector and no separate data-delay selection.
+  // Preserve unrelated and write-side fields. Controller reset does not promise
+  // to discard all timing state left by an earlier software stage.
+  UINT32 LegacyIocon = C->InitialIocon & ~0x00ff003fU;
+  Wr (C, IOCON, LegacyIocon);
   Delay (C, 2000); // More than 74 initialization clocks at the selected rate.
   Status = Command (C, 0, 0, 0, FALSE, Response);
   if (EFI_ERROR (Status)) return Status;
   Status = Command (C, 8, 0x1aa, 1, FALSE, Response);
+  C->Cmd8FirstStatus = Status; C->Cmd8Attempts = 1;
+  if (Status == EFI_CRC_ERROR) {
+    // A single bounded alternate response edge. Never accept a CRC-failed
+    // response and never apply this fallback to media reads or their errors.
+    Wr (C, IOCON, LegacyIocon | (1U << 1));
+    Status = Command (C, 8, 0x1aa, 1, FALSE, Response);
+    C->Cmd8Attempts = 2;
+    // A CRC on either attempt is not evidence for the SD-v1 timeout fallback.
+    if (Status != EFI_SUCCESS) return Status;
+  }
   Version2 = Status == EFI_SUCCESS;
   if (Version2 && (Response[0] & 0xfff) != 0x1aa) return EFI_UNSUPPORTED;
   if (Status != EFI_SUCCESS && Status != EFI_TIMEOUT) return Status;
