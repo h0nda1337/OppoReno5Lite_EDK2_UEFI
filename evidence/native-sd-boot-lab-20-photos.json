@@ -1,0 +1,31 @@
+{
+  "photos": [
+    {
+      "public_path": "docs/images/native-sd-boot-lab-20-reset.jpg",
+      "bytes": 3333533,
+      "sha256": "44b039d5daa764a4b9a26d608bbed7416f193ca8fb79fb6c1a242c93e2a928b8",
+      "orientation": 6,
+      "icc_segments_preserved": 1,
+      "compressed_pixel_scans_preserved": true,
+      "compressed_scan_sha256": "51a9a4e728667315fc783117ad2fab999b79fff8b1b48fd33fa5defc7eb99ddc",
+      "retained_exif_tags": [
+        "Orientation"
+      ],
+      "owner_requested_documentation": true
+    },
+    {
+      "public_path": "docs/images/native-sd-boot-lab-20-context.jpg",
+      "bytes": 3098564,
+      "sha256": "a0d2019c618cc153d00a175b0de57a5edd7a74c2e762b4dc1c5c47817b299e44",
+      "orientation": 6,
+      "icc_segments_preserved": 1,
+      "compressed_pixel_scans_preserved": true,
+      "compressed_scan_sha256": "740215cb938e5a43376c64f7cb23f250e9c2b2f320d6191b6f421d9fa5145658",
+      "retained_exif_tags": [
+        "Orientation"
+      ],
+      "owner_requested_documentation": true
+    }
+  ],
+  "visual_review": "Owner photographs show a blue display with unreadable loader text and, in the detail photo, the original large reset report. No personal identifiers visible."
+}

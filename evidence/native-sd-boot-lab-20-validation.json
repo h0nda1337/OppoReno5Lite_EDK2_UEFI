@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-efi-boot-20",
+  "stage": "successful_load_and_active_child_shutdown_with_pre_start_memory_snapshot",
+  "source_base_revision": "c9a54551edfd600d09f5a157dfe6678b812e8da2",
+  "host_evidence": "evidence/native-sd-boot-lab-20-host-validation.json",
+  "candidate_sha256": "8814e237b3e9b917c458c8192d05b699a769b78495120d2c7032ef894d493a4d",
+  "native_fd_sha256": "b960b74129b3352dcb19626b65b0dfacf5e17ff95e87e19de28e4eb1e7579c51",
+  "observation_source": "Two owner photographs of the physical OPPO; separate read-only Android observer",
+  "photos": [
+    "docs/images/native-sd-boot-lab-20-reset.jpg",
+    "docs/images/native-sd-boot-lab-20-context.jpg"
+  ],
+  "screen": {
+    "blue_background": true,
+    "black_rectangular_text_regions": true,
+    "loader_title_and_error_text_readable": false,
+    "original_large_reset_report_readable": true,
+    "reset_type": 2,
+    "reset_request": "POWER OFF",
+    "reset_efi_status": "0x0000000000000000",
+    "boot_stage": 3,
+    "load_status": "0x0000000000000000",
+    "start_status_marker": "0x8000000000000013",
+    "map_status": "0x0000000000000000",
+    "pre_start_conventional_memory_whole_mib": 52
+  },
+  "interpretation": {
+    "load_image_success_verified": true,
+    "start_image_active_at_shutdown_verified": true,
+    "start_image_return_verified": false,
+    "not_started_marker_is_not_a_windows_error": true,
+    "shutdown_status_is_not_a_windows_error_code": true,
+    "memory_snapshot_is_before_child_entry_not_at_shutdown": true,
+    "out_of_resources_failure_verified": false,
+    "graphics_issue_root_cause_verified": false,
+    "windows_boot_manager_identity_inferred_from_prior_private_file_inspection": true,
+    "windows_boot_manager_title_visually_verified": false,
+    "windows_error_code_verified": false,
+    "windows_pe_boot_verified": false,
+    "windows_kernel_bsod_verified": false,
+    "capture_hold_duration_measured_on_phone": false
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 134.137,
+    "bootreason": "usb"
+  },
+  "automatic_android_return_verified": false,
+  "return_observation_limit": "ADB detected Android with bootreason usb; owner power-on method not established for attempt20",
+  "battery_before_test_percent": 100.0,
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_after_restoration_percent": 100.0,
+  "next_action": "Investigate unreadable graphics before attributing the shutdown to memory or other platform services"
+}

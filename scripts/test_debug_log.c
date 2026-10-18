@@ -65,6 +65,12 @@ int main(void)
   for(UINTN i=0;i<bytes;i++)assert(frame[i]==0xa5);
   assert(OppoDebugStart());
   DebugPrint(DEBUG_INFO,"HELLO %u\n",123U);
+  OPPO_BOOT_FLOW Flow={OPPO_BOOT_START_ACTIVE,EFI_SUCCESS,EFI_NOT_STARTED,EFI_SUCCESS,33ULL*1024*1024};
+  memcpy(before,frame,bytes);
+  OppoDebugRecordBootFlow(&Flow);
+  assert(memcmp(before,frame,bytes)==0 && memmem(state,4096,&Flow,sizeof(Flow))!=NULL);
+  UINT8 flow_state[4096];memcpy(flow_state,state,4096);
+  OppoDebugRecordBootFlow(NULL);assert(memcmp(flow_state,state,4096)==0);
   memcpy(before,frame,bytes);
   assert(OppoDebugConstructor()==RETURN_SUCCESS);
   assert(memcmp(before,frame,bytes)==0); /* Core binding keeps the SEC log. */

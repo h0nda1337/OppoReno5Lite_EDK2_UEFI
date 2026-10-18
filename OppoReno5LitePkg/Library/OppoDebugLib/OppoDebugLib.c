@@ -14,6 +14,10 @@
 #include <Library/OppoBootLogLib.h>
 
 #define LOG_SIGNATURE 0x31474c4fU
+#define LOG_REVISION 2U
+#define FLOW_SIGNATURE 0x31464c42U
+#define RESET_REPORT_TOP 1792U
+#define RESET_REPORT_HEIGHT 256U
 #define FIRST_ROW 320U
 #define CELL_WIDTH 12U
 #define CELL_HEIGHT 16U
@@ -29,6 +33,8 @@ typedef struct {
   UINT32 Column;
   UINT32 Row;
   OPPO_FB_CONTEXT Frame;
+  UINT32 FlowSignature;
+  OPPO_BOOT_FLOW Flow;
 } LOG_STATE;
 STATIC_ASSERT (sizeof (LOG_STATE) <= 4096, "Log state exceeds its reserved page");
 #ifndef OPPO_LOG_BOOT_API_ONLY
@@ -71,7 +77,7 @@ STATIC CONST GLYPH mGlyphs[] = {
 STATIC LOG_STATE *State (VOID)
 {
   LOG_STATE *S = (LOG_STATE *)(UINTN)OPPO_NATIVE_DEBUG_BASE;
-  if (S->Signature != LOG_SIGNATURE || S->Revision != 1 || S->Column >= COLUMNS ||
+  if (S->Signature != LOG_SIGNATURE || S->Revision != LOG_REVISION || S->Column >= COLUMNS ||
       S->Row >= ROWS || S->Frame.Pixels != (volatile UINT32 *)(UINTN)OPPO_NATIVE_FB_BASE ||
       S->Frame.MappedBytes != FRAME_BYTES || S->Frame.Layout.Width != OPPO_NATIVE_FB_WIDTH ||
       S->Frame.Layout.Height != OPPO_NATIVE_FB_HEIGHT ||
@@ -89,6 +95,17 @@ STATIC VOID Fill (LOG_STATE *S, EFI_GRAPHICS_OUTPUT_BLT_PIXEL Color,
              0, 0, X, Y, Width, Height, 0);
 }
 
+STATIC CONST GLYPH *FindGlyph (CHAR8 C)
+{
+  if (C >= 'a' && C <= 'z') C = (CHAR8)(C - 'a' + 'A');
+  for (UINTN I = 0; I < ARRAY_SIZE (mGlyphs); I++)
+    if (mGlyphs[I].Character == C) return &mGlyphs[I];
+  for (UINTN I = 0; I < ARRAY_SIZE (mGlyphs); I++)
+    if (mGlyphs[I].Character == '?') return &mGlyphs[I];
+  return NULL;
+}
+
+#ifndef OPPO_LOG_BOOT_API_ONLY
 STATIC VOID NewLine (LOG_STATE *S)
 {
   S->Column = 0;
@@ -107,14 +124,7 @@ STATIC VOID Character (LOG_STATE *S, CHAR8 C, EFI_GRAPHICS_OUTPUT_BLT_PIXEL Colo
     for (UINTN I = 0; I < 4; I++) Character (S, ' ', Color);
     return;
   }
-  if (C >= 'a' && C <= 'z') C = (CHAR8)(C - 'a' + 'A');
-  CONST GLYPH *Glyph = NULL;
-  for (UINTN I = 0; I < ARRAY_SIZE (mGlyphs); I++)
-    if (mGlyphs[I].Character == C) { Glyph = &mGlyphs[I]; break; }
-  if (Glyph == NULL) {
-    for (UINTN I = 0; I < ARRAY_SIZE (mGlyphs); I++)
-      if (mGlyphs[I].Character == '?') { Glyph = &mGlyphs[I]; break; }
-  }
+  CONST GLYPH *Glyph = FindGlyph (C);
   if (Glyph == NULL) return;
   UINTN X = S->Column * CELL_WIDTH, Y = FIRST_ROW + S->Row * CELL_HEIGHT;
   Fill (S, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){0,0,0,0}, X, Y, CELL_WIDTH, CELL_HEIGHT);
@@ -131,20 +141,43 @@ STATIC VOID Write (LOG_STATE *S, CONST CHAR8 *Buffer, UINTN Bytes, UINTN Level)
   for (UINTN I = 0; I < Bytes && I < 255; I++) Character (S, Buffer[I], Color);
   MemoryFence ();
 }
+#endif
 
 #ifdef OPPO_LOG_BOOT_API_ONLY
+STATIC VOID LargeReport (LOG_STATE *S, CONST CHAR8 *Buffer, UINTN Bytes)
+{
+  UINTN Column = 0, Line = 0;
+  EFI_GRAPHICS_OUTPUT_BLT_PIXEL White = {255,255,255,0};
+  Fill (S, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){0,0,0,0}, 0,
+        RESET_REPORT_TOP, OPPO_NATIVE_FB_WIDTH, RESET_REPORT_HEIGHT);
+  for (UINTN I = 0; I < Bytes && I < 384 && Line < 8; I++) {
+    CHAR8 C = Buffer[I];
+    if (C == '\n') {Column = 0; Line++; continue;}
+    if (Column >= OPPO_NATIVE_FB_WIDTH / 24) continue;
+    CONST GLYPH *Glyph = FindGlyph (C);
+    if (Glyph != NULL) for (UINTN Row = 0; Row < 7; Row++)
+      for (UINTN Bit = 0; Bit < 5; Bit++) if (Glyph->Rows[Row] & (1U << (4 - Bit)))
+        Fill (S, White, Column * 24 + Bit * 4,
+              RESET_REPORT_TOP + Line * 32 + Row * 4, 4, 4);
+    Column++;
+  }
+  MemoryFence ();
+}
+
 VOID EFIAPI OppoBootLogReset (EFI_RESET_TYPE Type, EFI_STATUS Status)
 {
   LOG_STATE *S = State ();
-  CHAR8 Buffer[192];
+  CHAR8 Buffer[384];
+  OPPO_BOOT_FLOW Flow = {0, EFI_NOT_STARTED, EFI_NOT_STARTED, EFI_NOT_STARTED, 0};
   if (S == NULL || S->Busy) return;
+  if (S->FlowSignature == FLOW_SIGNATURE) Flow = S->Flow;
   UINTN Bytes = AsciiSPrint (Buffer, sizeof (Buffer),
-    "OPPO BOOT RESET REQUEST\nTYPE=%u STATUS=%016Lx\nREQUEST=%a\n15 SECOND CAPTURE HOLD\n",
-    (UINT32)Type, (UINT64)Status, Type == EfiResetShutdown ? "POWER OFF" : "RESET");
+    "OPPO RESET CAPTURE\nTYPE=%u REQUEST=%a\nEFI STATUS=%016Lx\nSTAGE=%u LOAD=%016Lx\nRETURN=%016Lx\nMAP=%016Lx\nFREE SNAPSHOT=%Lu MIB\n15 SECOND CAPTURE HOLD\n",
+    (UINT32)Type, Type == EfiResetShutdown ? "POWER OFF" : "RESET", (UINT64)Status,
+    Flow.Stage, (UINT64)Flow.LoadStatus, (UINT64)Flow.StartStatus,
+    (UINT64)Flow.MapStatus, Flow.ConventionalBytes / (1024 * 1024));
   S->Busy = 1; MemoryFence ();
-  // Keep the center of a loader error screen intact; use the lower display.
-  S->Column = 0; S->Row = ROWS - 20;
-  Write (S, Buffer, Bytes, DEBUG_ERROR);
+  LargeReport (S, Buffer, Bytes);
   S->Busy = 0; MemoryFence ();
 }
 #else
@@ -155,7 +188,7 @@ BOOLEAN EFIAPI OppoDebugStart (VOID)
     OPPO_NATIVE_FB_RED_SHIFT, OPPO_NATIVE_FB_BLUE_SHIFT, TRUE};
   ZeroMem (S, 4096);
   if (!OppoFbInitialize (&S->Frame, (VOID *)(UINTN)OPPO_NATIVE_FB_BASE, FRAME_BYTES, &Layout)) return FALSE;
-  S->Revision = 1;
+  S->Revision = LOG_REVISION;
   Fill (S, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){0,0,0,0}, 0, FIRST_ROW,
         COLUMNS * CELL_WIDTH, ROWS * CELL_HEIGHT);
   MemoryFence (); S->Signature = LOG_SIGNATURE; MemoryFence ();
@@ -180,6 +213,16 @@ STATIC LOG_STATE *ReadyState (VOID)
   if (!mReady) mReady = (BOOLEAN)(State () != NULL);
 #endif
   return mReady ? State () : NULL;
+}
+
+VOID EFIAPI OppoDebugRecordBootFlow (CONST OPPO_BOOT_FLOW *Flow)
+{
+  LOG_STATE *S = ReadyState ();
+  if (S == NULL || S->Busy || Flow == NULL) return;
+  S->Busy = 1; MemoryFence ();
+  S->Flow = *Flow; MemoryFence ();
+  S->FlowSignature = FLOW_SIGNATURE; MemoryFence ();
+  S->Busy = 0; MemoryFence ();
 }
 
 VOID EFIAPI DebugVPrint (UINTN ErrorLevel, CONST CHAR8 *Format, VA_LIST Marker)

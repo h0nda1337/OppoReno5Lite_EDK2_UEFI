@@ -13,17 +13,23 @@
 STATIC EFI_RESET_TYPE mExpectedType;
 STATIC EFI_STATUS mExpectedStatus;
 STATIC UINTN mFormats;
+STATIC OPPO_BOOT_FLOW mExpectedFlow;
 VOID EFIAPI MemoryFence(VOID) {__sync_synchronize();}
 UINTN EFIAPI AsciiSPrint(CHAR8 *Buffer, UINTN Bytes, CONST CHAR8 *Format, ...)
 {
   va_list Args;va_start(Args,Format);
-  assert(strstr(Format,"TYPE=%u STATUS=%016Lx") && Bytes==192);
-  assert(va_arg(Args,UINT32)==mExpectedType && va_arg(Args,UINT64)==mExpectedStatus);
+  assert(strstr(Format,"EFI STATUS=%016Lx") && Bytes==384);
+  assert(va_arg(Args,UINT32)==mExpectedType);
   CONST CHAR8 *Kind=va_arg(Args,CONST CHAR8 *);
   assert(!strcmp(Kind,mExpectedType==EfiResetShutdown ? "POWER OFF" : "RESET"));
+  assert(va_arg(Args,UINT64)==mExpectedStatus && va_arg(Args,UINT32)==mExpectedFlow.Stage);
+  assert(va_arg(Args,UINT64)==mExpectedFlow.LoadStatus && va_arg(Args,UINT64)==mExpectedFlow.StartStatus);
+  assert(va_arg(Args,UINT64)==mExpectedFlow.MapStatus && va_arg(Args,UINT64)==mExpectedFlow.ConventionalBytes/(1024*1024));
   va_end(Args);mFormats++;
-  return (UINTN)snprintf(Buffer,Bytes,"OPPO BOOT RESET REQUEST\nTYPE=%u STATUS=%016llx\nREQUEST=%s\n15 SECOND CAPTURE HOLD\n",
-    mExpectedType,(unsigned long long)mExpectedStatus,Kind);
+  return (UINTN)snprintf(Buffer,Bytes,"OPPO RESET CAPTURE\nTYPE=%u REQUEST=%s\nEFI STATUS=%016llx\nSTAGE=%u LOAD=%016llx\nRETURN=%016llx\nMAP=%016llx\nFREE SNAPSHOT=%llu MIB\n15 SECOND CAPTURE HOLD\n",
+    mExpectedType,Kind,(unsigned long long)mExpectedStatus,mExpectedFlow.Stage,
+    (unsigned long long)mExpectedFlow.LoadStatus,(unsigned long long)mExpectedFlow.StartStatus,
+    (unsigned long long)mExpectedFlow.MapStatus,(unsigned long long)(mExpectedFlow.ConventionalBytes/(1024*1024)));
 }
 STATIC UINT8 *Guarded(UINTN Base,UINTN Bytes)
 {
@@ -38,22 +44,28 @@ int main(void)
   LOG_STATE *S=(LOG_STATE *)Guarded(OPPO_NATIVE_DEBUG_BASE,4096);
   OPPO_FB_LAYOUT Layout={OPPO_NATIVE_FB_WIDTH,OPPO_NATIVE_FB_HEIGHT,OPPO_NATIVE_FB_STRIDE,
     OPPO_NATIVE_FB_RED_SHIFT,OPPO_NATIVE_FB_BLUE_SHIFT,TRUE};
-  for(UINTN Case=0;Case<6;Case++) {
+  for(UINTN Case=0;Case<8;Case++) {
     memset(Frame,0xa5,Bytes);memset(S,0,4096);mFormats=0;
     assert(OppoFbInitialize(&S->Frame,Frame,Bytes,&Layout));
-    S->Signature=Case==4 ? 0 : LOG_SIGNATURE;S->Revision=1;S->Busy=Case==5;
+    S->Signature=Case==4 ? 0 : LOG_SIGNATURE;S->Revision=LOG_REVISION;S->Busy=Case==5;
+    S->FlowSignature=Case==6 ? 0 : FLOW_SIGNATURE;
+    S->Flow=(OPPO_BOOT_FLOW){OPPO_BOOT_START_ACTIVE,EFI_SUCCESS,EFI_NOT_STARTED,EFI_SUCCESS,33ULL*1024*1024+1234};
+    if(Case==7) {S->Flow.MapStatus=EFI_DEVICE_ERROR;S->Flow.ConventionalBytes=0;}
+    mExpectedFlow=Case==6 ? (OPPO_BOOT_FLOW){0,EFI_NOT_STARTED,EFI_NOT_STARTED,EFI_NOT_STARTED,0} : S->Flow;
+    BOOLEAN Valid=Case!=4 && Case!=5;
     mExpectedType=(EFI_RESET_TYPE)(Case%4);mExpectedStatus=Case%2 ? EFI_ABORTED : EFI_SUCCESS;
     OppoBootLogReset(mExpectedType,mExpectedStatus);
-    assert(mFormats==(Case<4 ? 1U : 0U));
-    UINTN Changed=0;
+    assert(mFormats==(Valid ? 1U : 0U));
+    UINTN Changed=0, White=0;
     for(UINTN Y=0;Y<OPPO_NATIVE_FB_HEIGHT;Y++)for(UINTN X=0;X<OPPO_NATIVE_FB_STRIDE;X++) {
       UINT8 V=Frame[Y*OPPO_NATIVE_FB_STRIDE+X];
-      if(Case>=4 || Y<FIRST_ROW+(ROWS-20)*CELL_HEIGHT || X>=OPPO_NATIVE_FB_WIDTH*4)assert(V==0xa5);
+      if(!Valid || Y<RESET_REPORT_TOP || Y>=RESET_REPORT_TOP+RESET_REPORT_HEIGHT || X>=OPPO_NATIVE_FB_WIDTH*4)assert(V==0xa5);
       if(V!=0xa5)Changed++;
+      if(V==255)White++;
     }
-    assert((Changed!=0)==(Case<4));
+    assert((Changed!=0)==Valid && (White!=0)==Valid);
   }
   assert(munmap(Frame-4096,Bytes+8192)==0 && munmap((UINT8 *)S-4096,12288)==0);
-  puts("Boot reset report: 6 guarded host framebuffer cases, original glyphs, lower-screen bounded writes, invalid/busy state rejected; formatting stubbed and no hardware execution.");
+  puts("Boot reset report: 8 guarded host framebuffer cases, large original glyphs, bounded diagnostic panel, copied boot/memory trace and invalid/busy state rejected; formatting stubbed and no hardware execution.");
   return 0;
 }

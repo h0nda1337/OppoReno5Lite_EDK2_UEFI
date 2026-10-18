@@ -486,10 +486,75 @@ inválida (`0`); se sustituyó solo esa etiqueta por orientación normal (`1`),
 sin girar ni recomprimir píxeles. Véase
 [la evidencia física](../evidence/native-sd-boot-lab-19-validation.json).
 
-El propietario pidió detener las pruebas mientras carga el teléfono que utiliza
-como cámara. El siguiente paso será obtener el error legible del cargador y
-los resultados de carga/entrada antes de atribuir una causa o afirmar un arranque
-del sistema operativo.
+El propietario pidió detener las pruebas mientras cargaba el teléfono que utiliza
+como cámara y después reanudó la sesión. El siguiente paso será obtener el error
+legible del cargador y los resultados de carga/entrada antes de atribuir una causa
+o afirmar un arranque del sistema operativo.
+
+## Panel ampliado y memoria convencional (20)
+
+El informe previo al reset usa los mismos glifos originales a escala doble,
+blancos sobre un panel negro en la parte inferior. La bitácora compartida pasa
+a revisión 2 y conserva una copia del avance del cargador en su página de RAM
+reservada. La captura runtime solo dibuja esa copia: sigue sin llamar a Boot
+Services ni asignar memoria al apagarse.
+
+BDS toma una observación acotada de `GetMemoryMap` antes de `LoadImage` y otra
+antes de `StartImage`. Suma únicamente `EfiConventionalMemory`, valida tamaños,
+versión y desbordamientos, y libera su buffer. El valor corresponde al instante
+con ese pequeño buffer asignado, anterior a entrar en la aplicación; no mide la
+memoria restante cuando esta solicita apagarse. Un fallo de observación se
+registra como tal y no altera los controles de carga ni seguridad. Esta variante
+conserva el pool inicial de 64 MiB.
+
+Campos del panel:
+
+| Campo | Interpretación |
+| --- | --- |
+| `EFI STATUS` | Estado recibido por `ResetSystem`; no debe confundirse con un código NTSTATUS de Windows |
+| `STAGE=1` | Antes de `LoadImage` |
+| `STAGE=2` | `LoadImage` retornó; `LOAD` conserva su resultado |
+| `STAGE=3` | Se llamó a `StartImage` y todavía no retornó |
+| `STAGE=4` | `StartImage` retornó; `RETURN` conserva su resultado |
+| `RETURN` en etapa 3 | Valor `EFI_NOT_STARTED` que significa que aún no se registró un retorno |
+| `MAP` | Resultado de la última observación del mapa |
+| `FREE SNAPSHOT` | MiB enteros de memoria convencional en esa observación; se interpreta únicamente si `MAP` fue correcto |
+
+Las pruebas de PC pasan 33 escenarios SD/EFI, incluidos mapas malformados,
+fallos de asignación y suma con desbordamiento. Ocho casos de framebuffer con
+memoria protegida comprueban los límites del panel ampliado, el traspaso de
+campos y los estados inválidos. Las regresiones SEC y DXE core siguen aprobadas.
+Estos modelos no confirman el estado EFI real ni la memoria libre del OPPO.
+
+![Informe ampliado: apagado durante StartImage, carga y mapa correctos](images/native-sd-boot-lab-20-reset.jpg)
+
+Las fotos de la ejecución física permiten leer `TYPE=2 REQUEST=POWER OFF`,
+`EFI STATUS=0000000000000000`, `STAGE=3 LOAD=0000000000000000`,
+`RETURN=8000000000000013`, `MAP=0000000000000000` y `FREE SNAPSHOT=52 MIB`.
+La carga fue correcta y la aplicación seguía dentro de `StartImage` cuando
+solicitó apagado. El valor de `RETURN` es nuestro marcador `EFI_NOT_STARTED`:
+todavía no se había registrado un retorno. **No es un error de Windows**.
+Tampoco el estado cero de `ResetSystem` revela por qué el cargador se apagó.
+
+Los 52 MiB corresponden a memoria convencional antes de entrar en la aplicación,
+no a la memoria libre al apagarse. No prueban ni descartan una asignación fallida
+posterior. Este intento no confirma `EFI_OUT_OF_RESOURCES`, un código NTSTATUS,
+WinPE ni ejecución del kernel. La identidad de Boot Manager sigue sustentada
+por la inspección del archivo y la ruta de ejecución, no por un título legible.
+
+![Contexto completo de la pantalla azul y las regiones de texto ilegibles](images/native-sd-boot-lab-20-context.jpg)
+
+El siguiente diagnóstico se centrará en el texto oculto por rectángulos negros.
+Los signos `?` al final de las líneas del panel son un defecto del renderizador
+propio al recibir retornos de carro del formateador, separados de la pantalla
+azul del cargador. ADB detectó Android completo unos 134 segundos después del
+informe de entrada, con motivo `usb`; no se confirmó el método de encendido,
+por lo que no se afirma retorno automático. Se restauró el recovery original
+y se verificó Android con batería al 100 %. Las dos fotografías conservan sus
+píxeles comprimidos, orientación y perfil de color, sin metadatos personales.
+Véanse [la compilación y pruebas de PC](../evidence/native-sd-boot-lab-20-host-validation.json),
+[la evidencia física filtrada](../evidence/native-sd-boot-lab-20-validation.json)
+y [la revisión de las fotos](../evidence/native-sd-boot-lab-20-photos.json).
 
 ## Aplicación EFI de la tarjeta
 

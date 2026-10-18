@@ -10,6 +10,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/PcdLib.h>
+#include <Library/OppoDebugLog.h>
 #include <Library/UefiBootServicesTableLib.h>
 
 STATIC BOOLEAN IsOurSd (EFI_HANDLE Handle)
@@ -45,11 +46,50 @@ STATIC EFI_STATUS SignalBootPhase (EFI_GUID *Group)
   return EFI_ERROR (Status) ? Status : Cleanup;
 }
 
+STATIC VOID SnapshotMemory (OPPO_BOOT_FLOW *Flow)
+{
+  UINTN Bytes = 0, Key, Step = 0;
+  UINT32 Version;
+  EFI_MEMORY_DESCRIPTOR *Map;
+  Flow->ConventionalBytes = 0;
+  Flow->MapStatus = gBS->GetMemoryMap (&Bytes, NULL, &Key, &Step, &Version);
+  if (Flow->MapStatus != EFI_BUFFER_TOO_SMALL) {
+    if (!EFI_ERROR (Flow->MapStatus)) Flow->MapStatus = EFI_BAD_BUFFER_SIZE;
+    return;
+  }
+  if (Step < sizeof (*Map) || Step > 65536 / 8 || Bytes == 0 || Bytes > 65536 - Step * 8) {
+    Flow->MapStatus = EFI_BAD_BUFFER_SIZE; return;
+  }
+  UINTN Capacity = Bytes + Step * 8;
+  Map = AllocatePool (Capacity);
+  if (Map == NULL) {Flow->MapStatus = EFI_OUT_OF_RESOURCES; return;}
+  Bytes = Capacity;
+  Flow->MapStatus = gBS->GetMemoryMap (&Bytes, Map, &Key, &Step, &Version);
+  if (!EFI_ERROR (Flow->MapStatus)) {
+    if (Version != EFI_MEMORY_DESCRIPTOR_VERSION || Step < sizeof (*Map) ||
+        Bytes > Capacity || Bytes == 0 || Bytes % Step != 0) Flow->MapStatus = EFI_BAD_BUFFER_SIZE;
+    else for (UINTN Offset = 0; Offset < Bytes; Offset += Step) {
+      EFI_MEMORY_DESCRIPTOR Item;
+      CopyMem (&Item, (UINT8 *)Map + Offset, sizeof (Item));
+      if (Item.Type != EfiConventionalMemory) continue;
+      if (Item.NumberOfPages > (MAX_UINT64 - Flow->ConventionalBytes) / EFI_PAGE_SIZE) {
+        Flow->MapStatus = EFI_BAD_BUFFER_SIZE; break;
+      }
+      Flow->ConventionalBytes += Item.NumberOfPages * EFI_PAGE_SIZE;
+    }
+  }
+  if (EFI_ERROR (Flow->MapStatus)) Flow->ConventionalBytes = 0;
+  FreePool (Map);
+  // This is an observation while the map buffer was allocated. It is not used
+  // for allocation, address selection or ExitBootServices and its key is unused.
+}
+
 STATIC VOID BootFromSd (EFI_HANDLE Parent, EFI_HANDLE Medium)
 {
   EFI_DEVICE_PATH_PROTOCOL *Path;
   EFI_HANDLE Child = NULL;
   EFI_STATUS Status;
+  OPPO_BOOT_FLOW Flow = {OPPO_BOOT_BEFORE_LOAD, EFI_NOT_STARTED, EFI_NOT_STARTED, EFI_NOT_STARTED, 0};
   if (Parent == NULL) {
     DEBUG ((DEBUG_ERROR, "SD EFI boot missing parent image handle\n")); return;
   }
@@ -67,10 +107,14 @@ STATIC VOID BootFromSd (EFI_HANDLE Parent, EFI_HANDLE Medium)
     DEBUG ((DEBUG_INFO, "SD EFI ReadyToBoot: %r\n", Status));
   }
   if (EFI_ERROR (Status)) {FreePool (Path); return;}
+  SnapshotMemory (&Flow);
+  OppoDebugRecordBootFlow (&Flow);
   // Let the firmware load from the SD filesystem so its security policy and
   // the loaded image's device/path identity remain effective. No memory blob.
   Status = gBS->LoadImage (FALSE, Parent, Path, NULL, 0, &Child);
   FreePool (Path);
+  Flow.Stage = OPPO_BOOT_LOAD_RETURNED; Flow.LoadStatus = Status;
+  OppoDebugRecordBootFlow (&Flow);
   DEBUG ((DEBUG_INFO, "SD EFI LoadImage returned: %r\n", Status));
   if (EFI_ERROR (Status)) {
     // This particular status can leave a loaded image that must not be started.
@@ -84,7 +128,12 @@ STATIC VOID BootFromSd (EFI_HANDLE Parent, EFI_HANDLE Medium)
     DEBUG ((DEBUG_ERROR, "SD EFI loader returned no image handle\n")); return;
   }
   DEBUG ((DEBUG_INFO, "SD EFI StartImage attempt from verified ARM64 prefix\n"));
+  Flow.Stage = OPPO_BOOT_START_ACTIVE;
+  SnapshotMemory (&Flow);
+  OppoDebugRecordBootFlow (&Flow);
   Status = gBS->StartImage (Child, NULL, NULL);
+  Flow.Stage = OPPO_BOOT_START_RETURNED; Flow.StartStatus = Status;
+  OppoDebugRecordBootFlow (&Flow);
   // UEFI applications are unloaded when they return. Do not unload twice.
   DEBUG ((DEBUG_INFO, "SD EFI StartImage returned: %r\n", Status));
 }
