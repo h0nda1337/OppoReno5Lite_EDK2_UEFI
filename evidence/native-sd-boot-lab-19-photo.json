@@ -1,0 +1,21 @@
+{
+  "public_path": "docs/images/native-sd-boot-lab-19.jpg",
+  "bytes": 613722,
+  "sha256": "09a9e7900793948300a3e00932e697f0f4b1c76f36027cabfbf0db83668459ef",
+  "orientation": 1,
+  "source_orientation_tag": 0,
+  "orientation_normalized_for_upright_pixels": true,
+  "icc_segments_preserved": 0,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "4086f2b457094402a50998021adae6341c9841f635f3313024e8cc4775c0922e",
+  "removed_source_app_markers": [
+    "0xe0",
+    "0xe1"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of native SD EFI attempt19: blue display with unreadable loader text/graphics and the original red reset report. TYPE=2 and REQUEST=POWER OFF are legible; the exact EFI status and Windows error text are not accepted as verified. No Windows kernel or WinPE boot is established"
+}

@@ -21,6 +21,8 @@ El renderer de `OppoDebugLib`, sus glifos 5×7, la página de cursor compartido 
 la prueba de memoria protegida también son originales. El formateador utilizado
 en el firmware sigue siendo el PrintLib genérico de EDK2; el del test de PC es
 un stub propio acotado a sus casos. No se importó una fuente tipográfica externa.
+`OppoBootLogLib` reutiliza ese código propio para el informe previo al reset;
+su límite de fase y sus modelos de servicios y memoria también son originales.
 
 `OppoMsdcLib`, el enlace MSDC1 `OppoSdDxe`, el diagnóstico SD del BDS y sus
 modelos de prueba son originales. Los registros se investigaron en fuentes

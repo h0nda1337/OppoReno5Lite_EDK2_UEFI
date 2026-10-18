@@ -16,3 +16,9 @@ gcc -std=c11 -Wall -Wextra -Werror -fshort-wchar -DNO_MSABI_VA_FUNCS -O1 -g "${e
   scripts/test_debug_log.c -o ".build/debug-log/test-debug-log-$mode"
 ".build/debug-log/test-debug-log-$mode"
 done
+gcc -std=c11 -Wall -Wextra -Werror -fshort-wchar -DNO_MSABI_VA_FUNCS -O1 -g \
+  -fsanitize=address,undefined -fno-omit-frame-pointer \
+  -I"$edk2/MdePkg/Include" -I"$edk2/MdePkg/Include/X64" -IOppoReno5LitePkg/Include \
+  OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.c \
+  scripts/test_boot_reset_log.c -o .build/debug-log/test-boot-reset-log
+.build/debug-log/test-boot-reset-log

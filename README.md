@@ -16,7 +16,9 @@ El lector microSD propio ya abrió `BOOTAA64.EFI` desde la tarjeta en EDK2 y ley
 un prefijo ARM64 UEFI válido de 4096 bytes, tras habilitar VMC/VMCH a 3,0 V.
 La foto del intento 16 y el regreso a Android están documentados en
 [docs/MICROSD.md](docs/MICROSD.md#encendido-vmcvmch-16-lectura-física-de-la-microsd-conseguida).
-La ejecución de Windows Boot Manager y Windows PE sigue pendiente.
+El intento 19 capturó una pantalla azul con texto ilegible y una solicitud UEFI
+de apagado. Se infiere ejecución del cargador, muy probablemente Windows Boot
+Manager; su error exacto y el arranque de WinPE siguen pendientes.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -45,7 +47,7 @@ Véase
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
-| microSD y cargador ARM64 | Encendido VMC/VMCH, acceso FAT y lectura del prefijo ARM64 UEFI verificados en el OPPO; ejecución de Windows Boot Manager pendiente |
+| microSD y cargador ARM64 | Acceso FAT y prefijo ARM64 verificados; pantalla azul y apagado UEFI capturados. Ejecución de Boot Manager inferida; error legible y WinPE pendientes |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el

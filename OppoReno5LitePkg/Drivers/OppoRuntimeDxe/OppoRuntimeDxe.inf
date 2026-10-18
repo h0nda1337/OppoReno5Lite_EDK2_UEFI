@@ -9,12 +9,21 @@
   OppoRuntimeDxe.c
 [Packages]
   MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
 [LibraryClasses]
   UefiDriverEntryPoint
   UefiBootServicesTableLib
   UefiRuntimeServicesTableLib
   ArmSmcLib
+  ArmLib
   BaseLib
+  TimerLib
+  PcdLib
+  OppoBootLogLib
+[Guids]
+  gEfiEventExitBootServicesGuid
+[FeaturePcd]
+  gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab
 [Protocols]
   gEfiResetArchProtocolGuid
   gEfiRealTimeClockArchProtocolGuid

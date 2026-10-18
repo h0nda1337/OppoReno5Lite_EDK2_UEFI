@@ -31,8 +31,10 @@
   },
   "return_observation_limit": "Includes manual power-on; Android detection does not establish an automatic return or the native timer/reset mechanism",
   "battery_before_test_percent": 98.0,
-  "stock_recovery_restored": false,
-  "stock_restoration_pending_owner_return": true,
+  "stock_recovery_restored": true,
+  "stock_restoration_pending_owner_return": false,
   "android_boot_completed_detected": true,
-  "next_action": "Restore stock when owner returns, then prepare visible diagnostics for runtime reset type/status before repeating the physical test"
+  "next_action": "Prepare and host-validate a bounded pre-ExitBS runtime reset report, then repeat with owner ready to capture screen",
+  "android_boot_completed_after_restoration": true,
+  "battery_after_restoration_percent": 98.0
 }

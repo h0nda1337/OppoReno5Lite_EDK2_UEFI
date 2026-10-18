@@ -90,6 +90,7 @@
   OppoMemoryPlanLib|OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.inf
   OppoMsdcLib|OppoReno5LitePkg/Library/OppoMsdcLib/OppoMsdcLib.inf
   OppoSdPowerLib|OppoReno5LitePkg/Library/OppoSdPowerLib/OppoSdPowerLib.inf
+  OppoBootLogLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoBootLogLib.inf
 
 [LibraryClasses.common.SEC]
   DebugLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoDebugLib.inf

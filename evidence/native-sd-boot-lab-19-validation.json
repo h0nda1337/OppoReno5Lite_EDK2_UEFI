@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-efi-boot-19",
+  "stage": "blue_display_and_pre_exitbs_shutdown_request_captured",
+  "source_base_revision": "d001d652da6050e382afef0570a5af1982a6da4e",
+  "host_evidence": "evidence/native-sd-boot-lab-19-host-validation.json",
+  "candidate_sha256": "107086aa1bdb8977bf92340b226a329a670ed3014786f3db7e904f5927a5a0eb",
+  "native_fd_sha256": "7b518355e4961da035caf91bf2c78ba8230fd3a8c3063af31f9ca54d43f634cb",
+  "observation_source": "Owner photograph of the physical OPPO; separate read-only Android observer",
+  "photos": [
+    "docs/images/native-sd-boot-lab-19.jpg"
+  ],
+  "screen": {
+    "blue_background": true,
+    "black_rectangular_text_regions": true,
+    "loader_title_and_error_text_readable": false,
+    "original_reset_report_visible": true,
+    "reset_type": 2,
+    "reset_request": "POWER OFF",
+    "exact_reset_status_accepted_as_verified": false
+  },
+  "interpretation": {
+    "runtime_shutdown_request_verified": true,
+    "capture_hold_duration_measured_on_phone": false,
+    "loader_execution_inferred_from_boot_path_and_shutdown_request": true,
+    "windows_boot_manager_identity_inferred_from_prior_private_file_inspection": true,
+    "windows_boot_manager_title_visually_verified": false,
+    "windows_error_code_verified": false,
+    "windows_kernel_bsod_verified": false,
+    "windows_pe_boot_verified": false,
+    "graphics_issue_root_cause_verified": false,
+    "lab_bds_timer_requests_cold_reset_not_shutdown": true
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 130.779,
+    "bootreason": "usb"
+  },
+  "return_observation_limit": "Detected Android with bootreason usb; power-on method not established for attempt19, so this is not accepted as proof of automatic return or exact native timer duration",
+  "automatic_android_return_verified": false,
+  "owner_power_on_method_for_this_attempt": null,
+  "battery_before_test_percent": 98.0,
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_after_restoration_percent": 99.0,
+  "next_action": "Paused at owner request while the camera phone charges; next session should capture exact loader error and load/start outcomes before attributing a cause or claiming WinPE/kernel boot"
+}

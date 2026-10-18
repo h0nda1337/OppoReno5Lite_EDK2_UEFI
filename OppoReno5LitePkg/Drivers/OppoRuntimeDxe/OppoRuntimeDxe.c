@@ -8,14 +8,31 @@
 #include <Protocol/RealTimeClock.h>
 #include <Protocol/Reset.h>
 #include <Protocol/Capsule.h>
+#include <Guid/EventGroup.h>
 #include <Library/ArmSmcLib.h>
+#include <Library/ArmLib.h>
 #include <Library/BaseLib.h>
+#include <Library/PcdLib.h>
+#include <Library/TimerLib.h>
+#include <Library/OppoBootLogLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
 
+STATIC BOOLEAN mBootResetDiagnostic;
+STATIC VOID EFIAPI EndResetDiagnostic (EFI_EVENT Event, VOID *Context)
+{ (VOID)Event; (VOID)Context; mBootResetDiagnostic = FALSE; }
+
 STATIC VOID EFIAPI Reset (EFI_RESET_TYPE Type, EFI_STATUS Status, UINTN Bytes, VOID *Data)
 {
-  (VOID)Status; (VOID)Bytes; (VOID)Data;
+  (VOID)Bytes; (VOID)Data;
+  if (mBootResetDiagnostic) {
+    mBootResetDiagnostic = FALSE;
+    // Final pre-reset path: exclude the BDS timer and framebuffer writers.
+    // The reporter and counter delay use no Boot Services or allocations.
+    ArmDisableInterrupts ();
+    OppoBootLogReset (Type, Status);
+    MicroSecondDelay (15000000);
+  }
   ArmCallSmc0 (Type == EfiResetShutdown ? ARM_SMC_ID_PSCI_SYSTEM_OFF : ARM_SMC_ID_PSCI_SYSTEM_RESET,
                NULL, NULL, NULL);
   CpuDeadLoop ();
@@ -61,11 +78,22 @@ STATIC EFI_STATUS EFIAPI QueryCapsule (EFI_CAPSULE_HEADER **Headers, UINTN Count
 EFI_STATUS EFIAPI OppoRuntimeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
   EFI_HANDLE Handle = NULL;
+  EFI_EVENT Event;
+  EFI_STATUS Status;
+  mBootResetDiagnostic = FALSE;
   (VOID)ImageHandle; (VOID)SystemTable;
   gRT->ResetSystem = Reset;
   gRT->GetTime = GetTime; gRT->SetTime = SetTime;
   gRT->GetWakeupTime = GetWakeup; gRT->SetWakeupTime = SetWakeup;
   gRT->UpdateCapsule = UpdateCapsule; gRT->QueryCapsuleCapabilities = QueryCapsule;
-  return gBS->InstallMultipleProtocolInterfaces (&Handle, &gEfiResetArchProtocolGuid, NULL,
+  Status = gBS->InstallMultipleProtocolInterfaces (&Handle, &gEfiResetArchProtocolGuid, NULL,
     &gEfiRealTimeClockArchProtocolGuid, NULL, &gEfiCapsuleArchProtocolGuid, NULL, NULL);
+  if (!EFI_ERROR (Status) && FeaturePcdGet (PcdNativeSdBootLab)) {
+    // Never touch physical display pointers from a runtime reset after ExitBS.
+    // If registration fails, retain the normal reset with no diagnostic delay.
+    EFI_STATUS Registered = gBS->CreateEventEx (EVT_NOTIFY_SIGNAL, TPL_NOTIFY,
+      EndResetDiagnostic, NULL, &gEfiEventExitBootServicesGuid, &Event);
+    mBootResetDiagnostic = (BOOLEAN)!EFI_ERROR (Registered);
+  }
+  return Status;
 }

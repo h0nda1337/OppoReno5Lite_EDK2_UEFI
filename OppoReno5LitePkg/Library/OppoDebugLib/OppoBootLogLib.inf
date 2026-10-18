@@ -1,0 +1,21 @@
+## @file
+# Boot-only reset report reusing the project's original glyph renderer.
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoBootLogLib
+  FILE_GUID = a42bc350-15dd-4a7a-91b5-e9e2ed32c879
+  MODULE_TYPE = BASE
+  LIBRARY_CLASS = OppoBootLogLib|DXE_RUNTIME_DRIVER
+[Sources]
+  OppoDebugLib.c
+[BuildOptions]
+  GCC:*_*_*_CC_FLAGS = -DOPPO_LOG_BOOT_API_ONLY
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+[LibraryClasses]
+  BaseLib
+  PrintLib
+  OppoFrameBufferLib

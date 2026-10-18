@@ -428,11 +428,68 @@ convertirlo en una validación completa de Boot Manager, WinPE o el kernel.
 El observador ADB detectó Android completo unos 181 segundos después del informe
 de entrada. Ese intervalo incluye la intervención manual, LK, Android y sondeo
 USB; **no es un retorno automático ni prueba del temporizador de 90 segundos**.
-La restauración del recovery original quedó pendiente mientras el propietario
-consigue otro teléfono para fotografiar la siguiente prueba. La siguiente fase
-debe distinguir una solicitud runtime de apagado del reset del laboratorio y
-dar tiempo para leer el diagnóstico. Véase
+Se restauró el recovery original al volver el propietario y se verificó Android
+con batería al 98 %. La siguiente fase debe distinguir una solicitud runtime de
+apagado del reset del laboratorio y dar tiempo para leer el diagnóstico. Véase
 [la observación filtrada del intento 18](../evidence/native-sd-boot-lab-18-validation.json).
+
+## Captura de la solicitud de apagado (19)
+
+La variante de arranque SD añade un diagnóstico original antes de ejecutar
+`ResetSystem`: muestra tipo, estado EFI y la acción solicitada, mantiene la
+pantalla 15 segundos y luego conserva la llamada PSCI original. El tipo
+`EfiResetShutdown` sigue solicitando apagado; los otros tipos conservan la ruta
+de reset existente. No se convierte un apagado en reinicio.
+
+La captura solo se arma si se pudo registrar la notificación de
+`ExitBootServices`. Esa notificación la desactiva antes de entrar en runtime,
+para evitar accesos posteriores a direcciones físicas de pantalla. Si falla
+el registro, se conserva el reset normal sin captura. Durante la pausa se
+excluyen interrupciones; el renderizador propio y la espera del contador no
+utilizan Boot Services ni asignan memoria. El resto de variantes conserva el
+comportamiento anterior.
+
+`OppoBootLogLib` reutiliza los glifos originales de la bitácora mediante una
+API separada de uso previo a `ExitBootServices`. Dibuja en la parte inferior,
+conservando el centro de una posible pantalla de error del cargador. Los 16
+casos de reset de PC verifican tipo PSCI, captura limitada y exclusión después
+de `ExitBootServices`; seis casos de memoria protegida comprueban el dibujo y
+el rechazo de estado inválido u ocupado. Las pruebas anteriores del logger
+en SEC y DXE core también siguen aprobadas. El formateador de estos modelos
+está simulado; el firmware usa PrintLib de EDK2. La composición ARM64 compiló
+en unos 33 segundos. Se comprobó en AutoGen del controlador runtime que la
+captura está activada en esta variante. Véase
+[la validación de PC del intento 19](../evidence/native-sd-boot-lab-19-host-validation.json).
+
+![Pantalla azul con texto ilegible y solicitud de apagado UEFI capturada](images/native-sd-boot-lab-19.jpg)
+
+La fotografía muestra una pantalla azul, regiones negras donde se esperaba
+texto y el informe original en rojo. Se aceptan como legibles `TYPE=2` y
+`REQUEST=POWER OFF`: es una solicitud de apagado por `ResetSystem`, distinta
+del reset frío que pide el temporizador de BDS. No se acepta como verificado
+el hexadecimal de estado, el título del cargador ni su código de error. La
+foto no permite concluir que sea un pantallazo del kernel de Windows.
+
+Por la ruta de ejecución, el archivo EFI previamente inspeccionado y esa
+solicitud de apagado, se infiere que llegó a ejecutarse el cargador de la
+tarjeta, muy probablemente Windows Boot Manager. La identidad visible y el
+error exacto siguen pendientes. Tampoco se ha validado el arranque de WinPE ni
+se ha establecido la causa de los defectos gráficos. La duración física de la
+pausa no se midió con esta foto.
+
+ADB detectó Android completo unos 131 segundos después del informe de entrada,
+con motivo `usb`. No se confirmó el método de encendido en este intento; ese
+registro no prueba retorno automático. Se restauró el recovery original y se
+verificó Android con batería al 99 %; la prueba comenzó al 98 %. La foto conserva
+los datos comprimidos sin metadatos personales. Su orientación de origen era
+inválida (`0`); se sustituyó solo esa etiqueta por orientación normal (`1`),
+sin girar ni recomprimir píxeles. Véase
+[la evidencia física](../evidence/native-sd-boot-lab-19-validation.json).
+
+El propietario pidió detener las pruebas mientras carga el teléfono que utiliza
+como cámara. El siguiente paso será obtener el error legible del cargador y
+los resultados de carga/entrada antes de atribuir una causa o afirmar un arranque
+del sistema operativo.
 
 ## Aplicación EFI de la tarjeta
 

@@ -11,6 +11,7 @@
 #include <Library/PrintLib.h>
 #include <Library/OppoDebugLog.h>
 #include <Library/OppoFrameBufferLib.h>
+#include <Library/OppoBootLogLib.h>
 
 #define LOG_SIGNATURE 0x31474c4fU
 #define FIRST_ROW 320U
@@ -30,7 +31,9 @@ typedef struct {
   OPPO_FB_CONTEXT Frame;
 } LOG_STATE;
 STATIC_ASSERT (sizeof (LOG_STATE) <= 4096, "Log state exceeds its reserved page");
+#ifndef OPPO_LOG_BOOT_API_ONLY
 STATIC BOOLEAN mReady;
+#endif
 
 typedef struct { CHAR8 Character; UINT8 Rows[7]; } GLYPH;
 STATIC CONST GLYPH mGlyphs[] = {
@@ -129,6 +132,22 @@ STATIC VOID Write (LOG_STATE *S, CONST CHAR8 *Buffer, UINTN Bytes, UINTN Level)
   MemoryFence ();
 }
 
+#ifdef OPPO_LOG_BOOT_API_ONLY
+VOID EFIAPI OppoBootLogReset (EFI_RESET_TYPE Type, EFI_STATUS Status)
+{
+  LOG_STATE *S = State ();
+  CHAR8 Buffer[192];
+  if (S == NULL || S->Busy) return;
+  UINTN Bytes = AsciiSPrint (Buffer, sizeof (Buffer),
+    "OPPO BOOT RESET REQUEST\nTYPE=%u STATUS=%016Lx\nREQUEST=%a\n15 SECOND CAPTURE HOLD\n",
+    (UINT32)Type, (UINT64)Status, Type == EfiResetShutdown ? "POWER OFF" : "RESET");
+  S->Busy = 1; MemoryFence ();
+  // Keep the center of a loader error screen intact; use the lower display.
+  S->Column = 0; S->Row = ROWS - 20;
+  Write (S, Buffer, Bytes, DEBUG_ERROR);
+  S->Busy = 0; MemoryFence ();
+}
+#else
 BOOLEAN EFIAPI OppoDebugStart (VOID)
 {
   LOG_STATE *S = (LOG_STATE *)(UINTN)OPPO_NATIVE_DEBUG_BASE;
@@ -219,3 +238,4 @@ BOOLEAN EFIAPI DebugPrintEnabled (VOID) { return TRUE; }
 BOOLEAN EFIAPI DebugCodeEnabled (VOID) { return TRUE; }
 BOOLEAN EFIAPI DebugClearMemoryEnabled (VOID) { return FALSE; }
 BOOLEAN EFIAPI DebugPrintLevelEnabled (UINTN Level) { return (BOOLEAN)((Level & LOG_LEVELS) != 0); }
+#endif
