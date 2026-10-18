@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "scope": "Offline filtered inspection of previously captured runtime FDT and current native source composition; not installed ACPI tables or a diagnosis of Windows error0xc0000225",
+  "runtime_fdt_sha256": "15b90220d0658920d37b7756d20c58cd4933190b186cb1e0e099ba18408fddf4",
+  "cpus": [
+    {
+      "path": "/cpus/cpu@0",
+      "compatible": [
+        "arm,cortex-a55"
+      ],
+      "reg": [
+        {
+          "address": "0x0",
+          "size": "0x0"
+        }
+      ],
+      "enable_method": [
+        "psci"
+      ]
+    },
+    {
+      "path": "/cpus/cpu@001",
+      "compatible": [
+        "arm,cortex-a55"
+      ],
+      "reg": [
+        {
+          "address": "0x100",
+          "size": "0x0"
+        }
+      ],
+      "enable_method": [
+        "psci"
+      ]
+    },
+    {
+      "path": "/cpus/cpu@002",
+      "compatible": [
+        "arm,cortex-a55"
+      ],
+      "reg": [
+        {
+          "address": "0x200",
+          "size": "0x0"
+        }
+      ],
+      "enable_method": [
+        "psci"
+      ]
+    },
+    {
+      "path": "/cpus/cpu@003",
+      "compatible": [
+        "arm,cortex-a55"
+      ],
+      "reg": [
+        {
+          "address": "0x300",
+          "size": "0x0"
+        }
+      ],
+      "enable_method": [
+        "psci"
+      ]
+    },
+    {
+      "path": "/cpus/cpu@100",
+      "compatible": [
+        "arm,cortex-a55"
+      ],
+      "reg": [
+        {
+          "address": "0x400",
+          "size": "0x0"
+        }
+      ],
+      "enable_method": [
+        "psci"
+      ]
+    },
+    {
+      "path": "/cpus/cpu@101",
+      "compatible": [
+        "arm,cortex-a55"
+      ],
+      "reg": [
+        {
+          "address": "0x500",
+          "size": "0x0"
+        }
+      ],
+      "enable_method": [
+        "psci"
+      ]
+    },
+    {
+      "path": "/cpus/cpu@102",
+      "compatible": [
+        "arm,cortex-a75"
+      ],
+      "reg": [
+        {
+          "address": "0x600",
+          "size": "0x0"
+        }
+      ],
+      "enable_method": [
+        "psci"
+      ]
+    },
+    {
+      "path": "/cpus/cpu@103",
+      "compatible": [
+        "arm,cortex-a75"
+      ],
+      "reg": [
+        {
+          "address": "0x700",
+          "size": "0x0"
+        }
+      ],
+      "enable_method": [
+        "psci"
+      ]
+    }
+  ],
+  "interrupt_controller_and_timer": [
+    {
+      "path": "/timer",
+      "compatible": [
+        "arm,armv8-timer"
+      ],
+      "reg": [],
+      "interrupt_cells": [
+        1,
+        13,
+        65288,
+        1,
+        14,
+        65288,
+        1,
+        11,
+        65288,
+        1,
+        10,
+        65288
+      ]
+    },
+    {
+      "path": "/soc/interrupt-controller@0c000000",
+      "compatible": [
+        "arm,gic-v3"
+      ],
+      "reg": [
+        {
+          "address": "0xc000000",
+          "size": "0x40000"
+        },
+        {
+          "address": "0xc040000",
+          "size": "0x200000"
+        },
+        {
+          "address": "0xc53a650",
+          "size": "0x50"
+        }
+      ],
+      "interrupt_cells": [
+        1,
+        9,
+        4
+      ]
+    }
+  ],
+  "psci": [
+    {
+      "path": "/psci",
+      "compatible": [
+        "arm,psci-1.0"
+      ],
+      "method": [
+        "smc"
+      ]
+    }
+  ],
+  "native_composition": {
+    "get_time_and_set_time_return_unsupported": true,
+    "evidence_files": [
+      "OppoReno5LitePkg/OppoNative.dsc",
+      "OppoReno5LitePkg/OppoNative.fdf",
+      "OppoReno5LitePkg/Drivers/OppoRuntimeDxe/OppoRuntimeDxe.c"
+    ],
+    "acpi_table_provider_included": false,
+    "smbios_table_provider_included": false
+  },
+  "phone_operations_performed": false,
+  "acpi_or_smbios_implementation_started": false,
+  "physical_missing_service_causing_this_error_identified": false
+}

@@ -32,6 +32,10 @@ La foto, los límites de la medición y la restauración del recovery están en
 [el benchmark físico](docs/MICROSD.md#lectura-sd-de-cuatro-bits-24-verificada-en-el-teléfono).
 El [intento combinado 25](docs/MICROSD.md#combinación-de-lectura-rápida-y-ram-adicional-25-nuevo-error-de-windows)
 documenta el nuevo error y el regreso a Android con recovery original restaurado.
+El [intento 26 con contadores](docs/MICROSD.md#reset-de-sd-y-contadores-del-cargador-26-resultado-físico)
+mantiene `0xc0000225`: contabiliza 540 MiB de lecturas correctas, sin errores
+de Block I/O ni resets registrados durante el cargador. Ese total incluye
+posibles relecturas y no prueba la integridad del WIM completo.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró

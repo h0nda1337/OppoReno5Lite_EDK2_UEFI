@@ -784,7 +784,7 @@ las API de lectura del host no aceptaron la copia del hive. No se cambió el
 BCD de la tarjeta ni se concluye que ese rechazo del host sea el fallo del
 teléfono. Véase [la inspección filtrada](../evidence/sd-winpe-media-inspection-25.json).
 
-### Reset de SD y contadores del cargador (26): preparación en PC
+### Reset de SD y contadores del cargador (26): resultado físico
 
 La revisión encontró que el controlador incrementaba `MediaId` en cada
 `Reset`, incluso sin sustituir la tarjeta. Un cliente que conserve el ID
@@ -815,13 +815,37 @@ de diagnóstico. La captura final sigue normalizando opacidad y esperando
 Los modelos de logger SEC y núcleo, once casos del panel con páginas protegidas,
 el alcance de los contadores y su saturación pasan con ASan/UBSan. La variante
 ARM64 compiló en 24,211 segundos, con los controles SD/boot/RAM comprobados y
-plazo de 1800 segundos validado en el ejecutable empaquetado. Su ejecución
-física sigue pendiente; véase [la composición 26](../evidence/native-sd-reset-trace-lab-26-host-validation.json).
+plazo de 1800 segundos validado en el ejecutable empaquetado; véase
+[la composición 26](../evidence/native-sd-reset-trace-lab-26-host-validation.json).
 La sesión ya se escribió únicamente en recovery y solicitó entrada directa,
-sin Android intermedio, con batería al 100 %. El propietario comunica pantalla
-negra y deja el intento en curso hasta poder fotografiar un cambio. Todavía
-no hay contadores ni error nuevo capturados; el recovery original no se ha
-restaurado después de este intento en curso.
+sin Android intermedio, con batería al 100 %. Después de la pantalla negra,
+las fotos muestran otra vez Recovery de Windows con **0xc0000225**.
+
+![Contadores SD del intento 26](images/native-sd-reset-trace-lab-26-reset.jpg)
+
+El panel confirma `SD READ=540M`, `ERR=0`, `SD RESET=0`, `FAIL=0` y `CHANGE=0`,
+además de mapa correcto, 2100 MiB libres antes del cargador y petición de apagado
+desde la etapa 3. No se registró reset de Block I/O durante el hijo activo,
+por lo que la corrección del ID no se ejercitó en esta ventana. Los 540 MiB
+redondeados son solicitudes correctas acumuladas, con metadatos y posibles
+relecturas: no prueban lectura única, integridad o descompresión del WIM completo.
+No se registró error de Block I/O que explique el error de Windows.
+
+La [foto del error](images/native-sd-reset-trace-lab-26-error.jpg) sigue sin
+mostrar un archivo o servicio concreto que falte. WinPE y su kernel permanecen
+sin arranque verificado. El propietario reconectó USB e indicó que Android
+estaba iniciando; no se afirma retorno automático. El observador detectó Android
+a los 2146,333 segundos, con motivo `usb`: incluye el intervalo desconectado y
+no mide la ejecución del temporizador nativo. Se restauró el recovery original
+y se verificó Android con batería al 99 %.
+Véanse [el resultado físico](../evidence/native-sd-reset-trace-lab-26-validation.json)
+y [la revisión de las fotos](../evidence/native-sd-reset-trace-lab-26-photos.json).
+
+La siguiente revisión se centra en las tablas y servicios de plataforma que
+faltan en la composición nativa. La [inspección filtrada de prerrequisitos](../evidence/acpi-platform-prerequisites-26.json)
+reúne CPU, GICv3, temporizador y PSCI del FDT capturado como base para código
+propio. Es inspección de PC: no instala ACPI/SMBIOS, no prueba el hardware de
+esas tablas ni atribuye todavía el `0xc0000225` a su ausencia.
 
 ### Inspección y ruta de carga EFI
 

@@ -99,12 +99,16 @@
   "trace_successful_bytes_include_rereads": true,
   "trace_does_not_identify_missing_files": true,
   "physical_launch_requested": true,
-  "physical_observation_pending": true,
+  "physical_observation_pending": false,
   "reset_defect_proven_cause_of_windows_error": false,
   "windows_pe_boot_verified": false,
-  "stock_recovery_restored_after_this_attempt": false,
+  "stock_recovery_restored_after_this_attempt": true,
   "battery_before_test_percent": 100.0,
   "direct_recovery_request_confirmed": true,
   "android_intermediate_boot": false,
-  "owner_screen_report": "Black screen; owner will send a photo when it changes and requested pausing the chat turn"
+  "owner_screen_report": "Photographs show same Windows Recovery error with SD READ=540M,ERR=0,RESET=0,FAIL=0,CHANGE=0",
+  "physical_child_scoped_sd_trace_verified": true,
+  "windows_error_code": "0xc0000225",
+  "physical_evidence": "evidence/native-sd-reset-trace-lab-26-validation.json",
+  "battery_after_restoration_percent": 99.0
 }

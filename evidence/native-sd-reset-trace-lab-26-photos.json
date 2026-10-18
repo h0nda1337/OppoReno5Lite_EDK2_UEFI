@@ -1,0 +1,31 @@
+{
+  "photos": [
+    {
+      "public_path": "docs/images/native-sd-reset-trace-lab-26-reset.jpg",
+      "bytes": 2088478,
+      "sha256": "15abb661540fad4793897b4ffcdc6f6dccd9d374f4418d5727de5d772db05a7a",
+      "orientation": 6,
+      "icc_segments_preserved": 1,
+      "compressed_pixel_scans_preserved": true,
+      "compressed_scan_sha256": "3aa760f6a3582de40de6108f29068ed9dca254390c33feea403b5ecb0fcbc813",
+      "retained_exif_tags": [
+        "Orientation"
+      ],
+      "owner_requested_documentation": true
+    },
+    {
+      "public_path": "docs/images/native-sd-reset-trace-lab-26-error.jpg",
+      "bytes": 2806252,
+      "sha256": "7d120b6626112e52fe6c341567f1f91f66e7d4c3793e9bf01eec28f1d95aac9e",
+      "orientation": 6,
+      "icc_segments_preserved": 1,
+      "compressed_pixel_scans_preserved": true,
+      "compressed_scan_sha256": "4ec514eeb49787236ccbc8aaeaf24fa7495d42582865b803db773a9d07e6b4e2",
+      "retained_exif_tags": [
+        "Orientation"
+      ],
+      "owner_requested_documentation": true
+    }
+  ],
+  "visual_review": "Owner photos show Windows Recovery error0xc0000225 and reset report with2100MiB pre-start memory,540MiB successful SD-read total,zero first read error and zero reset/fail/change counters. No personal identifiers visible."
+}
