@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-read-only-11",
+  "candidate_sha256": "209ace09ff09b25316abe7389a0c0865aa91f30e4dfffdb0e6a095bc1c686887",
+  "native_fd_sha256": "e6e540dacae3594c7e5d82a419b4deabc5630dffcb851e62815cf2fd9bb3a985",
+  "host_evidence": "evidence/native-sd-read-lab-11-host-validation.json",
+  "photos": [
+    "docs/images/native-sd-read-lab-11.jpg"
+  ],
+  "observation_source": "Owner photograph of fourth microSD attempt",
+  "screen": {
+    "profile": "Success",
+    "board": "Success",
+    "initialize": "CRC Error",
+    "publish": "Not Started",
+    "sectors": 0,
+    "last_command": 8,
+    "interrupt": "0x00000400",
+    "cmd8_first_status": "CRC Error",
+    "cmd8_attempts": 2,
+    "ies_before": "0x01ffffff",
+    "ies_after": "0x01ffffff",
+    "smt_before": "0x0000069f",
+    "smt_after": "0x000006bf",
+    "pull_direction": "0x00000b41",
+    "pull_r0": "0x00000480",
+    "pull_r1": "0x0000003f",
+    "pad_restore_status": "Not Started"
+  },
+  "interpretation": {
+    "sd_initialization_attempted": true,
+    "sd_sector_read_verified": false,
+    "windows_boot_manager_started": false,
+    "pad_readback_passed": true,
+    "correct_rm_bank_used": true,
+    "sd_electrical_fault_cause_proven": false,
+    "next_action": "Investigate bounded I2C5 regulator register reads without changing voltage or enables"
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 200.23,
+    "bootreason": "reboot"
+  },
+  "return_mechanism_and_native_timer_interval_verified": false,
+  "stock_recovery_restored": true,
+  "stock_recovery_sha256": "ac989e3009148792101a764a82fca8ca6212ec0afdd84e13d3b85e87364903b1",
+  "android_boot_completed_after_restoration": true,
+  "battery_before_test_percent": 100.0,
+  "battery_after_restoration_percent": 99.0,
+  "minimum_battery_percent": 20,
+  "only_recovery_written": true,
+  "card_write_commands_implemented": false,
+  "other_partitions_written": false,
+  "lock_or_unlock_commands_sent": false,
+  "source_revision": "6af18f1c2121471e24d7e39089c33e4d70286716"
+}

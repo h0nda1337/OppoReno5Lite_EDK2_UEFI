@@ -154,7 +154,7 @@ Las referencias primarias son el
 [mapeo de recursos de MSDC](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/mmc/host/mediatek/ComboA/mt6779/msdc_cust.c)
 y la [tabla pinctrl MT6779](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/pinctrl/mediatek/pinctrl-mt6779.c).
 
-## Corrección de banco (11): comprobada en PC
+## Cuarto intento físico (11): banco RM correcto, CMD8 todavía con CRC
 
 `OppoSdProfileMatches` comprueba el rol compatible, rango y alias de `iocfg_rm`
 en el FDT antes de mapear **`0x11c20000`** como MMIO. El HOB distingue esta
@@ -172,8 +172,31 @@ El validador aceptó el FDT privado capturado del OPPO. Las pruebas con el lecto
 FDT real rechazaron el rol equivocado aunque el rango existiera, el alias LB,
 otro controlador, eMMC, otra anchura y estados inválidos. La simulación de
 Block I/O cubre tanto restauración correcta como rechazada. La variante ARM64
-compiló; la ejecución física de esta corrección todavía está pendiente.
+compiló y se ejecutó en el OPPO.
 Véase [la validación de PC](../evidence/native-sd-read-lab-11-host-validation.json).
+
+![Readback del banco RM correcto y CRC persistente en CMD8](images/native-sd-read-lab-11.jpg)
+
+```text
+SD PROFILE=SUCCESS BOARD=SUCCESS INIT=CRC ERROR PUBLISH=NOT STARTED
+SD SECTORS=0 LAST CMD=8 INT=00000400
+SD CMD8 FIRST=CRC ERROR ATTEMPTS=2
+SD IES BEFORE=01FFFFFF AFTER=01FFFFFF SMT BEFORE=0000069F AFTER=000006BF
+SD PULLS PUPD=00000B41 R0=00000480 R1=0000003F
+SD PAD ROLLBACK=NOT STARTED
+```
+
+El readback de RM pasó; las entradas ya estaban habilitadas y los bits Schmitt
+quedaron activados. No fue necesario restaurar los pads porque esa comprobación
+no falló. Aun así, los dos flancos de respuesta dieron CRC y no se publicaron
+sectores ni filesystem. Esta foto no demuestra que la tarjeta tenga alimentación.
+Se investigará el acceso I²C5 al regulador externo mediante una consulta de sus
+registros antes de plantear cambios de voltaje o habilitación.
+
+Android volvió a estar completo unos 200 segundos después del informe de entrada,
+intervalo que incluye el arranque y el sondeo USB. Se restauró el recovery
+original y se verificó Android con batería al 99 %. La prueba comenzó al 100 %.
+Véase [la evidencia física filtrada](../evidence/native-sd-read-lab-11-validation.json).
 
 ## Aplicación EFI de la tarjeta
 

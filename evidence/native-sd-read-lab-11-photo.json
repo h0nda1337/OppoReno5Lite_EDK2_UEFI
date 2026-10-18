@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-sd-read-lab-11.jpg",
+  "bytes": 2542960,
+  "sha256": "d8779f93fb7dc3edc450f3092af21729630529a8c804d9361fa7c543d5a2fe3d",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "e2c574ad093e1a04687eed7280bb08c11a3646f6d23497005e11396974d7ea18",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of fourth microSD attempt: correct IOCFG_RM pad setup passes readback; CMD8 still reports response CRC error with both tested edges, zero sectors, no published Block I/O and no Windows execution"
+}
