@@ -17,6 +17,7 @@ int main(int Argc, char **Argv)
   UINT8 *Original=Load(Argv[1],&Bytes),*Changed=malloc(Bytes);assert(Changed);
   assert(OppoFdtOpen(Original,Bytes,&V) && OppoSdProfileMatches(&V));
   assert(!OppoSdProfileMatches(NULL));
+  assert(OppoSdPowerProfileMatches(&V) && !OppoSdPowerProfileMatches(NULL));
   for(UINTN Case=0;Case<7;Case++) {
     CONST VOID *Value;UINT32 Length;
     memcpy(Changed,Original,Bytes);assert(OppoFdtOpen(Changed,Bytes,&V));
@@ -34,12 +35,25 @@ int main(int Argc, char **Argv)
     if(Case==6)P[5]=0x23; // MSDC0 base instead of MSDC1.
     assert(!OppoSdProfileMatches(&V));
   }
+  for(UINTN Case=0;Case<9;Case++) {
+    CONST VOID *Value;UINT32 Length;
+    memcpy(Changed,Original,Bytes);assert(OppoFdtOpen(Changed,Bytes,&V));
+    CONST CHAR8 *Path=Case<3 ? "/soc/i2c_common" : Case<7 ? "/soc/i2c5@11016000" :
+      Case==7 ? "/soc/i2c5@11016000/subpmic_ldo@64" : "/soc/msdc@11240000";
+    CONST CHAR8 *Key=Case==0 ? "ver" : Case==1 ? "set_dt_div" : Case==2 ? "set_ltiming" :
+      Case==3 ? "reg" : Case==4 ? "id" : Case==5 ? "clock-div" : Case==6 ? "sda-gpio-id" :
+      Case==7 ? "compatible" : "vmmc-supply";
+    assert(OppoFdtProperty(&V,Path,Key,&Value,&Length)==EFI_SUCCESS && Length);
+    ((UINT8 *)Value)[Case==3 ? 5 : Length-1]^=1;
+    assert(OppoSdProfileMatches(&V) && !OppoSdPowerProfileMatches(&V));
+  }
   free(Changed);free(Original);
   if(Argc==3) {
     Original=Load(Argv[2],&Bytes);
-    assert(OppoFdtOpen(Original,Bytes,&V) && OppoSdProfileMatches(&V));free(Original);
+    assert(OppoFdtOpen(Original,Bytes,&V) && OppoSdProfileMatches(&V) && OppoSdPowerProfileMatches(&V));free(Original);
     puts("Saved CPH2205 runtime FDT accepted by named-role SD profile; no MMIO or phone operation.");
   }
   puts("SD profile: wrong named bank, pinctrl alias, eMMC, width, status and controller rejected with host sanitizers.");
+  puts("SD power profile: real I2C V2 role, PIO/divider contract and supply links accepted; 9 mutations rejected without MMIO.");
   return 0;
 }

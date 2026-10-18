@@ -18,6 +18,7 @@
   OppoHandoffLib|Include/Library/OppoHandoffLib.h
   OppoMemoryPlanLib|Include/Library/OppoMemoryPlanLib.h
   OppoMsdcLib|Include/Library/OppoMsdcLib.h
+  OppoSdPowerLib|Include/Library/OppoSdPowerLib.h
 
 [Guids]
   gOppoNativeTokenSpaceGuid = { 0x67af720e, 0x9d56, 0x4c54, {0xa6, 0x9f, 0x41, 0x58, 0x5e, 0x4c, 0x87, 0xe7} }

@@ -15,6 +15,18 @@ STATIC struct {EFI_HOB_GUID_TYPE Header; OPPO_BOOT_INFO Info;} mHob;
 STATIC UINTN mScenario, mReads, mWrites, mCardInits, mCardReads, mInstalls, mTpl;
 STATIC CONST UINT32 Gates = (1U << 4) | (1U << 16);
 STATIC UINT32 mIes, mSmt, mPupd, mR0, mR1;
+STATIC UINT32 mPowerQueries, mI2cGate;
+UINT8 EFIAPI MmioRead8 (UINTN A) {(VOID)A;assert(!"I2C without power profile");return 0;}
+UINT16 EFIAPI MmioRead16 (UINTN A) {(VOID)A;assert(!"I2C without power profile");return 0;}
+UINT8 EFIAPI MmioWrite8 (UINTN A,UINT8 V) {(VOID)A;(VOID)V;assert(!"I2C without power profile");return 0;}
+UINT16 EFIAPI MmioWrite16 (UINTN A,UINT16 V) {(VOID)A;(VOID)V;assert(!"I2C without power profile");return 0;}
+EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *Power)
+{
+  assert(mScenario>=14 && Io->Read==I2cRead && Io->Write==I2cWrite);
+  mPowerQueries++;Power->Status=EFI_SUCCESS;
+  Power->Restore=mScenario==18 ? EFI_DEVICE_ERROR : EFI_SUCCESS;
+  Power->Valid=0x7f;return EFI_SUCCESS;
+}
 
 VOID *EFIAPI GetFirstGuidHob (CONST EFI_GUID *Guid)
 { assert(Guid == &gOppoBootInfoHobGuid); return mScenario == 1 ? NULL : &mHob; }
@@ -26,6 +38,9 @@ UINT32 EFIAPI MmioRead32 (UINTN Address)
     case 0x10005400: return mScenario == 3 ? 0 : 0x11000000;
     case 0x10005410: return 0x1111;
     case 0x10005310: return 0x11111100;
+    case 0x10005330: return mScenario==15 ? 0 : 0x00110000;
+    case 0x100000b0: return mScenario==16 ? 0x80 : 2;
+    case 0x100010ac: return mI2cGate;
     case 0x10000080: return mScenario == 5 ? 0x80 : 0;
     case 0x10001094: return mScenario == 6 ? Gates : 0;
     case 0x11240000: return 0x18b;
@@ -44,6 +59,8 @@ UINT32 EFIAPI MmioWrite32 (UINTN Address, UINT32 Value)
 {
   mWrites++;
   switch (Address) {
+    case 0x100010a8: assert(mScenario>=14 && Value==(1U<<18));if(mScenario!=17)mI2cGate=0;return Value;
+    case 0x100010a4: assert(mScenario>=14 && Value==(1U<<18));if(mScenario!=19)mI2cGate=Value;return Value;
     case 0x11c20030: assert(Value==0x800000fcU || ((mScenario==10 || mScenario==13) && Value==0x80000000U));if(mScenario!=10 && mScenario!=13)mIes=Value;return Value;
     case 0x11c200c0: assert(Value==0x8000001dU || ((mScenario==10 || mScenario==13) && Value==0x80000001U));if(!(mScenario==13 && Value==0x80000001U))mSmt=Value;return Value;
     case 0x11c20060: assert(Value==0xdeadffc1U || ((mScenario==10 || mScenario==13) && Value==0xdeadffffU));mPupd=Value;return Value;
@@ -92,7 +109,7 @@ int main(void)
 {
   mBoot.InstallMultipleProtocolInterfaces=Install;
   mBoot.RaiseTPL=Raise; mBoot.RestoreTPL=Restore;
-  for (mScenario=0;mScenario<14;mScenario++) {
+  for (mScenario=0;mScenario<21;mScenario++) {
     memset(&mCard,0,sizeof(mCard)); memset(&mStatus,0,sizeof(mStatus));
     memset(&mMedia,0,sizeof(mMedia)); memset(&mHob,0,sizeof(mHob));
     mHob.Header.Header.HobLength=sizeof(mHob);
@@ -100,13 +117,15 @@ int main(void)
     mHob.Info.Revision=OPPO_BOOT_INFO_REVISION;
     mHob.Info.Flags=mScenario==2 ? 0 : mScenario==11 ? OPPO_BOOT_SD_PROFILE_VALIDATED : mScenario==12 ? OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED :
       OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED;
+    if(mScenario>=14 && mScenario<20) mHob.Info.Flags|=OPPO_BOOT_SD_POWER_PROFILE_VALIDATED;
     mIes=0x80000000U;mSmt=0x80000001U;mPupd=0xdeadffffU;mR0=0xcafe00ffU;mR1=0x2300U;
     mReads=mWrites=mCardInits=mCardReads=mInstalls=mTpl=0;
+    mPowerQueries=0;mI2cGate=1U<<18;
     assert(OppoSdEntry(NULL,NULL)==EFI_SUCCESS);
     if (mScenario==1 || mScenario==2 || mScenario==11 || mScenario==12) assert(mReads==0 && mWrites==0 && mCardInits==0);
     else if (mScenario==3) assert(mWrites==0 && mCardInits==0 && mStatus.Board==EFI_NOT_READY);
     else if (mScenario==4) assert(mWrites==0 && mCardInits==0 && mStatus.Board==EFI_UNSUPPORTED);
-    else if (mScenario==5 || mScenario==6 || mScenario==10 || mScenario==13) assert(mCardInits==0 && mStatus.Board==EFI_DEVICE_ERROR);
+    else if (mScenario==5 || mScenario==6 || mScenario==10 || mScenario==13 || mScenario==18 || mScenario==19) assert(mCardInits==0 && mStatus.Board==EFI_DEVICE_ERROR);
     else if (mScenario==7) assert(mInstalls==1 && mStatus.Initialize==EFI_TIMEOUT);
     else {
       UINT8 Buffer[513];
@@ -127,6 +146,11 @@ int main(void)
     if (mCardInits==0) assert(mStatus.Cmd8FirstStatus==EFI_NOT_STARTED);
     if (mScenario==10) assert(mStatus.PadRestoreStatus==EFI_SUCCESS && mSmt==0x80000001U && mPupd==0xdeadffffU && mR0==0xcafe00ffU && mR1==0x2300U);
     if (mScenario==13) assert(mStatus.PadRestoreStatus==EFI_DEVICE_ERROR);
+    if(mScenario==14 || mScenario==18 || mScenario==19) assert(mPowerQueries==1);
+    else assert(mPowerQueries==0);
+    if(mScenario==14 || mScenario==18) assert(mI2cGate==(1U<<18));
+    if(mScenario==15 || mScenario==16) assert(mStatus.Power.Status==EFI_UNSUPPORTED);
+    if(mScenario==17) assert(mStatus.Power.Status==EFI_DEVICE_ERROR && mI2cGate==(1U<<18));
   }
   puts("SD binding: missing/untrusted HOB and mux rejection, clock readback faults, read-only/media API and recovery passed synthetic host tests; physical board untested.");
   return 0;

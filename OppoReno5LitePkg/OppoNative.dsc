@@ -87,6 +87,7 @@
   OppoFrameBufferLib|OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.inf
   OppoMemoryPlanLib|OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.inf
   OppoMsdcLib|OppoReno5LitePkg/Library/OppoMsdcLib/OppoMsdcLib.inf
+  OppoSdPowerLib|OppoReno5LitePkg/Library/OppoSdPowerLib/OppoSdPowerLib.inf
 
 [LibraryClasses.common.SEC]
   DebugLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoDebugLib.inf

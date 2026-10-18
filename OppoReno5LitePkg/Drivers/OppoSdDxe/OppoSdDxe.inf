@@ -17,6 +17,7 @@
   IoLib
   TimerLib
   OppoMsdcLib
+  OppoSdPowerLib
 [Guids]
   gOppoBootInfoHobGuid
   gOppoSdDeviceGuid

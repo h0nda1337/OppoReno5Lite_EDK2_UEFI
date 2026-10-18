@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: BSD-2-Clause
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoSdPowerLib
+  FILE_GUID = af348f82-130a-4253-9b24-4654fd8852dc
+  MODULE_TYPE = BASE
+  LIBRARY_CLASS = OppoSdPowerLib
+[Sources]
+  OppoSdPowerLib.c
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec

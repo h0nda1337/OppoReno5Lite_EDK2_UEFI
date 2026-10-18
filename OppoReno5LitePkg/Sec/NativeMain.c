@@ -33,6 +33,7 @@ typedef struct {
   OPPO_EARLY_MEMORY_PLAN Plan;
   UINT32 PsciVersion;
   BOOLEAN SdProfile;
+  BOOLEAN SdPowerProfile;
 } BOOT_STATE;
 
 STATIC BOOLEAN mResetReady;
@@ -113,7 +114,7 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   EFI_RESOURCE_ATTRIBUTE_TYPE Attributes = EFI_RESOURCE_ATTRIBUTE_PRESENT |
     EFI_RESOURCE_ATTRIBUTE_INITIALIZED | EFI_RESOURCE_ATTRIBUTE_TESTED |
     EFI_RESOURCE_ATTRIBUTE_WRITE_BACK_CACHEABLE | EFI_RESOURCE_ATTRIBUTE_UNCACHEABLE;
-  ARM_MEMORY_REGION_DESCRIPTOR Map[ARRAY_SIZE (Plan->Protected) + 12];
+  ARM_MEMORY_REGION_DESCRIPTOR Map[ARRAY_SIZE (Plan->Protected) + 13];
   UINTN MapCount = 0, Index;
   EFI_STATUS Status;
   OPPO_BOOT_INFO Info;
@@ -152,6 +153,8 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
     MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){0x10001000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
     MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){0x10005000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
     MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){OPPO_NATIVE_SD_PAD_BASE, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+    if (State->SdPowerProfile)
+      MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){0x11016000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
   }
   if (State->Entry->ExceptionLevel == 2) {
     ArmWriteHcr ((1ULL << 31) | (1ULL << 27));
@@ -176,6 +179,7 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   Info.Flags = OPPO_BOOT_MEMORY_READY | OPPO_BOOT_EXPECTED_DISPLAY_PROFILE | OPPO_BOOT_WATCHDOG_STOPPED;
   if (State->SdProfile) Info.Flags |= OPPO_BOOT_SD_PROFILE_VALIDATED |
     OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED;
+  if (State->SdPowerProfile) Info.Flags |= OPPO_BOOT_SD_POWER_PROFILE_VALIDATED;
   if (BuildGuidDataHob (&gOppoBootInfoHobGuid, &Info, sizeof (Info)) == NULL) Stop ();
   Stage (2, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 255, 255, 0});
   LoadDxeCoreFromFv (NULL, 0);
@@ -212,9 +216,11 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   if ((State.PsciVersion & 0x80000000U) || State.PsciVersion < 2) Stop ();
   mResetReady = TRUE;
   State.SdProfile = FALSE;
+  State.SdPowerProfile = FALSE;
   // No storage MMIO is mapped unless this boot's FDT matches the board profile.
   if (FeaturePcdGet (PcdNativeSdReadLab)) {
     State.SdProfile = OppoSdProfileMatches (&View);
+    State.SdPowerProfile = State.SdProfile && OppoSdPowerProfileMatches (&View);
   }
   if (!RegisterMatches (&View, "/soc/toprgu@10007000", OPPO_NATIVE_WDT_BASE, 0x1000, 0) ||
       !RegisterMatches (&View, "/soc/interrupt-controller@0c000000", OPPO_NATIVE_GICD_BASE, 0x40000, 0) ||

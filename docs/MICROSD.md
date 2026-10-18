@@ -84,6 +84,7 @@ bash scripts/test_msdc.sh
 bash scripts/test_sd_binding.sh
 bash scripts/test_sd_read.sh
 bash scripts/test_sd_profile.sh
+bash scripts/test_sd_power.sh
 bash scripts/test_bds.sh
 ```
 
@@ -197,6 +198,42 @@ Android volvió a estar completo unos 200 segundos después del informe de entra
 intervalo que incluye el arranque y el sondeo USB. Se restauró el recovery
 original y se verificó Android con batería al 99 %. La prueba comenzó al 100 %.
 Véase [la evidencia física filtrada](../evidence/native-sd-read-lab-11-validation.json).
+
+## Consulta de alimentación (12): compilada, resultado físico pendiente
+
+La nueva biblioteca original `OppoSdPowerLib` consulta el chip y los registros
+VMC/VMCH. No contiene una operación de escritura de registros del regulador.
+Usa PIO con un byte de índice y un repeated start; las únicas direcciones son
+la PMU `0x34` para su identidad y LDO `0x64` para seis registros de estado.
+La identidad debe tener el prefijo esperado antes de consultar LDO; cada byte
+LDO se acepta únicamente con su CRC-8 válido. La máscara `valid` distingue los
+valores realmente leídos de los campos que siguen sin validar.
+
+El perfil FDT valida I²C5, su versión 2, FIFO de 8 bits, divisor 5, modo
+push-pull, GPIO28/29 y los enlaces de suministro de MSDC1 a LDO3/LDO5.
+SEC solo mapea la página de I²C5 cuando ese perfil coincide. El enlace comprueba
+el pinmux y el reloj compartido sin modificarlos; puede habilitar y restaurar
+exclusivamente la compuerta de I²C5. No toca DMA, otro bus ni el regulador principal.
+Conserva la fuente del reloj y utiliza divisores de transferencia lentos.
+
+La biblioteca rechaza un bus ocupado antes de escribir, limita las esperas y
+restaura la configuración previa del controlador. Si no logra detener una
+transferencia fallida o verificar la restauración, el diagnóstico marca el fallo.
+No se interpreta una consulta fallida como prueba de que los rieles estén apagados.
+
+Las pruebas de PC cubren diez escenarios de consulta, errores de CRC/NACK/timeout,
+identidad incorrecta, bus ocupado y restauración fallida; además, 21 escenarios
+del enlace de placa y nueve mutaciones nuevas del perfil de alimentación.
+El FDT real capturado pasó el validador. La compilación ARM64 terminó en unos
+12 segundos, con las fuentes sin cambiar durante el build. Esto no demuestra
+lectura I²C física; el intento 12 está esperando la observación de pantalla.
+
+Los contratos se investigaron en el
+[controlador I²C de OPPO](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/i2c/busses/i2c-mtk.c),
+su [mapa de registros](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/i2c/busses/i2c-mtk.h)
+y la [interfaz MT6360 LDO](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/misc/mediatek/pmic/mt6360/ldo/mt6360_ldo_i2c.c).
+Se usaron para investigar interfaces; no se incorporó su implementación.
+Véase [la validación de PC del intento 12](../evidence/native-sd-read-lab-12-host-validation.json).
 
 ## Aplicación EFI de la tarjeta
 

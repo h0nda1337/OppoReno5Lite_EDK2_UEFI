@@ -39,7 +39,7 @@ Véase
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
-| microSD y cargador ARM64 | Lector PIO propio y enlace de solo lectura compilados y probados con modelos de PC; lectura física y Windows Boot Manager pendientes |
+| microSD y cargador ARM64 | Diagnóstico físico llega a CMD8 con CRC; banco RM validado. Consulta I²C de alimentación compilada y probada en PC; lectura de sectores y Windows Boot Manager pendientes |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el

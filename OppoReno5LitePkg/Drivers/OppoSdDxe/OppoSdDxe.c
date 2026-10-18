@@ -33,6 +33,38 @@ STATIC VOID DelayUs (VOID *Context, UINT32 Us)
 { (VOID)Context; MicroSecondDelay (Us); }
 STATIC CONST OPPO_MSDC_IO mIo = {NULL, Read32, Write32, DelayUs};
 
+STATIC UINT32 I2cRead (VOID *Context, UINT32 Offset)
+{ (VOID)Context; return Offset == 0 ? MmioRead8 (0x11016000) : MmioRead16 (0x11016000 + Offset); }
+STATIC VOID I2cWrite (VOID *Context, UINT32 Offset, UINT32 Value)
+{
+  (VOID)Context;
+  if (Offset == 0) MmioWrite8 (0x11016000, (UINT8)Value);
+  else MmioWrite16 (0x11016000 + Offset, (UINT16)Value);
+}
+STATIC VOID InspectPower (VOID)
+{
+  STATIC CONST OPPO_I2C_IO Io = {NULL, I2cRead, I2cWrite, DelayUs};
+  OPPO_SD_POWER *P = &mStatus.Power;
+  P->ClockSelect = MmioRead32 (0x100000b0);
+  P->ClockGate = MmioRead32 (0x100010ac);
+  P->Pinmux = MmioRead32 (0x10005330); // GPIO28/29 -> SCL5/SDA5, function1.
+  // Retain the shared source/gate and all GPIO settings. Unknown selection,
+  // a gated shared root or unexpected pins stops before any I2C transaction.
+  if ((P->ClockSelect & 0x83U) > 2 || (P->Pinmux & 0x00ff0000U) != 0x00110000U) {
+    P->Status = EFI_UNSUPPORTED; return;
+  }
+  if (P->ClockGate & (1U << 18)) {
+    MmioWrite32 (0x100010a8, 1U << 18); // I2C5 only, no DMA/other bus gates.
+    MicroSecondDelay (100);
+    if (MmioRead32 (0x100010ac) & (1U << 18)) {P->Status = EFI_DEVICE_ERROR; return;}
+  }
+  OppoSdPowerInspect (&Io, P);
+  if (P->ClockGate & (1U << 18)) {
+    MmioWrite32 (0x100010a4, 1U << 18);
+    if (!(MmioRead32 (0x100010ac) & (1U << 18))) P->Restore = EFI_DEVICE_ERROR;
+  }
+}
+
 STATIC VOID RecordCard (VOID)
 {
   mStatus.LastCommand = mCard.LastCommand;
@@ -164,6 +196,9 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
   mStatus.Profile = EFI_UNSUPPORTED;
   mStatus.Board = mStatus.Initialize = mStatus.Publish = EFI_NOT_STARTED;
   mStatus.Cmd8FirstStatus = mStatus.PadRestoreStatus = EFI_NOT_STARTED;
+  mStatus.PowerProfile = EFI_UNSUPPORTED;
+  mStatus.Power.Status = mStatus.Power.Restore = EFI_NOT_STARTED;
+  mStatus.Power.LastAddress = mStatus.Power.LastRegister = MAX_UINT32;
   mStatus.LastCommand = MAX_UINT32;
   // Keep diagnostics alive even if no media is found. Returning an error after
   // this installation would unload the image and leave a dangling interface.
@@ -178,6 +213,11 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
   mStatus.Profile = EFI_SUCCESS;
   mStatus.Board = PrepareBoard ();
   if (EFI_ERROR (mStatus.Board)) return EFI_SUCCESS;
+  if (Info->Flags & OPPO_BOOT_SD_POWER_PROFILE_VALIDATED) {
+    mStatus.PowerProfile = EFI_SUCCESS;
+    InspectPower ();
+    if (mStatus.Power.Restore == EFI_DEVICE_ERROR) {mStatus.Board = EFI_DEVICE_ERROR; return EFI_SUCCESS;}
+  }
   mStatus.Initialize = OppoMsdcInitialize (&mCard, &mIo);
   RecordCard ();
   if (EFI_ERROR (mStatus.Initialize)) return EFI_SUCCESS;

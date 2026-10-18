@@ -61,3 +61,52 @@ BOOLEAN EFIAPI OppoSdProfileMatches (CONST OPPO_FDT_VIEW *V)
   return (Bytes == 5 && P[4] == 0 && Equals (P, 4, "okay")) ||
          (Bytes == 3 && P[2] == 0 && Equals (P, 2, "ok"));
 }
+
+STATIC BOOLEAN Scalar (CONST OPPO_FDT_VIEW *V, CONST CHAR8 *Path,
+                       CONST CHAR8 *Key, UINT32 Expected, UINT32 Width, BOOLEAN Optional)
+{
+  CONST VOID *Value; UINT32 Bytes, Number = 0;
+  EFI_STATUS Status = OppoFdtProperty (V, Path, Key, &Value, &Bytes);
+  if (Status == EFI_NOT_FOUND) return Optional;
+  if (Status != EFI_SUCCESS || Bytes != Width) return FALSE;
+  for (UINT32 I = 0; I < Bytes; I++) Number = (Number << 8) | ((CONST UINT8 *)Value)[I];
+  return Number == Expected;
+}
+STATIC BOOLEAN Supply (CONST OPPO_FDT_VIEW *V, CONST CHAR8 *Key, CONST CHAR8 *Ldo)
+{
+  CONST VOID *A, *B; UINT32 Na, Nb;
+  if (OppoFdtProperty (V, "/soc/msdc@11240000", Key, &A, &Na) != EFI_SUCCESS || Na != 4 ||
+      OppoFdtProperty (V, Ldo, "phandle", &B, &Nb) != EFI_SUCCESS || Nb != 4) return FALSE;
+  for (UINT32 I = 0; I < 4; I++) if (((CONST UINT8 *)A)[I] != ((CONST UINT8 *)B)[I]) return FALSE;
+  return ((CONST UINT8 *)A)[0] || ((CONST UINT8 *)A)[1] || ((CONST UINT8 *)A)[2] || ((CONST UINT8 *)A)[3];
+}
+BOOLEAN EFIAPI OppoSdPowerProfileMatches (CONST OPPO_FDT_VIEW *V)
+{
+  CONST CHAR8 *Bus = "/soc/i2c5@11016000";
+  CONST CHAR8 *Common = "/soc/i2c_common";
+  CONST CHAR8 *Ldo = "/soc/i2c5@11016000/subpmic_ldo@64";
+  CONST VOID *Value; UINT32 Bytes;
+  if (!OppoSdProfileMatches (V) ||
+      !Region (V, Bus, "mediatek,i2c", 0x11016000, 0x1000, 0) ||
+      !Compatible (V, Common, "mediatek,i2c_common") ||
+      !Compatible (V, Ldo, "mediatek,subpmic_ldo") ||
+      !Scalar (V, Bus, "id", 5, 4, FALSE) ||
+      !Scalar (V, Bus, "clock-div", 5, 4, FALSE) ||
+      !Scalar (V, Bus, "scl-gpio-id", 28, 4, FALSE) ||
+      !Scalar (V, Bus, "sda-gpio-id", 29, 4, FALSE) ||
+      !Scalar (V, Bus, "mediatek,use-push-pull", 0, 0, FALSE) ||
+      !Scalar (V, Common, "ver", 2, 1, FALSE) ||
+      !Scalar (V, Common, "set_dt_div", 1, 1, FALSE) ||
+      !Scalar (V, Common, "set_ltiming", 1, 1, FALSE) ||
+      !Scalar (V, Common, "cnt_constraint", 1, 1, FALSE) ||
+      !Scalar (V, Common, "fifo_support", 0, 1, TRUE) ||
+      !Scalar (V, Common, "control_irq_sel", 0, 1, TRUE) ||
+      !Scalar (V, Ldo, "reg", 0x64, 4, FALSE) ||
+      !Supply (V, "vmmc-supply", "/soc/i2c5@11016000/subpmic_ldo@64/ldo5") ||
+      !Supply (V, "vqmmc-supply", "/soc/i2c5@11016000/subpmic_ldo@64/ldo3")) return FALSE;
+  // An explicit disabled bus must not become a firmware diagnostic target.
+  EFI_STATUS Status = OppoFdtProperty (V, Bus, "status", &Value, &Bytes);
+  return Status == EFI_NOT_FOUND || (Status == EFI_SUCCESS &&
+    ((Bytes == 5 && ((CONST UINT8 *)Value)[4] == 0 && Equals (Value, 4, "okay")) ||
+     (Bytes == 3 && ((CONST UINT8 *)Value)[2] == 0 && Equals (Value, 2, "ok"))));
+}

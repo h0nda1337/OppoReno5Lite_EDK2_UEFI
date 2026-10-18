@@ -15,6 +15,7 @@ cat > .build/msdc/profile.dts <<'EOF'
     msdc@11240000 {
       compatible = "mediatek,msdc"; reg = <0 0x11240000 0 0x10000>;
       host_function = /bits/ 8 <1>; bus-width = <4>; status = "okay";
+      vmmc-supply = <&vmch>; vqmmc-supply = <&vmc>;
     };
     clock-controller@10000000 {
       compatible = "mediatek,mt6779-topckgen", "syscon";
@@ -31,6 +32,22 @@ cat > .build/msdc/profile.dts <<'EOF'
     iocfg_rm@11c20000 {
       compatible = "mediatek,iocfg_rm", "syscon";
       reg = <0 0x11c20000 0 0x1000>;
+    };
+    i2c_common {
+      compatible = "mediatek,i2c_common";
+      ver = /bits/ 8 <2>; set_dt_div = /bits/ 8 <1>;
+      set_ltiming = /bits/ 8 <1>; cnt_constraint = /bits/ 8 <1>;
+    };
+    i2c5@11016000 {
+      compatible = "mediatek,i2c"; reg = <0 0x11016000 0 0x1000>;
+      id = <5>; clock-div = <5>; scl-gpio-id = <28>; sda-gpio-id = <29>;
+      mediatek,use-push-pull;
+      #address-cells = <1>; #size-cells = <0>;
+      subpmic_ldo@64 {
+        compatible = "mediatek,subpmic_ldo"; reg = <0x64>;
+        vmc: ldo3 {regulator-name = "VMC";};
+        vmch: ldo5 {regulator-name = "VMCH";};
+      };
     };
   };
 };

@@ -2,6 +2,7 @@
 #ifndef OPPO_SD_STATUS_H
 #define OPPO_SD_STATUS_H
 #include <Uefi.h>
+#include <Library/OppoSdPowerLib.h>
 // Public diagnostics contain controller state, never card identifiers.
 typedef struct {
   EFI_STATUS Profile, Board, Initialize, Publish;
@@ -13,6 +14,8 @@ typedef struct {
   EFI_STATUS Cmd8FirstStatus;
   UINT32 IesBefore, IesAfter, SmtBefore, SmtAfter, PullDirection, PullR0, PullR1;
   EFI_STATUS PadRestoreStatus;
+  EFI_STATUS PowerProfile;
+  OPPO_SD_POWER Power;
 } OPPO_SD_STATUS;
 extern EFI_GUID gOppoSdStatusProtocolGuid;
 extern EFI_GUID gOppoSdDeviceGuid;

@@ -27,6 +27,10 @@ modelos de prueba son originales. Los registros se investigaron en fuentes
 públicas de OPPO; no se copiaron sus funciones. Las capas genéricas DiskIo,
 Partition y FAT pertenecen a la dependencia base EDK2, con sus licencias.
 
+La consulta PIO de I²C5 y CRC-8 de `OppoSdPowerLib`, su perfil FDT y sus pruebas
+también son originales. La referencia del fabricante solo se consultó para
+los contratos del bus y los registros LDO. No se importó su controlador Linux.
+
 La composición de `OppoNative.dsc` y `OppoNative.fdf` es original. Identifica
 explícitamente los módulos genéricos de la dependencia base EDK2: núcleos,
 primitivas ARM, GIC, temporizador, consola, HII, variables y Shell. Su revisión
