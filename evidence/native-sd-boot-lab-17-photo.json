@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-sd-boot-lab-17.jpg",
+  "bytes": 2790652,
+  "sha256": "92702cfd60bf5b1de3b632536b8b76cd2bfc65dd7394dc7b693e4734e296f37e",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "af63312e4e44925151c53bc4c70f41e6f210cd01eb884fb46281bef01a2fa6c7",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of SD EFI boot attempt 17: rail apply and ARM64 prefix succeed; normal LoadImage returns Access Denied and no StartImage attempt is reported"
+}

@@ -35,6 +35,8 @@
   gOppoSdStatusProtocolGuid
 [Guids]
   gOppoSdDeviceGuid
+  gEfiEndOfDxeEventGroupGuid
+  gEfiEventReadyToBootGuid
 [FeaturePcd]
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab

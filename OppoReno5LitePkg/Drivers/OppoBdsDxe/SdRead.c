@@ -4,6 +4,7 @@
 #include <Protocol/SimpleFileSystem.h>
 #include <Protocol/DevicePath.h>
 #include <Protocol/OppoSdStatus.h>
+#include <Guid/EventGroup.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/DebugLib.h>
 #include <Library/MemoryAllocationLib.h>
@@ -29,6 +30,21 @@ STATIC UINT32 Le (CONST UINT8 *P, UINTN Size)
   return Value;
 }
 
+STATIC VOID EFIAPI BootPhaseNotify (EFI_EVENT Event, VOID *Context)
+{ (VOID)Event; (VOID)Context; }
+
+STATIC EFI_STATUS SignalBootPhase (EFI_GUID *Group)
+{
+  EFI_EVENT Event;
+  EFI_STATUS Status, Cleanup;
+  Status = gBS->CreateEventEx (EVT_NOTIFY_SIGNAL, TPL_CALLBACK, BootPhaseNotify,
+                              NULL, Group, &Event);
+  if (EFI_ERROR (Status)) return Status;
+  Status = gBS->SignalEvent (Event);
+  Cleanup = gBS->CloseEvent (Event);
+  return EFI_ERROR (Status) ? Status : Cleanup;
+}
+
 STATIC VOID BootFromSd (EFI_HANDLE Parent, EFI_HANDLE Medium)
 {
   EFI_DEVICE_PATH_PROTOCOL *Path;
@@ -41,6 +57,16 @@ STATIC VOID BootFromSd (EFI_HANDLE Parent, EFI_HANDLE Medium)
   if (Path == NULL) {
     DEBUG ((DEBUG_ERROR, "SD EFI boot device path allocation failed\n")); return;
   }
+  // BDS has connected the firmware controllers. Complete the DXE phase before
+  // loading an external application; SecurityStub otherwise defers it. Keep
+  // LoadImage and all registered security handlers in the normal loading path.
+  Status = SignalBootPhase (&gEfiEndOfDxeEventGroupGuid);
+  DEBUG ((DEBUG_INFO, "SD EFI EndOfDxe: %r\n", Status));
+  if (!EFI_ERROR (Status)) {
+    Status = SignalBootPhase (&gEfiEventReadyToBootGuid);
+    DEBUG ((DEBUG_INFO, "SD EFI ReadyToBoot: %r\n", Status));
+  }
+  if (EFI_ERROR (Status)) {FreePool (Path); return;}
   // Let the firmware load from the SD filesystem so its security policy and
   // the loaded image's device/path identity remain effective. No memory blob.
   Status = gBS->LoadImage (FALSE, Parent, Path, NULL, 0, &Child);

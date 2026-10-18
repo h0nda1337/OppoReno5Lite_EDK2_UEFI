@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-efi-boot-18",
+  "stage": "owner_reported_brief_blue_boot_manager_screen_and_power_off",
+  "host_evidence": "evidence/native-sd-boot-lab-18-host-validation.json",
+  "source_base_revision": "b1a4ff2acc8459a48e8a7eb447bdc5c1f943be13",
+  "candidate_sha256": "30604b865fe40a77c2e889d215fd9a201985554462688d03ad119734f38b75e2",
+  "native_fd_sha256": "56d0f0a8ff6def413c1326e243c48b819ddcbc8846700ad58557bf86d9424261",
+  "observation_source": "Owner text report; no photograph or exact diagnostic status captured",
+  "photos": [],
+  "owner_report": {
+    "brief_blue_screen_identified_as_windows_boot_manager": true,
+    "brief_red_text": true,
+    "exact_error_or_status_captured": false,
+    "phone_powered_off": true,
+    "owner_pressed_power_button_to_boot_android": true
+  },
+  "efi_loadimage_status": null,
+  "efi_startimage_status": null,
+  "windows_boot_manager_execution_confirmed_by_capture": false,
+  "windows_boot_manager_execution_owner_reported": true,
+  "windows_pe_boot_verified": false,
+  "automatic_android_return_verified": false,
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 181.481,
+    "bootreason": "reboot"
+  },
+  "return_observation_limit": "Includes manual power-on; Android detection does not establish an automatic return or the native timer/reset mechanism",
+  "battery_before_test_percent": 98.0,
+  "stock_recovery_restored": false,
+  "stock_restoration_pending_owner_return": true,
+  "android_boot_completed_detected": true,
+  "next_action": "Restore stock when owner returns, then prepare visible diagnostics for runtime reset type/status before repeating the physical test"
+}

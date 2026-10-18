@@ -381,6 +381,59 @@ y la [interfaz MT6360 LDO](https://github.com/oppo-source/android_kernel_oppo_mt
 Se usaron para investigar interfaces; no se incorporó su implementación.
 Véase [la validación de PC del intento 12](../evidence/native-sd-read-lab-12-host-validation.json).
 
+## Primer intento de cargar la aplicación EFI (17)
+
+![La lectura funciona y LoadImage devuelve Access Denied](images/native-sd-boot-lab-17.jpg)
+
+Con los controles de alimentación y arranque activados, la tarjeta volvió a
+permitir acceso FAT y lectura del prefijo ARM64. La llamada normal a `LoadImage`
+devolvió `Access Denied`. BDS conservó ese error y no llamó a `StartImage`.
+Esta prueba no demuestra ejecución de Windows Boot Manager. El observador
+detectó Android completo unos 201 segundos después del informe de entrada,
+incluyendo LK, Android y sondeo USB. Se restauró el recovery original y se
+verificó Android con batería al 98 %, igual que al comienzo. La foto conserva
+los datos de imagen comprimidos y el perfil de color, sin metadatos personales.
+Véanse [la composición de PC](../evidence/native-sd-boot-lab-17-host-validation.json)
+y [la observación física](../evidence/native-sd-boot-lab-17-validation.json).
+
+La inspección de la revisión fijada de
+[SecurityStub de EDK2](https://github.com/tianocore/edk2/blob/b03a21a63e3bd001f52c527e5a57feddb53a690b/MdeModulePkg/Universal/SecurityStubDxe/Defer3rdPartyImageLoad.c)
+identificó un requisito que faltaba en nuestro BDS: las imágenes externas al
+firmware se aplazan con `EFI_ACCESS_DENIED` antes de señalar `EndOfDxe`. Nuestro
+código aún no señalaba ese evento. Esto identifica una causa en la composición;
+la corrección necesita otra ejecución física para comprobar su efecto.
+
+La variante 18 señala `EndOfDxe` y después `ReadyToBoot`, una vez
+conectados los controladores y antes de cargar la aplicación de la tarjeta.
+Comprueba creación, señalización y cierre de cada evento. Cualquier error
+detiene la carga y libera la ruta del archivo. `LoadImage` continúa por los
+servicios y manejadores de seguridad habituales; sus rechazos siguen impidiendo
+`StartImage`. Los 23 escenarios de PC comprueban esa secuencia, los seis fallos
+de eventos y los rechazos de seguridad, además de los casos anteriores.
+La prueba base de BDS mantiene sus 14 escenarios aprobados. La composición ARM64
+compiló en unos 27 segundos, con los controles de lectura, encendido y arranque
+activados y las fuentes sin cambios durante el build. Son modelos y compilación
+de PC, separados de la observación del propietario que sigue. Véase
+[la composición del intento 18](../evidence/native-sd-boot-lab-18-host-validation.json).
+
+## Pantalla azul breve y apagado comunicado por el propietario (18)
+
+El propietario informó que vio brevemente una pantalla azul que identificó como
+Windows Boot Manager y letras rojas que no pudo capturar. Después aclaró que el
+OPPO **se apagó y tuvo que encenderlo con el botón**. No se obtuvo una fotografía,
+código de error ni resultado legible de `LoadImage` o `StartImage`. Se registra
+como un indicio de ejecución del cargador comunicado por el propietario, sin
+convertirlo en una validación completa de Boot Manager, WinPE o el kernel.
+
+El observador ADB detectó Android completo unos 181 segundos después del informe
+de entrada. Ese intervalo incluye la intervención manual, LK, Android y sondeo
+USB; **no es un retorno automático ni prueba del temporizador de 90 segundos**.
+La restauración del recovery original quedó pendiente mientras el propietario
+consigue otro teléfono para fotografiar la siguiente prueba. La siguiente fase
+debe distinguir una solicitud runtime de apagado del reset del laboratorio y
+dar tiempo para leer el diagnóstico. Véase
+[la observación filtrada del intento 18](../evidence/native-sd-boot-lab-18-validation.json).
+
 ## Aplicación EFI de la tarjeta
 
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera
@@ -403,7 +456,8 @@ La ruta pasó 16 escenarios de PC, incluyendo otros discos excluidos, cabeceras
 inválidas, fallos de carga, rechazo de seguridad, falta de memoria para la ruta y
 retorno de la aplicación. Compiló para ARM64 en `sd-boot-lab` con ambos PCD
 activados, mientras el FD del intento físico 14 tiene el PCD de boot en falso.
-Esto es validación de PC; Windows Boot Manager sigue sin ejecutarse en el OPPO.
+Esto es validación de PC; el resultado posterior comunicado por el propietario
+en el intento 18 se documenta por separado arriba.
 Véase [la evidencia de compilación del cargador](../evidence/native-sd-boot-host-validation.json).
 La [especificación UEFI](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#image-services)
 define esas operaciones y la carga desde un filesystem. Los

@@ -26,7 +26,7 @@ no reemplaza la revisión del contenido.
 Las fotografías de la prueba MMU, de los cuatro primeros intentos integrados
 y las del sexto y séptimo intento solicitadas
 por el propietario, las dos del primer laboratorio microSD, las del segundo al séptimo
-y la primera lectura física de la tarjeta en el intento 16,
+y la primera lectura física de la tarjeta en el intento 16 y la carga rechazada del 17,
 están revisadas y fijadas por ruta, tamaño y SHA-256 en
 `check_publication.py`. Se retiraron los
 metadatos personales de cámara; se conservaron orientación y perfil de color,
@@ -39,7 +39,7 @@ a `docs/images/native-mmu-probe.jpg`, `docs/images/native-dxe-shell-lab-01.jpg`,
 `docs/images/native-sd-read-lab-09.jpg`, `docs/images/native-sd-read-lab-10.jpg`
 `docs/images/native-sd-read-lab-11.jpg`, `docs/images/native-sd-read-lab-12.jpg`,
 `docs/images/native-sd-read-lab-13.jpg`, `docs/images/native-sd-read-lab-14.jpg`
-y `docs/images/native-sd-power-lab-16.jpg`;
+`docs/images/native-sd-power-lab-16.jpg` y `docs/images/native-sd-boot-lab-17.jpg`;
 las demás imágenes y binarios siguen
 requiriendo revisión y no se aceptan automáticamente.
 

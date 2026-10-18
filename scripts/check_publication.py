@@ -49,6 +49,8 @@ REVIEWED_IMAGES = {
         (2751510, '83a88ee19b7c74c4dea9d2af5c9b03847b4d2a374e6f6940a094ea915314efef'),
     'docs/images/native-sd-power-lab-16.jpg':
         (2800058, 'ccd254bfddc00db6459ba582358b46f0be81d35161e20c86ef848895ea2a9fbd'),
+    'docs/images/native-sd-boot-lab-17.jpg':
+        (2790652, '92702cfd60bf5b1de3b632536b8b76cd2bfc65dd7394dc7b693e4734e296f37e'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),
