@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-sd-read-lab-10.jpg",
+  "bytes": 2505701,
+  "sha256": "84c87c338d7c15fa9676cf6e16589719a9ca169a3f6336e8a88ce75832c05b08",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "422c7ad5a3a1ea0c9356e4ce4b9c7d8f3537b4ab1a86040e4b805b32670f13ec",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of microSD attempt 10: board preparation rejected pad readback before SD initialization; subsequent inspection found an incorrect IOCFG bank association"
+}

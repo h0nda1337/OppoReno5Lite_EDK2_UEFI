@@ -148,6 +148,7 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
     MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x10000000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
     MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x10001000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
     MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x10005000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+    MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x11e70000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
   }
   if (State->Entry->ExceptionLevel == 2) {
     ArmWriteHcr ((1ULL << 31) | (1ULL << 27));
@@ -170,7 +171,7 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   Info.BlueShift = OPPO_NATIVE_FB_BLUE_SHIFT; Info.OpaqueAlpha = TRUE;
   Info.InitialSctlr = State->Entry->Sctlr; Info.PsciVersion = State->PsciVersion;
   Info.Flags = OPPO_BOOT_MEMORY_READY | OPPO_BOOT_EXPECTED_DISPLAY_PROFILE | OPPO_BOOT_WATCHDOG_STOPPED;
-  if (State->SdProfile) Info.Flags |= OPPO_BOOT_SD_PROFILE_VALIDATED;
+  if (State->SdProfile) Info.Flags |= OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED;
   if (BuildGuidDataHob (&gOppoBootInfoHobGuid, &Info, sizeof (Info)) == NULL) Stop ();
   Stage (2, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 255, 255, 0});
   LoadDxeCoreFromFv (NULL, 0);
@@ -213,6 +214,7 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
       RegisterMatches (&View, "/soc/clock-controller@10000000", 0x10000000, 0x1000, 0) &&
       RegisterMatches (&View, "/soc/clock-reset-controller@10001000", 0x10001000, 0x1000, 0) &&
       RegisterMatches (&View, "/soc/pinctrl@10005000", 0x10005000, 0x1000, 0) &&
+      RegisterMatches (&View, "/soc/pinctrl@10005000", 0x11e70000, 0x1000, 64) &&
       OppoFdtProperty (&View, "/soc/msdc@11240000", "host_function", &Value, &Bytes) == EFI_SUCCESS &&
       Bytes == 1 && *(CONST UINT8 *)Value == 1;
   }

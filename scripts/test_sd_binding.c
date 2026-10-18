@@ -14,6 +14,7 @@ EFI_BOOT_SERVICES *gBS = &mBoot;
 STATIC struct {EFI_HOB_GUID_TYPE Header; OPPO_BOOT_INFO Info;} mHob;
 STATIC UINTN mScenario, mReads, mWrites, mCardInits, mCardReads, mInstalls, mTpl;
 STATIC CONST UINT32 Gates = (1U << 4) | (1U << 16);
+STATIC UINT32 mIes, mSmt, mPupd, mR0, mR1;
 
 VOID *EFIAPI GetFirstGuidHob (CONST EFI_GUID *Guid)
 { assert(Guid == &gOppoBootInfoHobGuid); return mScenario == 1 ? NULL : &mHob; }
@@ -31,12 +32,24 @@ UINT32 EFIAPI MmioRead32 (UINTN Address)
     case 0x11240004: return 0;
     case 0x11240008: return 1U << 16;
     case 0x112400f0: return 0;
+    case 0x11e70030: return mIes;
+    case 0x11e700c0: return mSmt;
+    case 0x11e70060: return mPupd;
+    case 0x11e70080: return mR0;
+    case 0x11e70090: return mR1;
     default: assert(!"unapproved register read"); return 0;
   }
 }
 UINT32 EFIAPI MmioWrite32 (UINTN Address, UINT32 Value)
 {
   mWrites++;
+  switch (Address) {
+    case 0x11e70030: assert(Value==0x800000fcU);if(mScenario!=10)mIes=Value;return Value;
+    case 0x11e700c0: assert(Value==0x8000001dU);mSmt=Value;return Value;
+    case 0x11e70060: assert(Value==0xdeadffc1U);mPupd=Value;return Value;
+    case 0x11e70080: assert(Value==0xcafe00c0U);mR0=Value;return Value;
+    case 0x11e70090: assert(Value==0x233fU);mR1=Value;return Value;
+  }
   assert((Address == 0x10000088 && Value == 0x87) ||
          (Address == 0x10000004 && Value == 1U << 24) ||
          (Address == 0x1000108c && Value == Gates));
@@ -57,7 +70,7 @@ EFI_STATUS OppoMsdcRead (OPPO_MSDC *Card, UINT64 Lba, UINTN Blocks, VOID *Buffer
   if (mScenario == 9) {Card->Ready=FALSE; return EFI_CRC_ERROR;}
   return EFI_SUCCESS;
 }
-STATIC EFI_TPL EFIAPI Raise (EFI_TPL Tpl) {assert(Tpl==TPL_NOTIFY && mTpl==0);mTpl++;return TPL_APPLICATION;}
+STATIC EFI_TPL EFIAPI Raise (EFI_TPL Tpl) {assert(Tpl==TPL_CALLBACK && mTpl==0);mTpl++;return TPL_APPLICATION;}
 STATIC VOID EFIAPI Restore (EFI_TPL Tpl) {assert(Tpl==TPL_APPLICATION && mTpl==1);mTpl--;}
 STATIC EFI_STATUS EFIAPI Install (EFI_HANDLE *Handle, ...)
 {
@@ -79,23 +92,26 @@ int main(void)
 {
   mBoot.InstallMultipleProtocolInterfaces=Install;
   mBoot.RaiseTPL=Raise; mBoot.RestoreTPL=Restore;
-  for (mScenario=0;mScenario<10;mScenario++) {
+  for (mScenario=0;mScenario<12;mScenario++) {
     memset(&mCard,0,sizeof(mCard)); memset(&mStatus,0,sizeof(mStatus));
     memset(&mMedia,0,sizeof(mMedia)); memset(&mHob,0,sizeof(mHob));
     mHob.Header.Header.HobLength=sizeof(mHob);
     mHob.Info.Signature=OPPO_BOOT_INFO_SIGNATURE;
     mHob.Info.Revision=OPPO_BOOT_INFO_REVISION;
-    mHob.Info.Flags=mScenario==2 ? 0 : OPPO_BOOT_SD_PROFILE_VALIDATED;
+    mHob.Info.Flags=mScenario==2 ? 0 : mScenario==11 ? OPPO_BOOT_SD_PROFILE_VALIDATED :
+      OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED;
+    mIes=0x80000000U;mSmt=0x80000001U;mPupd=0xdeadffffU;mR0=0xcafe00ffU;mR1=0x2300U;
     mReads=mWrites=mCardInits=mCardReads=mInstalls=mTpl=0;
     assert(OppoSdEntry(NULL,NULL)==EFI_SUCCESS);
-    if (mScenario==1 || mScenario==2) assert(mReads==0 && mWrites==0 && mCardInits==0);
+    if (mScenario==1 || mScenario==2 || mScenario==11) assert(mReads==0 && mWrites==0 && mCardInits==0);
     else if (mScenario==3) assert(mWrites==0 && mCardInits==0 && mStatus.Board==EFI_NOT_READY);
-    else if (mScenario==5 || mScenario==6) assert(mCardInits==0 && mStatus.Board==EFI_DEVICE_ERROR);
+    else if (mScenario==4) assert(mWrites==0 && mCardInits==0 && mStatus.Board==EFI_UNSUPPORTED);
+    else if (mScenario==5 || mScenario==6 || mScenario==10) assert(mCardInits==0 && mStatus.Board==EFI_DEVICE_ERROR);
     else if (mScenario==7) assert(mInstalls==1 && mStatus.Initialize==EFI_TIMEOUT);
     else {
       UINT8 Buffer[513];
       assert(mCardInits==1 && mInstalls==2 && mMedia.ReadOnly && mMedia.RemovableMedia);
-      assert(mStatus.PadMode==(mScenario==4 ? 2U : 1U));
+      assert(mStatus.PadMode==1 && mStatus.IesBefore==0x80000000U && mStatus.IesAfter==0x800000fcU);
       assert(mMedia.IoAlign==1 && mMedia.LastBlock==8191);
       assert(WriteBlocks(&mBlock,1,0,512,Buffer)==EFI_WRITE_PROTECTED && mCardReads==0);
       assert(ReadBlocks(&mBlock,2,0,512,Buffer)==EFI_MEDIA_CHANGED);

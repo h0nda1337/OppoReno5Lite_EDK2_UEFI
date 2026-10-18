@@ -68,5 +68,6 @@
     "sd_file_discovery_host_sanitizers_passed": true
   },
   "crc_checks_disabled": false,
-  "card_write_commands_implemented": false
+  "card_write_commands_implemented": false,
+  "source_revision": "69efb45cbd2b2c79aec1be5fc5fc05d5e6d2af80"
 }

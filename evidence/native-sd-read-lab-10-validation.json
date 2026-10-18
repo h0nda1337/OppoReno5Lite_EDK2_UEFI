@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-read-only-10",
+  "candidate_sha256": "fab9424546856cf8f7a65fa615d9def8e13121ef8af3d8bafa2438269648df2e",
+  "native_fd_sha256": "8857546eb46c1033dbe7f5774a6fd641c6fa7e7796774f34f5290c4add561190",
+  "host_evidence": "evidence/native-sd-read-lab-10-host-validation.json",
+  "photos": [
+    "docs/images/native-sd-read-lab-10.jpg"
+  ],
+  "observation_source": "Owner photograph of third microSD attempt",
+  "screen": {
+    "profile": "Success",
+    "board": "Device Error",
+    "initialize": "Not Started",
+    "publish": "Not Started",
+    "pad_mode": 1,
+    "last_command_sentinel": 4294967295,
+    "cmd8_attempts": 0,
+    "misleading_uninitialized_cmd8_first_label": "Success",
+    "ies_before": "0x00003def",
+    "ies_after": "0x00003dff",
+    "smt_before": "0x00000000",
+    "smt_after": "0x00000000",
+    "pull_direction": "0x00000001",
+    "pull_r0": "0x00000000",
+    "pull_r1": "0x0000010f"
+  },
+  "interpretation": {
+    "sd_initialization_attempted": false,
+    "sd_sector_read_verified": false,
+    "windows_boot_manager_started": false,
+    "pad_readback_rejected": true,
+    "bank_used_in_candidate": "0x11e70000 (iocfg_lb)",
+    "correct_msdc1_bank_from_fdt_binding_and_pinctrl": "0x11c20000 (iocfg_rm)",
+    "incorrect_bank_association_identified": true,
+    "sd_electrical_fault_cause_proven": false,
+    "next_action": "Validate the named iocfg_rm binding and its range, use its pad bank, restore prior pad values on readback failure and show Not Started before CMD8 is attempted"
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 196.605,
+    "bootreason": "reboot"
+  },
+  "return_mechanism_and_native_timer_interval_verified": false,
+  "stock_recovery_restored": true,
+  "stock_recovery_sha256": "ac989e3009148792101a764a82fca8ca6212ec0afdd84e13d3b85e87364903b1",
+  "android_boot_completed_after_restoration": true,
+  "battery_before_test_percent": 97.0,
+  "battery_after_restoration_percent": 98.0,
+  "minimum_battery_percent": 20,
+  "only_recovery_written": true,
+  "card_write_commands_implemented": false,
+  "other_partitions_written": false,
+  "lock_or_unlock_commands_sent": false
+}

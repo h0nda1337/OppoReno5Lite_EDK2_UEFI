@@ -120,6 +120,39 @@ de los pads específicos, antes de alterar reguladores. No se leyeron sectores.
 La imagen conserva sus datos comprimidos; solo se retiraron metadatos personales.
 Véase [la evidencia de este intento](../evidence/native-sd-read-lab-09-validation.json).
 
+## Tercer intento físico (10): asociación de banco incorrecta
+
+![Comprobación de pads detiene el diagnóstico](images/native-sd-read-lab-10.jpg)
+
+```text
+SD PROFILE=SUCCESS BOARD=DEVICE ERROR INIT=NOT STARTED PUBLISH=NOT STARTED
+SD IES BEFORE=00003DEF AFTER=00003DFF SMT BEFORE=00000000 AFTER=00000000
+SD PULLS PUPD=00000001 R0=00000000 R1=0000010F
+```
+
+La comprobación de lectura posterior a la escritura detuvo la preparación antes
+de inicializar MSDC. `LAST CMD=4294967295` es el centinela de no iniciado, no un
+comando enviado. El `CMD8 FIRST=SUCCESS` con cero intentos era un valor inicial
+engañoso del diagnóstico; no hubo una respuesta CMD8 correcta.
+
+La implementación de este intento tomó `0x11e70000` de un comentario del header
+de referencia. Fue un error: el código del fabricante resuelve MSDC1 mediante
+`mediatek,iocfg_rm`, y el árbol activo lo sitúa en **`0x11c20000`**. El banco
+`0x11e70000` corresponde a `iocfg_lb`. Que una dirección exista en `reg` no prueba
+su asociación con el periférico. La tabla de pinctrl de MT6779 ubica GPIO
+134–139 en banco 1, consistente con `iocfg_rm` y sus máscaras IES/SMT/pulls.
+
+Se conservará este resultado como evidencia histórica. La corrección debe
+comprobar nombre compatible y rango en el FDT, usar el banco RM y restaurar los
+valores originales si falla el readback. Este intento no valida alimentación,
+enumeración SD, lectura de sectores ni Windows. Los modelos de PC no detectaban
+la asociación equivocada porque simulaban los registros seleccionados.
+Véase [la evidencia filtrada](../evidence/native-sd-read-lab-10-validation.json).
+
+Las referencias primarias son el
+[mapeo de recursos de MSDC](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/mmc/host/mediatek/ComboA/mt6779/msdc_cust.c)
+y la [tabla pinctrl MT6779](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/pinctrl/mediatek/pinctrl-mt6779.c).
+
 ## Aplicación EFI de la tarjeta
 
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera

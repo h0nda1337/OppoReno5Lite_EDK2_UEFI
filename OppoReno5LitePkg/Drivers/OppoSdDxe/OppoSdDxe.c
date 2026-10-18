@@ -1,6 +1,7 @@
 /** @file
   Original MT6779 MSDC1 read-only laboratory binding.
-  Reuses retained SD pinmux and power; does not program regulators or pads.
+  Reuses retained SD pinmux and power, sets the validated SD input/pull bank.
+  Does not program regulators, voltage, pinmux or drive strength.
   SPDX-License-Identifier: BSD-2-Clause
 **/
 #include <Uefi.h>
@@ -59,8 +60,28 @@ STATIC EFI_STATUS PrepareBoard (VOID)
       (mStatus.GpioMode16 & 0xff000000U) == 0x11000000U &&
       (mStatus.GpioMode17 & 0xffffU) == 0x1111U) mStatus.PadMode = 1;
   else if ((mStatus.GpioMisc & (1U << 9)) &&
-           (mStatus.GpioMode1 & 0xffffff00U) == 0x11111100U) mStatus.PadMode = 2;
+           (mStatus.GpioMode1 & 0xffffff00U) == 0x11111100U) {
+    mStatus.PadMode = 2;
+    return EFI_UNSUPPORTED; // No validated pad-bank mapping for this alternate mux.
+  }
   else return EFI_NOT_READY;
+  // IOCFG_RM: only the six MSDC1 pads. Preserve every unrelated GPIO field.
+  // Enable receivers/Schmitt; 50 kOhm CMD/DAT pull-up and CLK pull-down.
+  mStatus.IesBefore = MmioRead32 (0x11e70030);
+  mStatus.SmtBefore = MmioRead32 (0x11e700c0);
+  MmioWrite32 (0x11e70030, mStatus.IesBefore | 0xfcU);
+  MmioWrite32 (0x11e700c0, mStatus.SmtBefore | 0x1cU);
+  MmioWrite32 (0x11e70060, (MmioRead32 (0x11e70060) & ~0x3fU) | 1U);
+  MmioWrite32 (0x11e70080, MmioRead32 (0x11e70080) & ~0x3fU);
+  MmioWrite32 (0x11e70090, MmioRead32 (0x11e70090) | 0x3fU);
+  mStatus.IesAfter = MmioRead32 (0x11e70030);
+  mStatus.SmtAfter = MmioRead32 (0x11e700c0);
+  mStatus.PullDirection = MmioRead32 (0x11e70060);
+  mStatus.PullR0 = MmioRead32 (0x11e70080);
+  mStatus.PullR1 = MmioRead32 (0x11e70090);
+  if ((mStatus.IesAfter & 0xfcU) != 0xfcU || (mStatus.SmtAfter & 0x1cU) != 0x1cU ||
+      (mStatus.PullDirection & 0x3fU) != 1 || (mStatus.PullR0 & 0x3fU) != 0 ||
+      (mStatus.PullR1 & 0x3fU) != 0x3fU) return EFI_DEVICE_ERROR;
   // CLK_CFG_6: MSDC30_1 mux -> 26 MHz, its power-down bit -> enabled.
   // CLR alias modifies only mux[2:0] and gate[7]; UPDATE bit24 latches it.
   MmioWrite32 (0x10000088, 0x87);
@@ -78,7 +99,7 @@ STATIC EFI_STATUS EFIAPI Reset (EFI_BLOCK_IO_PROTOCOL *This, BOOLEAN Extended)
   EFI_STATUS Status;
   EFI_TPL Old;
   (VOID)This; (VOID)Extended;
-  Old = gBS->RaiseTPL (TPL_NOTIFY);
+  Old = gBS->RaiseTPL (TPL_CALLBACK);
   mMedia.MediaId++;
   Status = OppoMsdcInitialize (&mCard, &mIo);
   mStatus.Initialize = Status; RecordCard ();
@@ -97,7 +118,7 @@ STATIC EFI_STATUS EFIAPI ReadBlocks (EFI_BLOCK_IO_PROTOCOL *This, UINT32 MediaId
   if (Bytes == 0) return EFI_SUCCESS;
   if (Buffer == NULL) return EFI_INVALID_PARAMETER;
   if (Bytes % 512) return EFI_BAD_BUFFER_SIZE;
-  Old = gBS->RaiseTPL (TPL_NOTIFY);
+  Old = gBS->RaiseTPL (TPL_CALLBACK);
   Status = OppoMsdcRead (&mCard, Lba, Bytes / 512, Buffer);
   RecordCard ();
   gBS->RestoreTPL (Old);
@@ -133,7 +154,8 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
   if (Hob == NULL || GET_GUID_HOB_DATA_SIZE (Hob) != sizeof (*Info)) return EFI_SUCCESS;
   Info = GET_GUID_HOB_DATA (Hob);
   if (Info->Signature != OPPO_BOOT_INFO_SIGNATURE || Info->Revision != OPPO_BOOT_INFO_REVISION ||
-      !(Info->Flags & OPPO_BOOT_SD_PROFILE_VALIDATED)) return EFI_SUCCESS;
+      (Info->Flags & (OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED)) !=
+      (OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED)) return EFI_SUCCESS;
   mStatus.Profile = EFI_SUCCESS;
   mStatus.Board = PrepareBoard ();
   if (EFI_ERROR (mStatus.Board)) return EFI_SUCCESS;
