@@ -817,6 +817,11 @@ el alcance de los contadores y su saturación pasan con ASan/UBSan. La variante
 ARM64 compiló en 24,211 segundos, con los controles SD/boot/RAM comprobados y
 plazo de 1800 segundos validado en el ejecutable empaquetado. Su ejecución
 física sigue pendiente; véase [la composición 26](../evidence/native-sd-reset-trace-lab-26-host-validation.json).
+La sesión ya se escribió únicamente en recovery y solicitó entrada directa,
+sin Android intermedio, con batería al 100 %. El propietario comunica pantalla
+negra y deja el intento en curso hasta poder fotografiar un cambio. Todavía
+no hay contadores ni error nuevo capturados; el recovery original no se ha
+restaurado después de este intento en curso.
 
 ### Inspección y ruta de carga EFI
 

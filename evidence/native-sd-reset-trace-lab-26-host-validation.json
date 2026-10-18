@@ -98,9 +98,13 @@
   "trace_counts_only_active_child": true,
   "trace_successful_bytes_include_rereads": true,
   "trace_does_not_identify_missing_files": true,
-  "physical_launch_requested": false,
+  "physical_launch_requested": true,
   "physical_observation_pending": true,
   "reset_defect_proven_cause_of_windows_error": false,
   "windows_pe_boot_verified": false,
-  "stock_recovery_restored_after_this_attempt": false
+  "stock_recovery_restored_after_this_attempt": false,
+  "battery_before_test_percent": 100.0,
+  "direct_recovery_request_confirmed": true,
+  "android_intermediate_boot": false,
+  "owner_screen_report": "Black screen; owner will send a photo when it changes and requested pausing the chat turn"
 }
