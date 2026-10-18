@@ -39,6 +39,7 @@ Véase
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
+| microSD y cargador ARM64 | Lector PIO propio y enlace de solo lectura compilados y probados con modelos de PC; lectura física y Windows Boot Manager pendientes |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el
@@ -87,7 +88,9 @@ propios con el núcleo DXE y la Shell de EDK2. Las pruebas QEMU de la entrada
 continúan usando una rutina C de prueba; no ejecutan ese firmware completo.
 Las imágenes permanecen privadas; siete candidatos integrados ya se probaron
 mediante la partición recovery y después se restauró su original. Aún no hay
-controladores de teclado, USB nativo o almacenamiento físico. El séptimo llegó al prompt y volvió solo a
+controladores de teclado o USB nativo validados. El lector microSD propio está
+en su primera prueba física: véase [docs/MICROSD.md](docs/MICROSD.md).
+El séptimo llegó al prompt y volvió solo a
 Android. El retorno automático está observado; su plazo nativo y la ruta exacta
 de reset todavía no están identificados.
 Véanse [docs/NATIVE_ENTRY.md](docs/NATIVE_ENTRY.md) y

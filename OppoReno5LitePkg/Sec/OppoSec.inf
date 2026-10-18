@@ -48,5 +48,6 @@
   gOppoBootInfoHobGuid
 
 [FeaturePcd]
+  gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe
   gOppoNativeTokenSpaceGuid.PcdNativeMmuProbe

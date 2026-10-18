@@ -1,0 +1,148 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
+/* Independent synthetic SD/controller model; does not initialize real hardware. */
+#include <Uefi.h>
+#include <Library/OppoMsdcLib.h>
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+  UINT32 Cfg, Ps, Config, Interrupt, Argument, Response[4];
+  UINT32 Opcode, Previous, Position, Attempts, Commands, Reads, Writes;
+  UINT64 Sector, Delay;
+  BOOLEAN Legacy, EarlyDone, NoClock, StuckReset, StuckFifo;
+  BOOLEAN CommandCrc, DataCrc, DataTimeout, NoDone, OcrBusy, R1Error;
+} MODEL;
+STATIC MODEL M;
+STATIC UINT8 Pattern(UINT64 Sector, UINT32 Offset)
+{ return (UINT8)((Sector * 13 + Offset) ^ 0x5a); }
+STATIC UINT32 Read(VOID *Context, UINT32 Offset)
+{
+  assert(Context==&M);M.Reads++;
+  switch(Offset) {
+    case 0x00:return M.Cfg;
+    case 0x08:return M.Ps|(1U<<16);
+    case 0x0c:
+      if(M.Opcode==17 && M.Position>=64 && M.DataCrc)M.Interrupt|=1U<<15;
+      if(M.Opcode==17 && M.DataTimeout)M.Interrupt|=1U<<14;
+      if(M.Opcode==17 && !M.NoDone && (M.EarlyDone || M.Position==512))M.Interrupt|=1U<<12;
+      return M.Interrupt;
+    case 0x14:
+      if(M.StuckFifo)return 1U<<31;
+      return M.Opcode==17 && M.Position<512?64:0;
+    case 0x1c: {
+      assert(M.Opcode==17 && M.Position<512);
+      UINT32 Value=0;
+      for(UINT32 I=0;I<4;I++)Value|=(UINT32)Pattern(M.Sector,M.Position+I)<<(I*8);
+      M.Position+=4;return Value;
+    }
+    case 0x30:return M.Config;
+    case 0x3c:return 0;
+    case 0x40:case 0x44:case 0x48:case 0x4c:return M.Response[(Offset-0x40)/4];
+    default:assert(!"unexpected controller read");return 0;
+  }
+}
+STATIC VOID Write(VOID *Context, UINT32 Offset, UINT32 Value)
+{
+  assert(Context==&M);M.Writes++;
+  switch(Offset) {
+    case 0x00:
+      M.Cfg=Value;
+      if(!M.StuckReset)M.Cfg&=~(1U<<2);
+      if(!M.NoClock)M.Cfg|=1U<<7;
+      return;
+    case 0x08:M.Ps=Value;return;
+    case 0x0c:M.Interrupt&=~Value;return;
+    case 0x10:assert(Value==0);return;
+    case 0x14:assert(Value==(1U<<31));return;
+    case 0x30:M.Config=Value;assert((Value&(3U<<16))==0);return;
+    case 0x38:M.Argument=Value;return;
+    case 0x50:assert(Value==1);return;
+    case 0x34:break;
+    default:assert(!"unexpected write, including DMA or TXDATA");return;
+  }
+  // The model fails immediately if a write-data direction or multiblock is used.
+  assert((Value&(1U<<13))==0);
+  M.Previous=M.Opcode;M.Opcode=Value&63;M.Commands++;
+  memset(M.Response,0,sizeof(M.Response));M.Interrupt|=1U<<8;
+  if(M.CommandCrc) {M.Interrupt|=1U<<10;return;}
+  switch(M.Opcode) {
+    case 0:assert(M.Argument==0 && ((Value>>7)&7)==0);return;
+    case 8:
+      assert(M.Argument==0x1aa && ((Value>>7)&7)==1);
+      if(M.Legacy) {M.Interrupt&=~(1U<<8);M.Interrupt|=1U<<9;}
+      else M.Response[0]=0x1aa;
+      return;
+    case 55:assert(M.Argument==0);M.Response[0]=1U<<5;return;
+    case 41:
+      assert(M.Previous==55 && ((Value>>7)&7)==3);
+      assert(M.Argument==(M.Legacy?0x00ff8000U:0x40ff8000U));
+      M.Attempts++;M.Response[0]=0x00ff8000U;
+      if(!M.OcrBusy && M.Attempts>=2)M.Response[0]|=0x80000000U|(M.Legacy?0:0x40000000U);
+      return;
+    case 2:assert(((Value>>7)&7)==2);return;
+    case 3:M.Response[0]=0x12340000;return;
+    case 9:
+      assert(M.Argument==0x12340000 && ((Value>>7)&7)==2);
+      if(M.Legacy) {M.Response[2]=(9U<<16)|255;M.Response[1]=(3U<<30)|(3U<<15);}
+      else {M.Response[3]=1U<<30;M.Response[2]=1;M.Response[1]=0xffff0000U;}
+      return;
+    case 7:assert(M.Argument==0x12340000 && ((Value>>7)&7)==7);return;
+    case 16:assert(M.Legacy && M.Argument==512);return;
+    case 17:
+      assert(((Value>>11)&3)==1 && (Value>>16)==512);
+      if(M.Legacy)assert(M.Argument%512==0);
+      M.Sector=M.Legacy?M.Argument/512:M.Argument;M.Position=0;
+      if(M.R1Error)M.Response[0]=1U<<30;
+      return;
+    default:assert(!"unexpected SD command; media must never be written");
+  }
+}
+STATIC VOID Delay(VOID *Context, UINT32 Us)
+{ assert(Context==&M && Us>0 && Us<=10000);M.Delay+=Us; }
+STATIC OPPO_MSDC_IO Io={&M,Read,Write,Delay};
+STATIC EFI_STATUS Init(OPPO_MSDC *C, BOOLEAN Legacy)
+{ memset(&M,0,sizeof(M));M.Legacy=Legacy;return OppoMsdcInitialize(C,&Io); }
+
+int main(void)
+{
+  OPPO_MSDC C;
+  UINT8 Buffer[1026];
+  assert(Init(&C,FALSE)==EFI_SUCCESS && C.Ready && C.BlockAddressed);
+  assert(C.Blocks==134217728 && M.Attempts==2); // 64 GiB synthetic SDHC CSD.
+  memset(Buffer,0xcc,sizeof(Buffer));M.EarlyDone=TRUE;
+  assert(OppoMsdcRead(&C,37,2,Buffer+1)==EFI_SUCCESS);
+  assert(Buffer[0]==0xcc && Buffer[1025]==0xcc);
+  for(UINT32 I=0;I<1024;I++)assert(Buffer[I+1]==Pattern(37+I/512,I%512));
+  UINT32 Commands=M.Commands;
+  assert(OppoMsdcRead(&C,C.Blocks,1,Buffer)==EFI_INVALID_PARAMETER);
+  assert(OppoMsdcRead(&C,MAX_UINT64,2,Buffer)==EFI_INVALID_PARAMETER);
+  assert(OppoMsdcRead(&C,C.Blocks-1,2,Buffer)==EFI_INVALID_PARAMETER);
+  assert(OppoMsdcRead(&C,0,MAX_UINTN,Buffer)==EFI_INVALID_PARAMETER);
+  assert(OppoMsdcRead(&C,0,1,NULL)==EFI_INVALID_PARAMETER);
+  assert(OppoMsdcRead(&C,0,0,NULL)==EFI_SUCCESS && M.Commands==Commands);
+  assert(Init(&C,TRUE)==EFI_SUCCESS && !C.BlockAddressed && C.Blocks==32768);
+  assert(OppoMsdcRead(&C,3,1,Buffer)==EFI_SUCCESS && M.Argument==1536);
+  for(UINT32 I=0;I<512;I++)assert(Buffer[I]==Pattern(3,I));
+  for(UINT32 Scenario=0;Scenario<5;Scenario++) {
+    assert(Init(&C,FALSE)==EFI_SUCCESS);
+    M.DataCrc=Scenario==0;M.DataTimeout=Scenario==1;M.NoDone=Scenario==2;
+    M.R1Error=Scenario==3;M.CommandCrc=Scenario==4;
+    EFI_STATUS Expected=Scenario==0 || Scenario==4?EFI_CRC_ERROR:Scenario==3?EFI_DEVICE_ERROR:EFI_TIMEOUT;
+    assert(OppoMsdcRead(&C,0,1,Buffer)==Expected && !C.Ready);
+    Commands=M.Commands;
+    assert(OppoMsdcRead(&C,0,1,Buffer)==EFI_NOT_READY && M.Commands==Commands);
+    assert(M.Delay<2000000);
+  }
+  for(UINT32 Scenario=0;Scenario<5;Scenario++) {
+    memset(&M,0,sizeof(M));M.NoClock=Scenario==0;M.StuckReset=Scenario==1;
+    M.StuckFifo=Scenario==2;M.CommandCrc=Scenario==3;M.OcrBusy=Scenario==4;
+    assert(EFI_ERROR(OppoMsdcInitialize(&C,&Io)) && !C.Ready);
+    assert(M.Delay<3000000 && M.Attempts<=200);
+  }
+  assert(OppoMsdcInitialize(NULL,&Io)==EFI_INVALID_PARAMETER);
+  OPPO_MSDC_IO Bad=Io;Bad.Read32=NULL;
+  assert(OppoMsdcInitialize(&C,&Bad)==EFI_INVALID_PARAMETER);
+  puts("Original MSDC PIO reader: SDHC/SDSC capacity and addressing, data, bounded faults and no-write/DMA guards passed host sanitizers; board and physical SD untested.");
+  return 0;
+}

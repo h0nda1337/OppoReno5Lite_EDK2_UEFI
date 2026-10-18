@@ -54,6 +54,12 @@ FV = OPPOROOT
   INF MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
   INF OppoReno5LitePkg/Drivers/OppoRuntimeDxe/OppoRuntimeDxe.inf
   INF OppoReno5LitePkg/Drivers/OppoGopDxe/OppoGopDxe.inf
+!if $(OPPO_SD_READ_LAB) == TRUE
+  INF OppoReno5LitePkg/Drivers/OppoSdDxe/OppoSdDxe.inf
+  INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
+  INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
+  INF FatPkg/EnhancedFatDxe/Fat.inf
+!endif
   INF OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.inf
   INF ShellPkg/Application/Shell/Shell.inf
 

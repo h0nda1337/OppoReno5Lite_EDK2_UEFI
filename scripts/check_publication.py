@@ -31,6 +31,10 @@ REVIEWED_IMAGES = {
         (2624217, 'f52b09eee2cec8daf12582c1846b80d2837640c9e9a103bd66c98d482e8d8fc4'),
     'docs/images/native-dxe-shell-lab-07.jpg':
         (2393497, 'e0cff71d2815359a2ea9165fa3de5df40a887c58dfb775e5d3ab2224baed3b46'),
+    'docs/images/native-sd-read-lab-08.jpg':
+        (2770182, 'c1fc73a092c17372be7d85f26a86ec079d250abeec8afdaae38e180cc42741f5'),
+    'docs/images/native-sd-read-lab-08-context.jpg':
+        (1252223, '9b5598bfe603e79a6ac2e9ea899ae0c94b0e91db162ade43297bdbaac8d01258'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

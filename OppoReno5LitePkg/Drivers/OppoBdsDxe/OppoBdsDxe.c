@@ -15,12 +15,14 @@
 #include <Library/DebugLib.h>
 #include <Library/TimerLib.h>
 #include <Library/ArmLib.h>
+#include <Library/PcdLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
 
 STATIC EFI_HANDLE mImage;
+VOID OppoSdReadLab (VOID);
 STATIC CONST volatile CHAR8 mLabIdentity[] = "OPPO_NATIVE_DXE_SHELL_LAB_90S_V1";
 STATIC EFI_GUID mShellFile = {0x7c04a583, 0x9e3e, 0x4f1c, {0xad, 0x65, 0xe0, 0x52, 0x68, 0xd0, 0xb4, 0xd1}};
 STATIC BOOLEAN mCounterDeadlineReady;
@@ -177,8 +179,9 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   HiiString = ProbeProtocol (&gEfiHiiStringProtocolGuid, "HII string");
   gST->Hdr.CRC32 = 0;
   gBS->CalculateCrc32 (gST, gST->Hdr.HeaderSize, &gST->Hdr.CRC32);
+  if (FeaturePcdGet (PcdNativeSdReadLab) && !EFI_ERROR (ConsoleStatus)) OppoSdReadLab ();
   // Do not invoke Shell with an uninitialized graphical text console.
-  Status = EFI_ERROR (ConsoleStatus) ? ConsoleStatus :
+  Status = FeaturePcdGet (PcdNativeSdReadLab) ? EFI_ABORTED : EFI_ERROR (ConsoleStatus) ? ConsoleStatus :
     gBS->LocateHandleBuffer (ByProtocol, &gEfiFirmwareVolume2ProtocolGuid, NULL, &Count, &Handles);
   if (Status == EFI_SUCCESS) {
     for (Index = 0; Index < Count; Index++) {
@@ -209,7 +212,8 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
     FreePool (Handles);
   }
   if (!EFI_ERROR (ConsoleStatus))
-    gST->ConOut->OutputString (gST->ConOut, L"Shell returned or could not start.\r\n");
+    gST->ConOut->OutputString (gST->ConOut, FeaturePcdGet (PcdNativeSdReadLab) ?
+      L"microSD read lab complete.\r\n" : L"Shell returned or could not start.\r\n");
   // Repeat the useful context after Shell, whose ClearScreen may erase it.
   DEBUG ((DEBUG_INFO, "BDS text initial=%d selected=%d size=%ux%u setup=%r\n",
           Text.InitialMode, Text.SelectedMode, (UINT32)Text.Columns, (UINT32)Text.Rows, ConsoleStatus));

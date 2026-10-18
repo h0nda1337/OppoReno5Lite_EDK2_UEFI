@@ -22,6 +22,11 @@ la prueba de memoria protegida también son originales. El formateador utilizado
 en el firmware sigue siendo el PrintLib genérico de EDK2; el del test de PC es
 un stub propio acotado a sus casos. No se importó una fuente tipográfica externa.
 
+`OppoMsdcLib`, el enlace MSDC1 `OppoSdDxe`, el diagnóstico SD del BDS y sus
+modelos de prueba son originales. Los registros se investigaron en fuentes
+públicas de OPPO; no se copiaron sus funciones. Las capas genéricas DiskIo,
+Partition y FAT pertenecen a la dependencia base EDK2, con sus licencias.
+
 La composición de `OppoNative.dsc` y `OppoNative.fdf` es original. Identifica
 explícitamente los módulos genéricos de la dependencia base EDK2: núcleos,
 primitivas ARM, GIC, temporizador, consola, HII, variables y Shell. Su revisión

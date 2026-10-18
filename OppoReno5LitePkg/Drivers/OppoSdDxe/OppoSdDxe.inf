@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: BSD-2-Clause
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoSdDxe
+  FILE_GUID = 056d7218-2168-44b9-9784-a28349858cc2
+  MODULE_TYPE = DXE_DRIVER
+  ENTRY_POINT = OppoSdEntry
+[Sources]
+  OppoSdDxe.c
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  HobLib
+  IoLib
+  TimerLib
+  OppoMsdcLib
+[Guids]
+  gOppoBootInfoHobGuid
+  gOppoSdDeviceGuid
+[Protocols]
+  gOppoSdStatusProtocolGuid
+  gEfiBlockIoProtocolGuid
+  gEfiDevicePathProtocolGuid
+[Depex]
+  gEfiCpuArchProtocolGuid

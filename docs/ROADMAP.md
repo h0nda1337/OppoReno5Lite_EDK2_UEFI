@@ -116,6 +116,18 @@ propietario tras comprobar autoría. Véase [ORIGIN.md](ORIGIN.md).
 La primera prueba puede limitarse a RAM y consola. UFS, microSD y USB tendrán
 validación independiente; su funcionamiento no se presumirá por compartir SoC.
 
+### microSD y cargador ARM64 — en curso
+
+- [x] Inspeccionar desde Android una tarjeta vfat con aplicación EFI ARM64.
+- [x] Implementar lector MSDC1 propio mediante PIO y enlace Block I/O de solo lectura.
+- [x] Probar capacidad, direccionamiento, fallos y aislamiento con modelos de PC.
+- [x] Compilar variante ARM64 con particiones y FAT de la dependencia EDK2.
+- [ ] Verificar enumeración y lectura de la tarjeta desde el firmware físico.
+- [ ] Abrir y cargar BOOTAA64.EFI desde esa tarjeta en el OPPO.
+- [ ] Observar Windows Boot Manager y documentar el punto alcanzado.
+
+Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.
+
 ## 4. Opción en Fastbootd — pendiente
 
 - Avisar al propietario antes de iniciar esta fase: quiere cambiar a Astra.

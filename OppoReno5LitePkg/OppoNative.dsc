@@ -14,6 +14,7 @@
   FLASH_DEFINITION = OppoReno5LitePkg/OppoNative.fdf
   DEFINE OPPO_ENTRY_PROBE = FALSE
   DEFINE OPPO_MMU_PROBE = FALSE
+  DEFINE OPPO_SD_READ_LAB = FALSE
 
 !include MdePkg/MdeLibs.dsc.inc
 
@@ -85,6 +86,7 @@
   OppoHandoffLib|OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.inf
   OppoFrameBufferLib|OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.inf
   OppoMemoryPlanLib|OppoReno5LitePkg/Library/OppoMemoryPlanLib/OppoMemoryPlanLib.inf
+  OppoMsdcLib|OppoReno5LitePkg/Library/OppoMsdcLib/OppoMsdcLib.inf
 
 [LibraryClasses.common.SEC]
   DebugLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoDebugLib.inf
@@ -103,6 +105,7 @@
 [PcdsFeatureFlag]
   gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe|$(OPPO_ENTRY_PROBE)
   gOppoNativeTokenSpaceGuid.PcdNativeMmuProbe|$(OPPO_MMU_PROBE)
+  gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab|$(OPPO_SD_READ_LAB)
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|FALSE
   gArmTokenSpaceGuid.PcdRemapUnusedMemoryNx|FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdHiiOsRuntimeSupport|FALSE
@@ -155,6 +158,12 @@
   MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
   OppoReno5LitePkg/Drivers/OppoRuntimeDxe/OppoRuntimeDxe.inf
   OppoReno5LitePkg/Drivers/OppoGopDxe/OppoGopDxe.inf
+!if $(OPPO_SD_READ_LAB) == TRUE
+  OppoReno5LitePkg/Drivers/OppoSdDxe/OppoSdDxe.inf
+  MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
+  MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
+  FatPkg/EnhancedFatDxe/Fat.inf
+!endif
   OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.inf {
     <LibraryClasses>
       DebugLib|OppoReno5LitePkg/Library/OppoDebugLib/OppoDebugLib.inf

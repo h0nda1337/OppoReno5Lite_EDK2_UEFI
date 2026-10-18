@@ -1,0 +1,16 @@
+## @file
+# Original bounded PIO SD reader; no DMA and no media write commands.
+# SPDX-License-Identifier: BSD-2-Clause
+##
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoMsdcLib
+  FILE_GUID = 012982b0-271c-45e4-a3e2-93a4dff52981
+  MODULE_TYPE = BASE
+  VERSION_STRING = 0.1
+  LIBRARY_CLASS = OppoMsdcLib
+[Sources]
+  OppoMsdcLib.c
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec

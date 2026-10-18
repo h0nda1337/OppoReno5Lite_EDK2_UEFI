@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#define _PCD_GET_MODE_BOOL_PcdNativeSdReadLab FALSE
 #include "../OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.c"
 
 EFI_GUID gEfiBdsArchProtocolGuid, gEfiGraphicsOutputProtocolGuid;

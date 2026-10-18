@@ -30,6 +30,11 @@ case "${NATIVE_ENTRY_PROBE:-0}:${NATIVE_MMU_PROBE:-0}" in
   0:1) mode=mmu-probe; extra=(-D OPPO_MMU_PROBE=TRUE) ;;
   *) printf '%s\n' 'Select at most one probe; NATIVE_ENTRY_PROBE and NATIVE_MMU_PROBE must be 0 or 1' >&2; exit 1 ;;
 esac
+case "${NATIVE_SD_READ_LAB:-0}:$mode" in
+  0:*) ;;
+  1:integration) mode=sd-read-lab; extra=(-D OPPO_SD_READ_LAB=TRUE) ;;
+  *) printf '%s\n' 'SD read lab must be 0 or 1 and cannot combine with SEC probes' >&2; exit 1 ;;
+esac
 export WORKSPACE="$edk2" PACKAGES_PATH="$root"
 export GCC_AARCH64_PREFIX="${GCC_AARCH64_PREFIX:-aarch64-linux-gnu-}"
 export SOURCE_DATE_EPOCH="$(git -C "$edk2" show -s --format=%ct HEAD)"

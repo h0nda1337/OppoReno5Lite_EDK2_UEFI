@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-sd-read-lab-08-context.jpg",
+  "bytes": 1252223,
+  "sha256": "9b5598bfe603e79a6ac2e9ea899ae0c94b0e91db162ade43297bdbaac8d01258",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "8a02a8c9a730bdc0cb1dda3824a4d6d749cade5e8235518e6aaab08a66378908",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Context photograph of native microSD attempt 08 console; no additional legible SD result"
+}
