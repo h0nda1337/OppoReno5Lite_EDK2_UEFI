@@ -657,6 +657,21 @@ y el arranque de WinPE siguen pendientes de una prueba física de esta variante.
 Véanse [la compilación 22 sin ejecución física](../evidence/native-sd-boot-lab-22-host-validation.json)
 y [la compilación 23 con plazo de 1800 segundos](../evidence/native-sd-boot-lab-23-host-validation.json).
 
+La sesión 23 se escribió únicamente en recovery y Fastboot confirmó la solicitud
+de entrada directa, sin Android intermedio, con batería verificada al 100 %.
+El propietario comunicó pantalla negra y pidió dejar el intento en curso mientras
+se documentaba la sesión. Todavía no hay foto ni valores nativos de `MAP/FREE`:
+no se confirma que la RAM adicional haya llegado a los servicios UEFI, que el WIM
+esté siendo leído ni que WinPE haya arrancado. El estado del recovery original
+restaurado corresponde al intento 21; la restauración posterior al 23 sigue
+pendiente del regreso a Android. Se conserva un observador ADB de solo lectura,
+sin escrituras ni reinicios, para registrar ese regreso si ocurre.
+
+El archivo WIM y el reloj SD de un bit permiten calcular un mínimo teórico de
+unos 12 minutos para leerlo completo; las demoras de PIO, comandos y filesystem
+pueden aumentarlo. Ese cálculo no mide el progreso del intento en curso y la
+pantalla negra por sí sola no distingue lectura de bloqueo.
+
 ## Aplicación EFI de la tarjeta
 
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera

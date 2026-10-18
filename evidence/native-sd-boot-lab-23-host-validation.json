@@ -124,5 +124,10 @@
   "physical_observation_pending": true,
   "physical_extra_dram_allocation_verified": false,
   "windows_pe_boot_verified": false,
-  "reset_request_after_seconds": 1800
+  "reset_request_after_seconds": 1800,
+  "physical_launch_requested": true,
+  "owner_screen_report": "Black screen; owner requested leaving the attempt running while ending the chat turn",
+  "native_map_and_free_fields_captured": false,
+  "battery_before_test_percent": 100,
+  "stock_recovery_restored_after_this_attempt": false
 }
