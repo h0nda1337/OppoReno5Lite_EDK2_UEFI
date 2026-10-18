@@ -8,6 +8,12 @@
 #include <string.h>
 #include <stdio.h>
 #define _PCD_GET_MODE_BOOL_PcdNativeSdReadLab FALSE
+#define _PCD_GET_MODE_BOOL_PcdNativeSdBootLab FALSE
+#define _PCD_GET_MODE_BOOL_PcdNativeSdFastReadLab FALSE
+STATIC BOOLEAN mAcpiLab;
+#define _PCD_GET_MODE_BOOL_PcdNativeAcpiProfileLab mAcpiLab
+STATIC UINTN mAcpiCalls;
+VOID OppoAcpiProbeLab(VOID) { assert(mAcpiLab);mAcpiCalls++; }
 STATIC BOOLEAN mExtraMemory;
 STATIC UINTN mMemoryCase;
 #define _PCD_GET_MODE_BOOL_PcdNativeExtraMemoryLab mExtraMemory
@@ -36,7 +42,8 @@ STATIC UINT64 mCounter;
 STATIC UINTN mScenario, mAllocated, mFreed, mStarts, mUnloads, mClosed;
 STATIC BOOLEAN mTimerAttempted, mSetTimer, mApplicationAlive, mEventFired;
 STATIC UINTN mModeSets, mClears;
-STATIC BOOLEAN ExpectShellStart(VOID) { return mScenario<5 || mScenario==12; }
+STATIC BOOLEAN ExpectConsole(VOID) { return mScenario<5 || mScenario==12; }
+STATIC BOOLEAN ExpectShellStart(VOID) { return !mAcpiLab && ExpectConsole(); }
 
 BOOLEAN EFIAPI DebugPrintEnabled(VOID) { return TRUE; }
 BOOLEAN EFIAPI DebugPrintLevelEnabled(UINTN Level) { (VOID)Level;return TRUE; }
@@ -192,8 +199,8 @@ int main(void)
   mInfo.HorizontalResolution=1080;mInfo.VerticalResolution=2400;
   mOut.ClearScreen=Clear;mOut.OutputString=Output;mOut.QueryMode=Query;mOut.SetMode=SetMode;
   mVolume.ReadSection=ReadSection;
-  for(mMemoryCase=0;mMemoryCase<2;mMemoryCase++)for(mScenario=0;mScenario<14;mScenario++) {
-    mExtraMemory=(BOOLEAN)mMemoryCase;
+  for(mMemoryCase=0;mMemoryCase<3;mMemoryCase++)for(mScenario=0;mScenario<14;mScenario++) {
+    mExtraMemory=(BOOLEAN)(mMemoryCase==1);mAcpiLab=(BOOLEAN)(mMemoryCase==2);mAcpiCalls=0;
     mAllocated=mFreed=mStarts=mUnloads=mClosed=0;
     mModeSets=mClears=0;mOut.Mode=&mTextMode;mTextMode.Mode=-1;mTextMode.MaxMode=5;
     if(mScenario==7)mTextMode.MaxMode=0;
@@ -206,14 +213,16 @@ int main(void)
     assert(OppoBdsEntry((EFI_HANDLE)(UINTN)0x100,&mSystem)==EFI_SUCCESS);
     if(setjmp(mReturn)==0)mBds.Entry(&mBds);
     assert(mTimerAttempted && mStarts==(ExpectShellStart()?1U:0U) && mUnloads==0 && mFreed==mAllocated);
-    assert((mSystem.ConOut==&mOut)==ExpectShellStart());
-    assert(mClears==(ExpectShellStart() || mScenario==6?1U:0U));
+    assert((mSystem.ConOut==&mOut)==ExpectConsole());
+    assert(mAcpiCalls==((mAcpiLab && ExpectConsole())?1U:0U));
+    assert(mClears==(ExpectConsole() || mScenario==6?1U:0U));
     assert(mModeSets==(mScenario<=6 || mScenario>=12?1U:0U));
     assert(mEventFired==(mScenario==0 || mScenario==4));
     assert(mClosed==(mScenario==2?1U:0U));
     assert(mCounterDeadlineReady==(mScenario!=4) && mSystem.Hdr.CRC32==0x1234);
     if(mCounterDeadlineReady)assert(mCounterTicks==13000000ULL*(mExtraMemory ? 1800ULL : 90ULL));
   }
-  puts("Original BDS: 28 host scenarios across 90s/1800s deadlines, event and counter fallback, console activation and failure cleanup passed sanitizers; no hardware test.");
+  mAcpiLab=TRUE;mExtraMemory=TRUE;assert(!LabIdentityValid());
+  puts("Original BDS:42 host scenarios across90s/1800s deadlines, console failures, ACPI observer/no Shell dispatch and incompatible-mode rejection passed sanitizers; no hardware test.");
   return 0;
 }

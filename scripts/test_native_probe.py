@@ -9,7 +9,7 @@ from prepare_native_probe import FD_SIZE, inflate_native_kernel, probe_ramdisk, 
 from recovery_image import AndroidV2, align, parse_newc
 from recovery_diagnostic_session import require_native_probe, require_minimal_readout
 from prepare_native_lab import require_lab_manifest, validate_candidate as validate_lab
-from test_native_firmware import fixture as lab_fixture, NATIVE_MEMORY_LAB_MARKER
+from test_native_firmware import fixture as lab_fixture, NATIVE_MEMORY_LAB_MARKER, NATIVE_LAB_MARKER, ACPI_PROFILE_LAB_MARKER
 
 
 def stock_fixture():
@@ -99,6 +99,17 @@ class NativeProbeTests(unittest.TestCase):
         with patch('prepare_native_lab.validate_transport',side_effect=transport):
             with self.assertRaises(ValueError):validate_lab(b'',b'',manifest)
             validate_lab(b'',b'',dict(manifest,reset_request_after_seconds=1800))
+
+    def test_acpi_profile_mode_must_match_the_executable(self):
+        manifest={'purpose':'native-dxe-shell-lab','probe_only':False,'reset_request_after_seconds':90,
+                  'kernel_transport':'gzip','bootshim_used':False,'acpi_profile_read_only_lab':True}
+        require_lab_manifest(manifest,True,True)
+        for changed in (dict(manifest,reset_request_after_seconds=1800),dict(manifest,acpi_profile_read_only_lab=1)):
+            with self.assertRaises(ValueError):require_lab_manifest(changed,True,True)
+        raw=lab_fixture(lab=True,lab_marker=NATIVE_LAB_MARKER+ACPI_PROFILE_LAB_MARKER)
+        with patch('prepare_native_lab.validate_transport',side_effect=lambda s,c,m,v:v(raw)):
+            validate_lab(b'',b'',manifest)
+            with self.assertRaises(ValueError):validate_lab(b'',b'',dict(manifest,acpi_profile_read_only_lab=False))
 
 
 if __name__=='__main__':unittest.main()

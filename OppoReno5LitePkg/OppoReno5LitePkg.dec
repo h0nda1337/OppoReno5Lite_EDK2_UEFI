@@ -12,6 +12,7 @@
 
 [LibraryClasses]
   OppoAcpiLib|Include/Library/OppoAcpiLib.h
+  OppoAcpiProbeLib|Include/Library/OppoAcpiProbeLib.h
   OppoPlatformLib|Include/Library/OppoPlatformLib.h
   OppoBgrtLib|Include/Library/OppoBgrtLib.h
   OppoFrameBufferLib|Include/Library/OppoFrameBufferLib.h
@@ -27,6 +28,7 @@
   gOppoBootInfoHobGuid = { 0x8ada510f, 0x54d3, 0x49e4, {0x95, 0xf1, 0xd8, 0x8a, 0x57, 0xe0, 0xcd, 0x75} }
   gOppoGopDeviceGuid = { 0xe0ab7dd9, 0x64c2, 0x4182, {0xb4, 0xd9, 0x29, 0xa3, 0xbd, 0x8e, 0x1a, 0x01} }
   gOppoSdDeviceGuid = { 0x32a755bd, 0x4302, 0x46cb, {0xbc, 0x34, 0x56, 0x3d, 0x42, 0x14, 0x7f, 0x68} }
+  gOppoAcpiHandoffHobGuid = { 0xdd28ac36, 0x0a86, 0x4a1d, {0xbc, 0x30, 0x36, 0x9d, 0x9f, 0xea, 0x70, 0x6d} }
 
 [Protocols]
   gOppoSdStatusProtocolGuid = { 0x086991fb, 0x7c98, 0x4a86, {0x9f, 0x39, 0xcd, 0x9c, 0xf7, 0x5a, 0xcf, 0x35} }
@@ -39,3 +41,4 @@
   gOppoNativeTokenSpaceGuid.PcdNativeSdPowerLab|FALSE|BOOLEAN|0x00000005
   gOppoNativeTokenSpaceGuid.PcdNativeExtraMemoryLab|FALSE|BOOLEAN|0x00000006
   gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab|FALSE|BOOLEAN|0x00000007
+  gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab|FALSE|BOOLEAN|0x00000008

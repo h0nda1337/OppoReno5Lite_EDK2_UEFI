@@ -54,6 +54,11 @@ case "${NATIVE_SD_FAST_READ_LAB:-0}:$mode" in
   1:sd-read-lab|1:sd-power-lab|1:sd-boot-lab) extra+=(-D OPPO_SD_FAST_READ_LAB=TRUE) ;;
   *) printf '%s\n' 'Fast SD reading requires an SD lab and a 0 or 1 flag' >&2; exit 1 ;;
 esac
+case "${NATIVE_ACPI_PROFILE_LAB:-0}:$mode" in
+  0:*) ;;
+  1:integration) mode=acpi-profile-lab; extra=(-D OPPO_ACPI_PROFILE_LAB=TRUE) ;;
+  *) printf '%s\n' 'ACPI profile lab must be 0 or 1 and cannot combine with SD or SEC probes' >&2; exit 1 ;;
+esac
 export WORKSPACE="$edk2" PACKAGES_PATH="$root"
 export GCC_AARCH64_PREFIX="${GCC_AARCH64_PREFIX:-aarch64-linux-gnu-}"
 export SOURCE_DATE_EPOCH="$(git -C "$edk2" show -s --format=%ct HEAD)"

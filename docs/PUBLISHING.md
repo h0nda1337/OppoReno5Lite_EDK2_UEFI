@@ -29,7 +29,8 @@ por el propietario, las dos del primer laboratorio microSD, las del segundo al s
 y la primera lectura física de la tarjeta en el intento 16, la carga rechazada del 17
 y las solicitudes de apagado del 19 y 20, el error de ramdisk de Windows del 21
 y el benchmark físico de lectura de cuatro bits del 24 y las dos capturas del
-nuevo error de Windows del 25 y del error con contadores SD del 26,
+nuevo error de Windows del 25, del error con contadores SD del 26 y del perfil
+GICv3 con ocho afinidades del 28,
 están revisadas y fijadas por ruta, tamaño y SHA-256 en
 `check_publication.py`. Se retiraron los
 metadatos personales de cámara; se conservaron orientación y perfil de color,
@@ -50,7 +51,8 @@ a `docs/images/native-mmu-probe.jpg`, `docs/images/native-dxe-shell-lab-01.jpg`,
 `docs/images/native-sd-fast-boot-lab-25-context.jpg`
 `docs/images/native-sd-fast-boot-lab-25-error.jpg`,
 `docs/images/native-sd-reset-trace-lab-26-reset.jpg`
-y `docs/images/native-sd-reset-trace-lab-26-error.jpg`;
+`docs/images/native-sd-reset-trace-lab-26-error.jpg`
+y `docs/images/native-acpi-gic-profile-lab-28.jpg`;
 las demás imágenes y binarios siguen
 requiriendo revisión y no se aceptan automáticamente.
 

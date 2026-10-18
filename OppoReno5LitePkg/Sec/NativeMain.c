@@ -7,6 +7,7 @@
 #include <Pi/PiBootMode.h>
 #include <IndustryStandard/ArmStdSmc.h>
 #include <Guid/OppoBootInfo.h>
+#include <Guid/OppoAcpiHandoff.h>
 #include <OppoSecEntry.h>
 #include <OppoNativeProfile.h>
 #include <Library/ArmLib.h>
@@ -33,6 +34,7 @@ typedef struct {
   OPPO_EARLY_MEMORY_PLAN Plan;
   OPPO_ADDITIONAL_MEMORY_PLAN Extra;
   UINT32 PsciVersion;
+  UINT32 FdtBytes;
   BOOLEAN SdProfile;
   BOOLEAN SdPowerProfile;
   BOOLEAN SdVoltageProfile;
@@ -190,6 +192,12 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   if (State->SdPowerProfile) Info.Flags |= OPPO_BOOT_SD_POWER_PROFILE_VALIDATED;
   if (State->SdVoltageProfile) Info.Flags |= OPPO_BOOT_SD_VOLTAGE_PROFILE_VALIDATED;
   if (BuildGuidDataHob (&gOppoBootInfoHobGuid, &Info, sizeof (Info)) == NULL) Stop ();
+  if (FeaturePcdGet (PcdNativeAcpiProfileLab)) {
+    // OppoInspectHandoff/PlanEarlyMemory already reserve and map this FDT.
+    OPPO_ACPI_HANDOFF H = {OPPO_ACPI_HANDOFF_SIGNATURE, OPPO_ACPI_HANDOFF_REVISION,
+                          State->Entry->Fdt, State->FdtBytes, 0};
+    if (BuildGuidDataHob (&gOppoAcpiHandoffHobGuid, &H, sizeof (H)) == NULL) Stop ();
+  }
   Stage (2, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 255, 255, 0});
   LoadDxeCoreFromFv (NULL, 0);
   Stop ();
@@ -207,11 +215,16 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   UINT64 Fdt = Entry->Fdt;
   EFI_STATUS Status;
   if (FeaturePcdGet (PcdNativeEntryProbe) && FeaturePcdGet (PcdNativeMmuProbe)) Stop ();
+  if (FeaturePcdGet (PcdNativeAcpiProfileLab) &&
+      (FeaturePcdGet (PcdNativeEntryProbe) || FeaturePcdGet (PcdNativeMmuProbe) ||
+       FeaturePcdGet (PcdNativeSdReadLab) || FeaturePcdGet (PcdNativeSdBootLab) ||
+       FeaturePcdGet (PcdNativeExtraMemoryLab))) Stop ();
   if ((Entry->ExceptionLevel != 1 && Entry->ExceptionLevel != 2) || Entry->CounterFrequency == 0 ||
       Fdt < OPPO_NATIVE_DRAM_BASE || Fdt > OPPO_NATIVE_DRAM_END - 40 || (Fdt & 7)) Stop ();
   UINT64 Total = BigNumber ((CONST UINT8 *)(UINTN)Fdt + 4, 4);
   if (Total > 2 * 1024 * 1024 || Total > OPPO_NATIVE_DRAM_END - Fdt ||
       !OppoFdtOpen ((CONST VOID *)(UINTN)Fdt, (UINTN)Total, &View)) Stop ();
+  State.FdtBytes = (UINT32)Total;
   if (OppoFdtProperty (&View, "/", "compatible", &Value, &Bytes) != EFI_SUCCESS ||
       Bytes != sizeof ("mediatek,MT6779") || CompareMem (Value, "mediatek,MT6779", Bytes)) Stop ();
   // Validate the declared PSCI binding before making the first SMC call.

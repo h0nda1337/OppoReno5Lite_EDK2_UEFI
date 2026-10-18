@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "experiment": "native-acpi-gic-profile-28",
+  "stage": "eight_gicv3_affinity_mappings_observed_on_phone_without_table_installation",
+  "source_base_revision": "441c94b2c974c6743a1511fe41cd7e804c8740c8",
+  "host_evidence": "evidence/acpi-gic-profile-lab-28-host-validation.json",
+  "candidate_sha256": "94a89405558ad0dc1c6d56925d53b0c9f7a3e00b29558d4762e889681ac39ef6",
+  "native_fd_sha256": "7ac52d831d006bb1162e4d1316a9c9629c5caa85347f2dbbf7ea9a0818a7eff4",
+  "photo": "docs/images/native-acpi-gic-profile-lab-28.jpg",
+  "screen": {
+    "boot_affinity": "0x000",
+    "gicd_pidr2": "0x3b",
+    "gicd_typer": "0x0079040f",
+    "gicd_control": "0x12",
+    "cpu": [
+      {
+        "uid": 0,
+        "affinity": "0x000",
+        "gicr_base": "0x0c040000",
+        "gicr_typer": "0x0000000000000020",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 1,
+        "affinity": "0x100",
+        "gicr_base": "0x0c060000",
+        "gicr_typer": "0x0000010000000120",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 2,
+        "affinity": "0x200",
+        "gicr_base": "0x0c080000",
+        "gicr_typer": "0x0000020000000220",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 3,
+        "affinity": "0x300",
+        "gicr_base": "0x0c0a0000",
+        "gicr_typer": "0x0000030000000320",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 4,
+        "affinity": "0x400",
+        "gicr_base": "0x0c0c0000",
+        "gicr_typer": "0x0000040000000420",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 5,
+        "affinity": "0x500",
+        "gicr_base": "0x0c0e0000",
+        "gicr_typer": "0x0000050000000520",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 6,
+        "affinity": "0x600",
+        "gicr_base": "0x0c100000",
+        "gicr_typer": "0x0000060000000620",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 7,
+        "affinity": "0x700",
+        "gicr_base": "0x0c120000",
+        "gicr_typer": "0x0000070000000730",
+        "gicr_pidr2": "0x3b"
+      }
+    ],
+    "profile_status_line_visible": false,
+    "profile_read_count_visible": false,
+    "completion_message_visible": true,
+    "no_tables_sd_or_os_launch_message_visible": true
+  },
+  "interpretation": {
+    "all_eight_entries_only_emitted_after_observer_success_in_reviewed_source": true,
+    "gicr_affinity_mapping_physically_observed": true,
+    "last_bit_set_on_final_observed_frame": true,
+    "all_secondary_cpus_executed_or_psci_cpu_on_verified": false,
+    "gic_interrupt_delivery_or_power_domains_verified": false,
+    "gicv2_compatibility_verified": false,
+    "acpi_tables_installed": false,
+    "windows_launched_in_this_trial": false,
+    "windows_pe_boot_verified": false
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 201.281,
+    "bootreason": "reboot"
+  },
+  "owner_return_report": "Screen stayed fixed for a while, then phone rebooted; no button intervention reported",
+  "native_90_second_deadline_measured": false,
+  "android_boot_completed_detected": true,
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_before_test_percent": 100,
+  "battery_after_restoration_percent": 100.0
+}

@@ -131,6 +131,18 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
 
 Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.
 
+### ACPI — generación en PC y perfil GICv3 observado
+
+- [x] Construir RSDP/XSDT/FADT/DSDT/MADT/GTDT con código propio y validar bytes,
+  checksums y AML en PC, sin instalar tablas.
+- [x] Validar el perfil del FDT antes de leer registros GICv3.
+- [x] Observar físicamente las ocho asociaciones entre afinidad y redistributor,
+  volver a Android y restaurar el recovery original en el intento 28.
+- [ ] Vincular el perfil observado al generador y comprobar su instalación UEFI.
+- [ ] Validar CPU/PSCI y los demás requisitos de plataforma para el OS.
+
+Véase [ACPI.md](ACPI.md). El error `0xc0000225` no tiene aún una causa demostrada.
+
 ## 4. Opción en Fastbootd — pendiente
 
 - Avisar al propietario antes de iniciar esta fase: quiere cambiar a Astra.

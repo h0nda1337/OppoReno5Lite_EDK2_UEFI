@@ -37,6 +37,12 @@ mantiene `0xc0000225`: contabiliza 540 MiB de lecturas correctas, sin errores
 de Block I/O ni resets registrados durante el cargador. Ese total incluye
 posibles relecturas y no prueba la integridad del WIM completo.
 
+El [observador ACPI/GICv3 del intento 28](docs/ACPI.md#resultado-físico-del-intento-28)
+identificó físicamente las ocho afinidades CPU y sus redistributors, sin escribir
+registros GIC ni instalar tablas. Android volvió a arrancar y el recovery original
+quedó restaurado, con batería al 100 %. El generador ACPI propio sigue comprobado
+en PC; su instalación y el arranque de WinPE están pendientes.
+
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
 y su lectura completa se verificó. Android volvió a arrancar tras un
@@ -55,7 +61,8 @@ Véase
 | Configuración del recovery original | ARM64; `CONFIG_KEXEC` desactivado |
 | Firmware integrado MT6779 | Shell v2.2 inicializada hasta el prompt; regreso automático a Android y restauración de recovery original comprobados |
 | Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
-| GIC, UART y watchdog | Direcciones extraídas del DTB original; biblioteca inicial ARM64 compilada |
+| GIC, UART y watchdog | Direcciones extraídas del DTB original; GICv3 y ocho asociaciones CPU/GICR observados físicamente en el intento 28; entrega de interrupciones pendiente |
+| ACPI | Generador original comprobado en PC y perfil GICv3 observado; tablas aún sin instalar |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; orden nativo rojo=16/azul=0 contrastado con fotos |
 | Pantalla y entrada para la Shell | Encabezado, mapa FS0 de firmware y prompt visibles; entrada física y comandos sin validar |
 | GOP y framebuffer propios | BLT comprobados con sanitizadores; consola gráfica UEFI mostrando la Shell en el OPPO |

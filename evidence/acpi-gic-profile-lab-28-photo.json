@@ -1,0 +1,14 @@
+{
+  "public_path": "docs/images/native-acpi-gic-profile-lab-28.jpg",
+  "bytes": 2467336,
+  "sha256": "a17ed05925470c9b352a51859148954243f36ab632dc5aefe465a7cb1ee8f9f5",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "compressed_scan_sha256": "cd146f1459a7d436014bd33ccee156e1c213a0982e7ae0685ead2663396fc97e",
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_documentation": true,
+  "visual_review": "Owner photo of eight CPU/GICR entries and BDS completion; no personal identifiers visible in the scene."
+}

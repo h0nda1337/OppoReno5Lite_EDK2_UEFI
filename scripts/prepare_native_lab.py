@@ -22,6 +22,8 @@ def require_lab_manifest(manifest, explicit_lab, direct_entry):
             manifest.get('probe_only') is not False or
             manifest.get('reset_request_after_seconds') not in (90, 1800) or
             manifest.get('kernel_transport') != 'gzip' or
+            type(manifest.get('acpi_profile_read_only_lab', False)) is not bool or
+            (manifest.get('acpi_profile_read_only_lab', False) and manifest.get('reset_request_after_seconds') != 90) or
             manifest.get('bootshim_used') is not False):
         raise ValueError('Expected an explicit reviewed DXE/Shell laboratory image')
 
@@ -32,6 +34,8 @@ def validate_candidate(stock, candidate, manifest):
         report = require_native_lab(fd)
         if report['reset_request_after_seconds'] != manifest['reset_request_after_seconds']:
             raise ValueError('Laboratory deadline differs between the BDS executable and manifest')
+        if report['acpi_profile_read_only_lab'] != manifest.get('acpi_profile_read_only_lab', False):
+            raise ValueError('ACPI profile mode differs between the BDS executable and manifest')
     validate_transport(stock, candidate, manifest, validate_deadline)
 
 
@@ -55,6 +59,7 @@ def prepare(stock_path, fd_path, output, avbtool):
         'compressed_kernel_sha256': digest(AndroidV2(candidate).components['kernel']),
         'reset_request_after_seconds': inspected['reset_request_after_seconds'], 'reset_return_path_verified': False,
         'reset_timer_execution_verified_on_phone': False,
+        'acpi_profile_read_only_lab': inspected['acpi_profile_read_only_lab'],
         'bootshim_used': False, 'linux_kernel_retained': False,
         'oem_ramdisk_retained': False, 'ramdisk_paths': [],
         'avb_algorithm': 'NONE', 'oem_signature_valid': False,

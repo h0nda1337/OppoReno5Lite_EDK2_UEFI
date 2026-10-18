@@ -23,11 +23,15 @@
 
 STATIC EFI_HANDLE mImage;
 VOID OppoSdReadLab (EFI_HANDLE Parent);
+VOID OppoAcpiProbeLab (VOID);
 STATIC UINT32 DeadlineSeconds (VOID)
 { return FeaturePcdGet (PcdNativeExtraMemoryLab) ? 1800U : 90U; }
 
 STATIC BOOLEAN LabIdentityValid (VOID)
 {
+  if (FeaturePcdGet (PcdNativeAcpiProfileLab) &&
+      (FeaturePcdGet (PcdNativeSdReadLab) || FeaturePcdGet (PcdNativeSdBootLab) ||
+       FeaturePcdGet (PcdNativeSdFastReadLab) || FeaturePcdGet (PcdNativeExtraMemoryLab))) return FALSE;
   if (FeaturePcdGet (PcdNativeExtraMemoryLab)) {
     STATIC CONST volatile CHAR8 Identity[] = "OPPO_NATIVE_DXE_SHELL_LAB_1800S_V1";
     return (BOOLEAN)(Identity[0] == 'O');
@@ -193,9 +197,10 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   HiiString = ProbeProtocol (&gEfiHiiStringProtocolGuid, "HII string");
   gST->Hdr.CRC32 = 0;
   gBS->CalculateCrc32 (gST, gST->Hdr.HeaderSize, &gST->Hdr.CRC32);
+  if (FeaturePcdGet (PcdNativeAcpiProfileLab) && !EFI_ERROR (ConsoleStatus)) OppoAcpiProbeLab ();
   if (FeaturePcdGet (PcdNativeSdReadLab) && !EFI_ERROR (ConsoleStatus)) OppoSdReadLab (mImage);
   // Do not invoke Shell with an uninitialized graphical text console.
-  Status = FeaturePcdGet (PcdNativeSdReadLab) ? EFI_ABORTED : EFI_ERROR (ConsoleStatus) ? ConsoleStatus :
+  Status = (FeaturePcdGet (PcdNativeSdReadLab) || FeaturePcdGet (PcdNativeAcpiProfileLab)) ? EFI_ABORTED : EFI_ERROR (ConsoleStatus) ? ConsoleStatus :
     gBS->LocateHandleBuffer (ByProtocol, &gEfiFirmwareVolume2ProtocolGuid, NULL, &Count, &Handles);
   if (Status == EFI_SUCCESS) {
     for (Index = 0; Index < Count; Index++) {
@@ -226,7 +231,8 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
     FreePool (Handles);
   }
   if (!EFI_ERROR (ConsoleStatus))
-    gST->ConOut->OutputString (gST->ConOut, FeaturePcdGet (PcdNativeSdReadLab) ?
+    gST->ConOut->OutputString (gST->ConOut, FeaturePcdGet (PcdNativeAcpiProfileLab) ?
+      L"Read-only ACPI profile lab complete.\r\n" : FeaturePcdGet (PcdNativeSdReadLab) ?
       L"microSD read lab complete.\r\n" : L"Shell returned or could not start.\r\n");
   // Repeat the useful context after Shell, whose ClearScreen may erase it.
   DEBUG ((DEBUG_INFO, "BDS text initial=%d selected=%d size=%ux%u setup=%r\n",

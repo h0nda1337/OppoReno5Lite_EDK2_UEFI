@@ -8,6 +8,7 @@
 [Sources]
   OppoBdsDxe.c
   SdRead.c
+  AcpiProbe.c
 [Packages]
   MdePkg/MdePkg.dec
   OppoReno5LitePkg/OppoReno5LitePkg.dec
@@ -22,6 +23,9 @@
   ArmLib
   PcdLib
   BaseMemoryLib
+  HobLib
+  IoLib
+  OppoAcpiProbeLib
 [Protocols]
   gEfiBdsArchProtocolGuid
   gEfiGraphicsOutputProtocolGuid
@@ -34,10 +38,12 @@
   gEfiDevicePathProtocolGuid
   gOppoSdStatusProtocolGuid
 [Guids]
+  gOppoAcpiHandoffHobGuid
   gOppoSdDeviceGuid
   gEfiEndOfDxeEventGroupGuid
   gEfiEventReadyToBootGuid
 [FeaturePcd]
+  gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab

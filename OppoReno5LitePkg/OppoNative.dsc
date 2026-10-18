@@ -19,6 +19,7 @@
   DEFINE OPPO_SD_POWER_LAB = FALSE
   DEFINE OPPO_EXTRA_MEMORY_LAB = FALSE
   DEFINE OPPO_SD_FAST_READ_LAB = FALSE
+  DEFINE OPPO_ACPI_PROFILE_LAB = FALSE
 
 !include MdePkg/MdeLibs.dsc.inc
 
@@ -86,6 +87,7 @@
   VariablePolicyHelperLib|MdeModulePkg/Library/VariablePolicyHelperLib/VariablePolicyHelperLib.inf
   TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
   OppoFdtLib|OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.inf
+  OppoAcpiProbeLib|OppoReno5LitePkg/Library/OppoAcpiProbeLib/OppoAcpiProbeLib.inf
   OppoPlatformLib|OppoReno5LitePkg/Library/OppoPlatformLib/OppoPlatformLib.inf
   OppoHandoffLib|OppoReno5LitePkg/Library/OppoHandoffLib/OppoHandoffLib.inf
   OppoFrameBufferLib|OppoReno5LitePkg/Library/OppoFrameBufferLib/OppoFrameBufferLib.inf
@@ -116,6 +118,7 @@
   gOppoNativeTokenSpaceGuid.PcdNativeSdPowerLab|$(OPPO_SD_POWER_LAB)
   gOppoNativeTokenSpaceGuid.PcdNativeExtraMemoryLab|$(OPPO_EXTRA_MEMORY_LAB)
   gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab|$(OPPO_SD_FAST_READ_LAB)
+  gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab|$(OPPO_ACPI_PROFILE_LAB)
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|FALSE
   gArmTokenSpaceGuid.PcdRemapUnusedMemoryNx|FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdHiiOsRuntimeSupport|FALSE

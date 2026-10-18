@@ -46,8 +46,10 @@
 
 [Guids]
   gOppoBootInfoHobGuid
+  gOppoAcpiHandoffHobGuid
 
 [FeaturePcd]
+  gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab
   gOppoNativeTokenSpaceGuid.PcdNativeExtraMemoryLab
