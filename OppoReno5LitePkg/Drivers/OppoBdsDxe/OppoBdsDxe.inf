@@ -37,5 +37,6 @@
   gOppoSdDeviceGuid
 [FeaturePcd]
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
+  gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab
 [Depex]
   TRUE

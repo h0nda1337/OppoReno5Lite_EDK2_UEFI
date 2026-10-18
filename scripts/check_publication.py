@@ -43,6 +43,10 @@ REVIEWED_IMAGES = {
         (2542960, 'd8779f93fb7dc3edc450f3092af21729630529a8c804d9361fa7c543d5a2fe3d'),
     'docs/images/native-sd-read-lab-12.jpg':
         (2948221, 'd403e777eda20a481341a24abb79ec9a3b6464a0581409fb216e25b6e4f39cfa'),
+    'docs/images/native-sd-read-lab-13.jpg':
+        (2511870, 'dc9eeeb6ef2950bcfae75b7a0ef02c321a8dab56639c14cf7fedb1e6266f9a2a'),
+    'docs/images/native-sd-read-lab-14.jpg':
+        (2751510, '83a88ee19b7c74c4dea9d2af5c9b03847b4d2a374e6f6940a094ea915314efef'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

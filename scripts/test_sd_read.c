@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+STATIC BOOLEAN mBootEnabled;
+#define _PCD_GET_MODE_BOOL_PcdNativeSdBootLab mBootEnabled
 #include "../OppoReno5LitePkg/Drivers/OppoBdsDxe/SdRead.c"
 EFI_GUID gOppoSdStatusProtocolGuid, gOppoSdDeviceGuid;
 EFI_GUID gEfiSimpleFileSystemProtocolGuid, gEfiDevicePathProtocolGuid;
@@ -15,6 +17,8 @@ STATIC EFI_SIMPLE_FILE_SYSTEM_PROTOCOL mFs;
 STATIC EFI_FILE_PROTOCOL mRoot, mFile;
 STATIC VENDOR_DEVICE_PATH mSdPath, mOtherPath;
 STATIC UINTN mScenario, mAllocations, mCloses, mOpens, mReads, mVerified;
+STATIC UINTN mPaths, mLoads, mStarts, mUnloads;
+STATIC BOOLEAN mAlive;
 
 BOOLEAN EFIAPI DebugPrintEnabled(VOID) {return TRUE;}
 BOOLEAN EFIAPI DebugPrintLevelEnabled(UINTN Level) {(VOID)Level;return TRUE;}
@@ -25,6 +29,30 @@ VOID EFIAPI FreePool(VOID *P) {assert(P && mAllocations);mAllocations--;free(P);
 BOOLEAN EFIAPI CompareGuid(CONST GUID *A, CONST GUID *B) {return !memcmp(A,B,sizeof(*A));}
 UINTN EFIAPI DevicePathNodeLength(CONST VOID *Node)
 {CONST EFI_DEVICE_PATH_PROTOCOL *P=Node;return P->Length[0]|((UINT16)P->Length[1]<<8);}
+EFI_DEVICE_PATH_PROTOCOL *EFIAPI FileDevicePath(EFI_HANDLE Medium, CONST CHAR16 *Name)
+{
+  assert(Medium==(VOID *)2 && mCloses==2 &&
+    !memcmp(Name,L"\\EFI\\BOOT\\BOOTAA64.EFI",sizeof(L"\\EFI\\BOOT\\BOOTAA64.EFI")));
+  mPaths++;return mScenario==10 ? NULL : AllocatePool(sizeof(EFI_DEVICE_PATH_PROTOCOL));
+}
+STATIC EFI_STATUS EFIAPI Load(BOOLEAN Policy, EFI_HANDLE Parent,
+  EFI_DEVICE_PATH_PROTOCOL *Path, VOID *Source, UINTN Bytes, EFI_HANDLE *Child)
+{
+  assert(!Policy && Parent==(VOID *)3 && Path && !Source && !Bytes);
+  assert(mCloses==2 && mVerified==1 && mAllocations==2);mLoads++;
+  if(mScenario==8) {*Child=NULL;return EFI_LOAD_ERROR;}
+  if(mScenario==12) {*Child=NULL;return EFI_SECURITY_VIOLATION;}
+  if(mScenario==11) {*Child=NULL;return EFI_SUCCESS;}
+  *Child=(VOID *)4;mAlive=TRUE;
+  return mScenario==9 ? EFI_SECURITY_VIOLATION : EFI_SUCCESS;
+}
+STATIC EFI_STATUS EFIAPI Start(EFI_HANDLE Child, UINTN *Bytes, CHAR16 **Data)
+{
+  assert(Child==(VOID *)4 && mAlive && !Bytes && !Data && mCloses==2 && mAllocations==1);
+  mStarts++;mAlive=FALSE;return mScenario==13 ? EFI_SUCCESS : EFI_UNSUPPORTED;
+}
+STATIC EFI_STATUS EFIAPI Unload(EFI_HANDLE Child)
+{assert(Child==(VOID *)4 && mAlive && mScenario==9);mAlive=FALSE;mUnloads++;return EFI_SUCCESS;}
 STATIC EFI_STATUS EFIAPI Locate(EFI_GUID *Guid, VOID *Registration, VOID **Out)
 {assert(Guid==&gOppoSdStatusProtocolGuid && !Registration);*Out=&mSd;return EFI_SUCCESS;}
 STATIC EFI_STATUS EFIAPI Handles(EFI_LOCATE_SEARCH_TYPE Type, EFI_GUID *Guid, VOID *Key,
@@ -59,7 +87,7 @@ STATIC EFI_STATUS EFIAPI Read(EFI_FILE_PROTOCOL *This, UINTN *Bytes, VOID *Buffe
   P[0x98]=0x0b;P[0x99]=0x02;P[0xdc]=10;
   if(mScenario==1)memset(P+0x3c,0xff,4);
   if(mScenario==2)*Bytes=10;
-  if(mScenario==3)P[0x84]=0x4c;
+  if(mScenario==3 || mScenario==15)P[0x84]=0x4c;
   if(mScenario==5)return EFI_CRC_ERROR;
   return EFI_SUCCESS;
 }
@@ -70,16 +98,22 @@ int main(void)
   mSdPath.Header.Length[0]=sizeof(mSdPath);mSdPath.Guid=gOppoSdDeviceGuid;
   mOtherPath=mSdPath;mOtherPath.Guid.Data1=2;
   mBoot.LocateProtocol=Locate;mBoot.LocateHandleBuffer=Handles;mBoot.HandleProtocol=Protocol;
+  mBoot.LoadImage=Load;mBoot.StartImage=Start;mBoot.UnloadImage=Unload;
   mFs.OpenVolume=Volume;mRoot.Open=Open;mRoot.Close=Close;mFile.Close=Close;mFile.Read=Read;
-  for(mScenario=0;mScenario<7;mScenario++) {
+  for(mScenario=0;mScenario<16;mScenario++) {
     mAllocations=mCloses=mOpens=mReads=mVerified=0;
+    mPaths=mLoads=mStarts=mUnloads=0;mAlive=FALSE;mBootEnabled=mScenario>=7;
     mSd.Publish=mScenario==6 ? EFI_NOT_STARTED : EFI_SUCCESS;
-    OppoSdReadLab();
-    assert(mAllocations==0 && mVerified==(mScenario==0 ? 1U : 0U));
+    OppoSdReadLab(mScenario==14 ? NULL : (VOID *)3);
+    assert(mAllocations==0 && !mAlive && mVerified==(mScenario==0 || (mScenario>=7 && mScenario!=15) ? 1U : 0U));
     assert(mCloses==(mScenario==6 ? 0U : mScenario==4 ? 1U : 2U));
     assert(mOpens==(mScenario==6 ? 0U : 1U));
     assert(mReads==((mScenario==4 || mScenario==6) ? 0U : 1U));
+    assert(mPaths==(mScenario>=7 && mScenario<14 ? 1U : 0U));
+    assert(mLoads==(mScenario>=7 && mScenario<14 && mScenario!=10 ? 1U : 0U));
+    assert(mStarts==(mScenario==7 || mScenario==13 ? 1U : 0U));
+    assert(mUnloads==(mScenario==9 ? 1U : 0U));
   }
-  puts("SD file discovery: other storage excluded, read-only open, truncated/overflow/wrong-machine PE rejected and handles released; host simulation only.");
+  puts("SD EFI: 16 host scenarios, other storage excluded, invalid PE rejected, files closed before SD-path LoadImage, security denial never started, application return not unloaded twice; no physical Windows execution.");
   return 0;
 }

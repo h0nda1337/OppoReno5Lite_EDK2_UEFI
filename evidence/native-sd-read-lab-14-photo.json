@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-sd-read-lab-14.jpg",
+  "bytes": 2751510,
+  "sha256": "83a88ee19b7c74c4dea9d2af5c9b03847b4d2a374e6f6940a094ea915314efef",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "06c28c1765c429675052c9114d2ed666680e40663278466af8ed794b17843924",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of seventh microSD attempt: retaining HS without writes allows I2C restoration to pass, CRC-protected LDO queries succeed, software rail enables remain clear and CMD8 still reports CRC with zero sectors"
+}

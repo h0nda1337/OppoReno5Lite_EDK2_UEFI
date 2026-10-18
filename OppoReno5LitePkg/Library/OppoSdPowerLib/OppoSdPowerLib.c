@@ -69,11 +69,15 @@ EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
     return P->Status = EFI_INVALID_PARAMETER;
   if (Read (Io, 0x24) & 1) return P->Status = EFI_NOT_READY;
   for (UINTN I = 0; I < sizeof (Registers) / sizeof (Registers[0]); I++) Saved[I] = Read (Io, Registers[I]);
+  // This diagnostic only uses retained legacy mode. Never rewrite HS: native
+  // experiment 13 found that retained 0x8000 could not be written back after
+  // clearing it. Reject enabled HS rather than changing unvalidated HS state.
+  if (Read (Io, 0x30) & 0x81U) return P->Status = EFI_UNSUPPORTED;
   // Retain the shared source selection. Maximum legacy divisors keep the bus
   // slow for all three MT6779 i2c_sel sources; divisor 5 matches this board FDT.
   Write (Io, 0x08, 0); Write (Io, 0x48, 0x0404);
   Write (Io, 0x20, 0x073f); Write (Io, 0x2c, 0x01ff);
-  Write (Io, 0x30, 0); Write (Io, 0x34, 0); // Legacy rate, board push-pull binding.
+  Write (Io, 0x34, 0); // Board push-pull binding; HS remains untouched.
   Write (Io, 0x28, 0x8001); Write (Io, 0x1c, 10); Write (Io, 0x4c, 0xffff);
   P->Status = Query (Io, P, 0x34, 0, FALSE, &P->ChipId);
   if (!EFI_ERROR (P->Status)) {
@@ -100,7 +104,7 @@ EFI_STATUS OppoSdPowerInspect (CONST OPPO_I2C_IO *Io, OPPO_SD_POWER *P)
   if (!EFI_ERROR (P->Restore)) {
     // Interrupt mask last; no pending interrupt is restored.
     for (UINTN I = 0; I < sizeof (Registers) / sizeof (Registers[0]); I++)
-      if (Registers[I] != 0x08) Write (Io, Registers[I], Saved[I]);
+      if (Registers[I] != 0x08 && Registers[I] != 0x30) Write (Io, Registers[I], Saved[I]);
     Write (Io, 0x08, Saved[1]);
     for (UINTN I = 0; I < sizeof (Registers) / sizeof (Registers[0]); I++) {
       UINT32 Observed = Read (Io, Registers[I]);

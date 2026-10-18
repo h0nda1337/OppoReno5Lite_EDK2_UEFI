@@ -22,7 +22,7 @@
 #include <Library/UefiRuntimeServicesTableLib.h>
 
 STATIC EFI_HANDLE mImage;
-VOID OppoSdReadLab (VOID);
+VOID OppoSdReadLab (EFI_HANDLE Parent);
 STATIC CONST volatile CHAR8 mLabIdentity[] = "OPPO_NATIVE_DXE_SHELL_LAB_90S_V1";
 STATIC EFI_GUID mShellFile = {0x7c04a583, 0x9e3e, 0x4f1c, {0xad, 0x65, 0xe0, 0x52, 0x68, 0xd0, 0xb4, 0xd1}};
 STATIC BOOLEAN mCounterDeadlineReady;
@@ -179,7 +179,7 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   HiiString = ProbeProtocol (&gEfiHiiStringProtocolGuid, "HII string");
   gST->Hdr.CRC32 = 0;
   gBS->CalculateCrc32 (gST, gST->Hdr.HeaderSize, &gST->Hdr.CRC32);
-  if (FeaturePcdGet (PcdNativeSdReadLab) && !EFI_ERROR (ConsoleStatus)) OppoSdReadLab ();
+  if (FeaturePcdGet (PcdNativeSdReadLab) && !EFI_ERROR (ConsoleStatus)) OppoSdReadLab (mImage);
   // Do not invoke Shell with an uninitialized graphical text console.
   Status = FeaturePcdGet (PcdNativeSdReadLab) ? EFI_ABORTED : EFI_ERROR (ConsoleStatus) ? ConsoleStatus :
     gBS->LocateHandleBuffer (ByProtocol, &gEfiFirmwareVolume2ProtocolGuid, NULL, &Count, &Handles);

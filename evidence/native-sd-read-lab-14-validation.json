@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "experiment": "native-microsd-read-only-14",
+  "candidate_sha256": "d613acb49772278dc7bbe3119598bf0bbd68c6f0b4a30beb4a5f5842434b660f",
+  "native_fd_sha256": "34f3b616b76ba697f4d74d08cf40c7f2e24cec62026d484a4b3d63a8fff0b13a",
+  "host_evidence": "evidence/native-sd-read-lab-14-host-validation.json",
+  "photos": [
+    "docs/images/native-sd-read-lab-14.jpg"
+  ],
+  "observation_source": "Owner photograph",
+  "screen": {
+    "profile": "Success",
+    "board": "Success",
+    "initialize": "CRC Error",
+    "publish": "Not Started",
+    "sectors": 0,
+    "cmd8_attempts": 2,
+    "power_profile": "Success",
+    "power_query": "Success",
+    "power_restore": "Success",
+    "power_valid_mask": "0x7f",
+    "i2c_restore_register": "0xffffffff",
+    "i2c_restore_expected": "0x0000",
+    "i2c_restore_observed": "0x0000",
+    "last_command": 8,
+    "interrupt": "0x00000400",
+    "pmu_id": "0x53",
+    "vmc_registers": {
+      "0x04": "0x00",
+      "0x05": "0x80",
+      "0x09": "0x80"
+    },
+    "vmch_registers": {
+      "0x0a": "0x00",
+      "0x0b": "0x80",
+      "0x0f": "0x25"
+    }
+  },
+  "interpretation": {
+    "power_register_query_verified": true,
+    "ldo_crc_verified": true,
+    "i2c_restoration_verified": true,
+    "i2c_restoration_guard_rejected": false,
+    "sd_initialization_attempted": true,
+    "sd_sector_read_verified": false,
+    "windows_boot_manager_started": false,
+    "electrical_rail_voltage_measured": false,
+    "regulator_registers_written": false,
+    "hs_bit15_meaning_proven": false,
+    "next_action": "Prepare validated 3.0 V rail initialization with readback and failure restoration"
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 202.195,
+    "bootreason": "reboot"
+  },
+  "return_mechanism_and_native_timer_interval_verified": false,
+  "stock_recovery_restored": true,
+  "stock_recovery_sha256": "ac989e3009148792101a764a82fca8ca6212ec0afdd84e13d3b85e87364903b1",
+  "android_boot_completed_after_restoration": true,
+  "battery_before_test_percent": 100.0,
+  "battery_after_restoration_percent": 100.0,
+  "minimum_battery_percent": 20,
+  "only_recovery_written": true,
+  "card_write_commands_implemented": false,
+  "other_partitions_written": false,
+  "lock_or_unlock_commands_sent": false,
+  "source_base_revision": "74fe279534f41d231261489a4365fd617ee4ffbf"
+}

@@ -8,6 +8,7 @@
 #include <Library/DebugLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/DevicePathLib.h>
+#include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 
 STATIC BOOLEAN IsOurSd (EFI_HANDLE Handle)
@@ -28,7 +29,41 @@ STATIC UINT32 Le (CONST UINT8 *P, UINTN Size)
   return Value;
 }
 
-VOID OppoSdReadLab (VOID)
+STATIC VOID BootFromSd (EFI_HANDLE Parent, EFI_HANDLE Medium)
+{
+  EFI_DEVICE_PATH_PROTOCOL *Path;
+  EFI_HANDLE Child = NULL;
+  EFI_STATUS Status;
+  if (Parent == NULL) {
+    DEBUG ((DEBUG_ERROR, "SD EFI boot missing parent image handle\n")); return;
+  }
+  Path = FileDevicePath (Medium, L"\\EFI\\BOOT\\BOOTAA64.EFI");
+  if (Path == NULL) {
+    DEBUG ((DEBUG_ERROR, "SD EFI boot device path allocation failed\n")); return;
+  }
+  // Let the firmware load from the SD filesystem so its security policy and
+  // the loaded image's device/path identity remain effective. No memory blob.
+  Status = gBS->LoadImage (FALSE, Parent, Path, NULL, 0, &Child);
+  FreePool (Path);
+  DEBUG ((DEBUG_INFO, "SD EFI LoadImage returned: %r\n", Status));
+  if (EFI_ERROR (Status)) {
+    // This particular status can leave a loaded image that must not be started.
+    if (Status == EFI_SECURITY_VIOLATION && Child != NULL) {
+      EFI_STATUS Cleanup = gBS->UnloadImage (Child);
+      DEBUG ((DEBUG_INFO, "SD EFI rejected image cleanup: %r\n", Cleanup));
+    }
+    return;
+  }
+  if (Child == NULL) {
+    DEBUG ((DEBUG_ERROR, "SD EFI loader returned no image handle\n")); return;
+  }
+  DEBUG ((DEBUG_INFO, "SD EFI StartImage attempt from verified ARM64 prefix\n"));
+  Status = gBS->StartImage (Child, NULL, NULL);
+  // UEFI applications are unloaded when they return. Do not unload twice.
+  DEBUG ((DEBUG_INFO, "SD EFI StartImage returned: %r\n", Status));
+}
+
+VOID OppoSdReadLab (EFI_HANDLE Parent)
 {
   OPPO_SD_STATUS *Sd;
   EFI_HANDLE *Handles;
@@ -71,6 +106,7 @@ VOID OppoSdReadLab (VOID)
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *Fs;
     EFI_FILE_PROTOCOL *Root = NULL, *File = NULL;
     UINT8 *Header;
+    BOOLEAN Verified = FALSE;
     if (!IsOurSd (Handles[I])) continue;
     Found = TRUE;
     Status = gBS->HandleProtocol (Handles[I], &gEfiSimpleFileSystemProtocolGuid, (VOID **)&Fs);
@@ -87,16 +123,23 @@ VOID OppoSdReadLab (VOID)
         Pe = Le (Header + 0x3c, 4);
         if (Pe <= Bytes && Bytes - Pe >= 94 && Le (Header + Pe, 4) == 0x4550 &&
             Le (Header + Pe + 4, 2) == 0xaa64 && Le (Header + Pe + 24, 2) == 0x20b &&
-            Le (Header + Pe + 92, 2) == 10)
+            Le (Header + Pe + 92, 2) == 10) {
+          Verified = TRUE;
           DEBUG ((DEBUG_INFO, "SD ARM64 UEFI header verified from physical media\n"));
+        }
         else DEBUG ((DEBUG_INFO, "SD file header unsupported or outside prefix\n"));
       }
       if (Header != NULL) FreePool (Header);
       File->Close (File);
     }
     Root->Close (Root);
+    if (Verified && FeaturePcdGet (PcdNativeSdBootLab)) {
+      BootFromSd (Parent, Handles[I]);
+      break; // At most one boot attempt, from this driver's SD device only.
+    }
   }
   FreePool (Handles);
   if (!Found) DEBUG ((DEBUG_INFO, "SD has no readable FAT filesystem handle\n"));
-  DEBUG ((DEBUG_INFO, "SD read lab finished; Windows not launched in this variant\n"));
+  if (!FeaturePcdGet (PcdNativeSdBootLab))
+    DEBUG ((DEBUG_INFO, "SD read lab finished; Windows not launched in this variant\n"));
 }

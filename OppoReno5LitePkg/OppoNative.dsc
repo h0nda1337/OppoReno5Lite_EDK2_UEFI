@@ -15,6 +15,7 @@
   DEFINE OPPO_ENTRY_PROBE = FALSE
   DEFINE OPPO_MMU_PROBE = FALSE
   DEFINE OPPO_SD_READ_LAB = FALSE
+  DEFINE OPPO_SD_BOOT_LAB = FALSE
 
 !include MdePkg/MdeLibs.dsc.inc
 
@@ -107,6 +108,7 @@
   gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe|$(OPPO_ENTRY_PROBE)
   gOppoNativeTokenSpaceGuid.PcdNativeMmuProbe|$(OPPO_MMU_PROBE)
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab|$(OPPO_SD_READ_LAB)
+  gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab|$(OPPO_SD_BOOT_LAB)
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|FALSE
   gArmTokenSpaceGuid.PcdRemapUnusedMemoryNx|FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdHiiOsRuntimeSupport|FALSE

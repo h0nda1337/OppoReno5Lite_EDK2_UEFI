@@ -1,0 +1,19 @@
+{
+  "public_path": "docs/images/native-sd-read-lab-13.jpg",
+  "bytes": 2511870,
+  "sha256": "dc9eeeb6ef2950bcfae75b7a0ef02c321a8dab56639c14cf7fedb1e6266f9a2a",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "scan_count": 1,
+  "compressed_scan_sha256": "455d93d297d2cfee3a471b00550bf83963a7a63ae0acfe80765d474469060ad3",
+  "removed_source_app_markers": [
+    "0xe1",
+    "0xea"
+  ],
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_publication": true,
+  "scope": "Owner photograph of sixth microSD attempt: CRC-verified LDO queries again succeed; I2C HS restoration readback at offset 0x30 differs (expected 0x8000, observed 0x0000), so SD initialization is not attempted"
+}

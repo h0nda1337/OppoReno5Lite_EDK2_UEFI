@@ -260,8 +260,51 @@ comprimidos originales, sin metadatos personales de cámara. Véase
 La variante 13 añade el registro exacto y sus valores esperado/observado al
 diagnóstico de restauración, incluyendo un START que no se detenga y una
 compuerta que no se restaure. Las pruebas de PC cubren esos reportes; compiló
-para ARM64 en unos 12 segundos. Su observación física sigue pendiente en
+para ARM64 en unos 12 segundos. Su composición está en
 [la evidencia de compilación](../evidence/native-sd-read-lab-13-host-validation.json).
+
+## Sexto y séptimo intentos (13–14): preservar HS sin reescribirlo
+
+![El readback identifica HS: esperado 8000, observado 0000](images/native-sd-read-lab-13.jpg)
+
+El intento 13 repitió las consultas válidas y mostró el desacuerdo:
+
+```text
+SD POWER PROFILE=SUCCESS QUERY=SUCCESS RESTORE=DEVICE ERROR VALID=7F
+SD I2C RESTORE REG=00000030 EXPECTED=8000 OBSERVED=0000
+```
+
+El offset `0x30` es HS en esta versión del controlador. La consulta lo ponía en
+cero y después intentaba reponer el valor retenido. No se ha establecido el
+significado del bit `0x8000`; no debe declararse escribible ni ignorarse su cambio.
+La variante 14 rechaza un modo HS activo y deja ese registro completamente sin
+escribir, tanto durante la preparación como durante la restauración. Aun así,
+su valor sigue formando parte del readback estricto. Las pruebas de PC reproducen
+el valor retenido y comprueban que no haya ninguna escritura a HS.
+
+![Restauración I²C correcta al conservar HS; SD continúa con CRC](images/native-sd-read-lab-14.jpg)
+
+```text
+SD PROFILE=SUCCESS BOARD=SUCCESS INIT=CRC ERROR PUBLISH=NOT STARTED
+SD SECTORS=0 LAST CMD=8 INT=00000400
+SD POWER PROFILE=SUCCESS QUERY=SUCCESS RESTORE=SUCCESS VALID=7F
+SD PMIC ID=53 VMC=00/80/80 VMCH=00/80/25
+SD I2C RESTORE REG=FFFFFFFF EXPECTED=0000 OBSERVED=0000
+```
+
+El centinela `FFFFFFFF` indica que no se encontró una diferencia de restauración.
+La corrección sí pasó físicamente. Ambos bits de habilitación por software siguen
+a cero; el próximo paso investigará el encendido de las dos salidas a 3,0 V,
+según el contrato de MSDC, con lectura posterior y restauración ante fallo.
+Ninguno de estos intentos escribe registros del regulador. No se ha leído un
+sector ni se ha iniciado Windows. Las evidencias filtradas son
+[13](../evidence/native-sd-read-lab-13-validation.json) y
+[14](../evidence/native-sd-read-lab-14-validation.json).
+
+El observador volvió a detectar Android completo en ambos intentos, unos 199 y
+202 segundos después de sus informes de entrada, respectivamente; esos tiempos
+incluyen LK, Android y sondeo USB. Tras cada intento se restauró el recovery
+original y se verificó Android con batería al 100 %.
 
 Los contratos se investigaron en el
 [controlador I²C de OPPO](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/i2c/busses/i2c-mtk.c),
@@ -280,8 +323,20 @@ memoria y una reserva de pila de 1 MiB; esos números no son un requisito total
 de RAM para Windows PE. Véase [la inspección](../evidence/sd-windows-loader-inspection.json).
 No se publica la copia del ejecutable ni contenido de la tarjeta.
 
-Una vez leída desde UEFI, se probarán por separado `LoadImage` y `StartImage`
-con la ruta de esa microSD, conservando el resultado exacto de cada servicio.
+La ruta experimental de BDS ya separa `LoadImage` y `StartImage` con la ruta de
+esa microSD y conserva el resultado exacto de cada servicio. Está desactivada
+por defecto y no se ejecutó en las pruebas físicas de lectura. Solo considera
+el dispositivo SD de este controlador, después de leer una cabecera ARM64 UEFI.
+Los archivos se cierran antes de cargar; el cargador recibe la identidad del
+filesystem SD, en vez de una copia del ejecutable en memoria. Un rechazo de
+seguridad no llega a `StartImage`. Una aplicación que retorna no se descarga dos veces.
+
+La ruta pasó 16 escenarios de PC, incluyendo otros discos excluidos, cabeceras
+inválidas, fallos de carga, rechazo de seguridad, falta de memoria para la ruta y
+retorno de la aplicación. Compiló para ARM64 en `sd-boot-lab` con ambos PCD
+activados, mientras el FD del intento físico 14 tiene el PCD de boot en falso.
+Esto es validación de PC; Windows Boot Manager sigue sin ejecutarse en el OPPO.
+Véase [la evidencia de compilación del cargador](../evidence/native-sd-boot-host-validation.json).
 La [especificación UEFI](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#image-services)
 define esas operaciones y la carga desde un filesystem. Los
 [requisitos de Windows sobre SoC](https://learn.microsoft.com/en-us/windows-hardware/drivers/bringup/uefi-requirements-that-apply-to-all-windows-platforms)
@@ -300,6 +355,8 @@ Para compilar esta variante, se añade `NATIVE_SD_READ_LAB=1` al entorno de
 `.build/native/sd-read-lab/`; no sustituye el FD anterior de Shell. El script
 solo compila. Las imágenes y los informes con identificadores permanecen privados.
 
-El BDS de esta variante muestra resultados y solicita reset a los 90 segundos,
-sin lanzar Shell ni Windows. La ruta y el plazo exactos del retorno siguen sin
+La variante `sd-read-lab` muestra resultados y solicita reset a los 90 segundos,
+sin lanzar Shell ni Windows. `NATIVE_SD_BOOT_LAB=1` selecciona el modo separado
+`sd-boot-lab` e incluye las capas SD; no debe confundirse su compilación con una
+prueba física del cargador. La ruta y el plazo exactos del retorno siguen sin
 medir. La batería mínima sigue siendo 20 % antes de cada fase física.
