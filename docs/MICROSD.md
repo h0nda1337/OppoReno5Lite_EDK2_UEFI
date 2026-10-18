@@ -737,7 +737,9 @@ generados para SD, BDS, Runtime y SEC. Compiló para ARM64 en unos 27 segundos;
 el manifiesto y el ejecutable BDS coinciden en un plazo de 1800 segundos.
 
 Se escribió únicamente en recovery y se solicitó entrada directa, sin Android
-intermedio, con batería al 100 %. Se espera la observación del propietario.
+intermedio, con batería al 100 %. El propietario comunica otra vez pantalla
+negra y deja el intento en curso mientras espera; todavía no hay foto ni
+diagnóstico nuevo. La pantalla negra por sí sola no demuestra carga o bloqueo.
 La ejecución de WinPE, el efecto físico de la RAM adicional y el resultado del
 cargador todavía no están confirmados para este intento. El recovery original
 se restauró después del 24; aún no se ha restaurado después del 25, en curso.
