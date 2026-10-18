@@ -23,6 +23,7 @@
 #include <Library/OppoFdtLib.h>
 #include <Library/OppoFrameBufferLib.h>
 #include <Library/OppoMemoryPlanLib.h>
+#include <Library/OppoHandoffLib.h>
 
 VOID EFIAPI ProcessLibraryConstructorList (VOID);
 
@@ -92,9 +93,10 @@ STATIC BOOLEAN RegisterMatches (CONST OPPO_FDT_VIEW *View, CONST CHAR8 *Path,
   return (BOOLEAN)(BigNumber (Reg, 8) == Base && BigNumber (Reg + 8, 8) >= MinimumSize);
 }
 
-STATIC VOID MapRegion (ARM_MEMORY_REGION_DESCRIPTOR *Map, UINTN *Count,
+STATIC VOID MapRegion (ARM_MEMORY_REGION_DESCRIPTOR *Map, UINTN Capacity, UINTN *Count,
                        OPPO_MEMORY_RANGE R, ARM_MEMORY_REGION_ATTRIBUTES Attributes)
 {
+  if (Capacity == 0 || *Count >= Capacity - 1) Stop (); // Keep the zero terminator.
   Map[*Count].PhysicalBase = R.Base;
   Map[*Count].VirtualBase = R.Base;
   Map[*Count].Length = R.Length;
@@ -111,11 +113,12 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   EFI_RESOURCE_ATTRIBUTE_TYPE Attributes = EFI_RESOURCE_ATTRIBUTE_PRESENT |
     EFI_RESOURCE_ATTRIBUTE_INITIALIZED | EFI_RESOURCE_ATTRIBUTE_TESTED |
     EFI_RESOURCE_ATTRIBUTE_WRITE_BACK_CACHEABLE | EFI_RESOURCE_ATTRIBUTE_UNCACHEABLE;
-  ARM_MEMORY_REGION_DESCRIPTOR Map[OPPO_MAX_BOOT_RESERVATIONS + 12];
+  ARM_MEMORY_REGION_DESCRIPTOR Map[ARRAY_SIZE (Plan->Protected) + 12];
   UINTN MapCount = 0, Index;
   EFI_STATUS Status;
   OPPO_BOOT_INFO Info;
   (VOID)Unused;
+  if (Plan->ProtectedCount > ARRAY_SIZE (Plan->Protected)) Stop ();
   Hobs = HobConstructor ((VOID *)(UINTN)Plan->Pool.Base, (UINTN)Plan->Pool.Length,
                          (VOID *)(UINTN)Plan->Pool.Base, (VOID *)(UINTN)OPPO_NATIVE_DEBUG_BASE);
   if (Hobs == NULL || PrePeiSetHobList (Hobs) != EFI_SUCCESS) Stop ();
@@ -134,21 +137,21 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   BuildFvHob (OPPO_NATIVE_FV_BASE, OPPO_NATIVE_FV_BYTES);
   ProcessLibraryConstructorList ();
   ZeroMem (Map, sizeof (Map));
-  MapRegion (Map, &MapCount, Plan->Image, ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
-  MapRegion (Map, &MapCount, Plan->Pool, ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
+  MapRegion (Map, ARRAY_SIZE (Map), &MapCount, Plan->Image, ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
+  MapRegion (Map, ARRAY_SIZE (Map), &MapCount, Plan->Pool, ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
   for (Index = 0; Index < Plan->ProtectedCount; Index++)
     if (Plan->ProtectedType[Index] == EfiBootServicesData)
-      MapRegion (Map, &MapCount, Plan->Protected[Index], ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
-  MapRegion (Map, &MapCount, State->Handoff.NativeFramebuffer, ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED);
-  MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){OPPO_NATIVE_GICD_BASE, 0x40000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
-  MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){OPPO_NATIVE_GICR_BASE, 0x200000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
-  MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){OPPO_NATIVE_WDT_BASE, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+      MapRegion (Map, ARRAY_SIZE (Map), &MapCount, Plan->Protected[Index], ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK);
+  MapRegion (Map, ARRAY_SIZE (Map), &MapCount, State->Handoff.NativeFramebuffer, ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED);
+  MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){OPPO_NATIVE_GICD_BASE, 0x40000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+  MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){OPPO_NATIVE_GICR_BASE, 0x200000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+  MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){OPPO_NATIVE_WDT_BASE, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
   if (FeaturePcdGet (PcdNativeSdReadLab) && State->SdProfile) {
-    MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x11240000, 0x10000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
-    MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x10000000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
-    MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x10001000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
-    MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x10005000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
-    MapRegion (Map, &MapCount, (OPPO_MEMORY_RANGE){0x11e70000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+    MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){0x11240000, 0x10000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+    MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){0x10000000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+    MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){0x10001000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+    MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){0x10005000, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
+    MapRegion (Map, ARRAY_SIZE (Map), &MapCount, (OPPO_MEMORY_RANGE){OPPO_NATIVE_SD_PAD_BASE, 0x1000}, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE);
   }
   if (State->Entry->ExceptionLevel == 2) {
     ArmWriteHcr ((1ULL << 31) | (1ULL << 27));
@@ -171,7 +174,8 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   Info.BlueShift = OPPO_NATIVE_FB_BLUE_SHIFT; Info.OpaqueAlpha = TRUE;
   Info.InitialSctlr = State->Entry->Sctlr; Info.PsciVersion = State->PsciVersion;
   Info.Flags = OPPO_BOOT_MEMORY_READY | OPPO_BOOT_EXPECTED_DISPLAY_PROFILE | OPPO_BOOT_WATCHDOG_STOPPED;
-  if (State->SdProfile) Info.Flags |= OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED;
+  if (State->SdProfile) Info.Flags |= OPPO_BOOT_SD_PROFILE_VALIDATED |
+    OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED;
   if (BuildGuidDataHob (&gOppoBootInfoHobGuid, &Info, sizeof (Info)) == NULL) Stop ();
   Stage (2, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL){255, 255, 255, 0});
   LoadDxeCoreFromFv (NULL, 0);
@@ -210,13 +214,7 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   State.SdProfile = FALSE;
   // No storage MMIO is mapped unless this boot's FDT matches the board profile.
   if (FeaturePcdGet (PcdNativeSdReadLab)) {
-    State.SdProfile = RegisterMatches (&View, "/soc/msdc@11240000", 0x11240000, 0x10000, 0) &&
-      RegisterMatches (&View, "/soc/clock-controller@10000000", 0x10000000, 0x1000, 0) &&
-      RegisterMatches (&View, "/soc/clock-reset-controller@10001000", 0x10001000, 0x1000, 0) &&
-      RegisterMatches (&View, "/soc/pinctrl@10005000", 0x10005000, 0x1000, 0) &&
-      RegisterMatches (&View, "/soc/pinctrl@10005000", 0x11e70000, 0x1000, 64) &&
-      OppoFdtProperty (&View, "/soc/msdc@11240000", "host_function", &Value, &Bytes) == EFI_SUCCESS &&
-      Bytes == 1 && *(CONST UINT8 *)Value == 1;
+    State.SdProfile = OppoSdProfileMatches (&View);
   }
   if (!RegisterMatches (&View, "/soc/toprgu@10007000", OPPO_NATIVE_WDT_BASE, 0x1000, 0) ||
       !RegisterMatches (&View, "/soc/interrupt-controller@0c000000", OPPO_NATIVE_GICD_BASE, 0x40000, 0) ||

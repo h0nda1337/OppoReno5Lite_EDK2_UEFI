@@ -12,6 +12,7 @@ typedef struct {
   UINT32 Cmd8Attempts;
   EFI_STATUS Cmd8FirstStatus;
   UINT32 IesBefore, IesAfter, SmtBefore, SmtAfter, PullDirection, PullR0, PullR1;
+  EFI_STATUS PadRestoreStatus;
 } OPPO_SD_STATUS;
 extern EFI_GUID gOppoSdStatusProtocolGuid;
 extern EFI_GUID gOppoSdDeviceGuid;

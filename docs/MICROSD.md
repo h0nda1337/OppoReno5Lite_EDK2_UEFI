@@ -14,7 +14,7 @@ pueda arrancar: aún faltan validaciones de memoria, ACPI y otros dispositivos.
   sin DMA. Con fuente de 26 MHz utiliza aproximadamente 382 kHz para enumerar y
   6,5 MHz para leer. No implementa comandos de escritura ni borrado.
 - `OppoSdDxe` comprueba el HOB de perfil y conserva el pinmux existente. Selecciona
-  únicamente el reloj de MSDC1 y publica Block I/O de solo lectura si la tarjeta
+  el reloj de MSDC1, prepara sus entradas en IOCFG_RM y publica Block I/O de solo lectura si la tarjeta
   responde. Los fallos se exponen mediante un protocolo de diagnóstico propio.
 - La variante ARM64 `sd-read-lab` compiló y llegó físicamente al diagnóstico BDS.
   Su primer intento se detuvo en un error de CRC de respuesta a CMD8; no terminó
@@ -65,10 +65,10 @@ VMCH desde `ldo5` y VMC desde `ldo3`, ambos bajo el regulador externo
 La variante inicial conserva el estado de alimentación dejado por el cargador:
 no escribe registros del regulador, no cambia voltaje y no adivina su chip.
 
-El GPIO admite dos disposiciones documentadas para MSDC1. La variante solo
-acepta un mux retenido que coincida con una de ellas. Si no coincide, se detiene
-antes de programar el reloj. Un timeout de tarjeta por sí solo no identifica un
-problema de alimentación.
+El GPIO admite dos disposiciones documentadas para MSDC1. El controlador actual
+solo prepara la disposición estándar observada en este OPPO; detecta y rechaza
+la alternativa sin escribir sus pads, porque su banco no está validado aquí.
+Un timeout de tarjeta por sí solo no identifica un problema de alimentación.
 
 Los contratos de registros y reloj se investigaron en las fuentes públicas de
 [OPPO MT6779, revisión fijada](https://github.com/oppo-source/android_kernel_oppo_mt6779/tree/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/mmc/host/mediatek/ComboA)
@@ -83,6 +83,7 @@ Con `EDK2_HEADERS` apuntando a la dependencia base revisada:
 bash scripts/test_msdc.sh
 bash scripts/test_sd_binding.sh
 bash scripts/test_sd_read.sh
+bash scripts/test_sd_profile.sh
 bash scripts/test_bds.sh
 ```
 
@@ -152,6 +153,27 @@ Véase [la evidencia filtrada](../evidence/native-sd-read-lab-10-validation.json
 Las referencias primarias son el
 [mapeo de recursos de MSDC](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/mmc/host/mediatek/ComboA/mt6779/msdc_cust.c)
 y la [tabla pinctrl MT6779](https://github.com/oppo-source/android_kernel_oppo_mt6779/blob/0e1e01b9fb281b02d1f50f12ea475d881f3fafd5/drivers/pinctrl/mediatek/pinctrl-mt6779.c).
+
+## Corrección de banco (11): comprobada en PC
+
+`OppoSdProfileMatches` comprueba el rol compatible, rango y alias de `iocfg_rm`
+en el FDT antes de mapear **`0x11c20000`** como MMIO. El HOB distingue esta
+comprobación de la validación anterior por direcciones. Se conservaron como
+historia las fuentes y la fotografía del intento 10; su banco LB no debe usarse
+como referencia SD.
+
+El controlador conserva los bits ajenos de los registros RM. Si falla el
+readback de los pads, intenta restaurar sus cinco valores originales y verifica
+la restauración. El diagnóstico inicia CMD8 como `Not Started` y la operación
+síncrona de Block I/O se serializa en TPL_CALLBACK. El mapa de SEC reserva un
+terminador y deriva su capacidad del tamaño real del arreglo de protecciones.
+
+El validador aceptó el FDT privado capturado del OPPO. Las pruebas con el lector
+FDT real rechazaron el rol equivocado aunque el rango existiera, el alias LB,
+otro controlador, eMMC, otra anchura y estados inválidos. La simulación de
+Block I/O cubre tanto restauración correcta como rechazada. La variante ARM64
+compiló; la ejecución física de esta corrección todavía está pendiente.
+Véase [la validación de PC](../evidence/native-sd-read-lab-11-host-validation.json).
 
 ## Aplicación EFI de la tarjeta
 

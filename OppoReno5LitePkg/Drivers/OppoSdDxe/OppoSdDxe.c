@@ -9,6 +9,7 @@
 #include <Protocol/OppoSdStatus.h>
 #include <Protocol/BlockIo.h>
 #include <Protocol/DevicePath.h>
+#include <OppoNativeProfile.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/HobLib.h>
 #include <Library/IoLib.h>
@@ -50,6 +51,7 @@ STATIC VOID RecordCard (VOID)
 
 STATIC EFI_STATUS PrepareBoard (VOID)
 {
+  UINT32 BeforePupd, BeforeR0, BeforeR1;
   // These two mux arrangements are documented by the MT6779 GPIO contract.
   // Read both; never force pins if the bootloader left a different layout.
   mStatus.GpioMisc = MmioRead32 (0x10005600);
@@ -67,21 +69,37 @@ STATIC EFI_STATUS PrepareBoard (VOID)
   else return EFI_NOT_READY;
   // IOCFG_RM: only the six MSDC1 pads. Preserve every unrelated GPIO field.
   // Enable receivers/Schmitt; 50 kOhm CMD/DAT pull-up and CLK pull-down.
-  mStatus.IesBefore = MmioRead32 (0x11e70030);
-  mStatus.SmtBefore = MmioRead32 (0x11e700c0);
-  MmioWrite32 (0x11e70030, mStatus.IesBefore | 0xfcU);
-  MmioWrite32 (0x11e700c0, mStatus.SmtBefore | 0x1cU);
-  MmioWrite32 (0x11e70060, (MmioRead32 (0x11e70060) & ~0x3fU) | 1U);
-  MmioWrite32 (0x11e70080, MmioRead32 (0x11e70080) & ~0x3fU);
-  MmioWrite32 (0x11e70090, MmioRead32 (0x11e70090) | 0x3fU);
-  mStatus.IesAfter = MmioRead32 (0x11e70030);
-  mStatus.SmtAfter = MmioRead32 (0x11e700c0);
-  mStatus.PullDirection = MmioRead32 (0x11e70060);
-  mStatus.PullR0 = MmioRead32 (0x11e70080);
-  mStatus.PullR1 = MmioRead32 (0x11e70090);
+  mStatus.IesBefore = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x30);
+  mStatus.SmtBefore = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0xc0);
+  BeforePupd = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x60);
+  BeforeR0 = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x80);
+  BeforeR1 = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x90);
+  MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0x30, mStatus.IesBefore | 0xfcU);
+  MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0xc0, mStatus.SmtBefore | 0x1cU);
+  MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0x60, (BeforePupd & ~0x3fU) | 1U);
+  MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0x80, BeforeR0 & ~0x3fU);
+  MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0x90, BeforeR1 | 0x3fU);
+  mStatus.IesAfter = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x30);
+  mStatus.SmtAfter = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0xc0);
+  mStatus.PullDirection = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x60);
+  mStatus.PullR0 = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x80);
+  mStatus.PullR1 = MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x90);
   if ((mStatus.IesAfter & 0xfcU) != 0xfcU || (mStatus.SmtAfter & 0x1cU) != 0x1cU ||
       (mStatus.PullDirection & 0x3fU) != 1 || (mStatus.PullR0 & 0x3fU) != 0 ||
-      (mStatus.PullR1 & 0x3fU) != 0x3fU) return EFI_DEVICE_ERROR;
+      (mStatus.PullR1 & 0x3fU) != 0x3fU) {
+    MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0x30, mStatus.IesBefore);
+    MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0xc0, mStatus.SmtBefore);
+    MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0x60, BeforePupd);
+    MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0x80, BeforeR0);
+    MmioWrite32 (OPPO_NATIVE_SD_PAD_BASE + 0x90, BeforeR1);
+    mStatus.PadRestoreStatus =
+      MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x30) == mStatus.IesBefore &&
+      MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0xc0) == mStatus.SmtBefore &&
+      MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x60) == BeforePupd &&
+      MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x80) == BeforeR0 &&
+      MmioRead32 (OPPO_NATIVE_SD_PAD_BASE + 0x90) == BeforeR1 ? EFI_SUCCESS : EFI_DEVICE_ERROR;
+    return EFI_DEVICE_ERROR;
+  }
   // CLK_CFG_6: MSDC30_1 mux -> 26 MHz, its power-down bit -> enabled.
   // CLR alias modifies only mux[2:0] and gate[7]; UPDATE bit24 latches it.
   MmioWrite32 (0x10000088, 0x87);
@@ -145,6 +163,7 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
   (VOID)Image; (VOID)System;
   mStatus.Profile = EFI_UNSUPPORTED;
   mStatus.Board = mStatus.Initialize = mStatus.Publish = EFI_NOT_STARTED;
+  mStatus.Cmd8FirstStatus = mStatus.PadRestoreStatus = EFI_NOT_STARTED;
   mStatus.LastCommand = MAX_UINT32;
   // Keep diagnostics alive even if no media is found. Returning an error after
   // this installation would unload the image and leave a dangling interface.
@@ -154,8 +173,8 @@ EFI_STATUS EFIAPI OppoSdEntry (EFI_HANDLE Image, EFI_SYSTEM_TABLE *System)
   if (Hob == NULL || GET_GUID_HOB_DATA_SIZE (Hob) != sizeof (*Info)) return EFI_SUCCESS;
   Info = GET_GUID_HOB_DATA (Hob);
   if (Info->Signature != OPPO_BOOT_INFO_SIGNATURE || Info->Revision != OPPO_BOOT_INFO_REVISION ||
-      (Info->Flags & (OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED)) !=
-      (OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED)) return EFI_SUCCESS;
+      (Info->Flags & (OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED)) !=
+      (OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED)) return EFI_SUCCESS;
   mStatus.Profile = EFI_SUCCESS;
   mStatus.Board = PrepareBoard ();
   if (EFI_ERROR (mStatus.Board)) return EFI_SUCCESS;

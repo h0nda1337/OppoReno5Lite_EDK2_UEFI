@@ -52,6 +52,7 @@ VOID OppoSdReadLab (VOID)
           Sd->IesBefore, Sd->IesAfter, Sd->SmtBefore, Sd->SmtAfter));
   DEBUG ((DEBUG_INFO, "SD pulls PUPD=%08x R0=%08x R1=%08x\n",
           Sd->PullDirection, Sd->PullR0, Sd->PullR1));
+  DEBUG ((DEBUG_INFO, "SD pad rollback=%r\n", Sd->PadRestoreStatus));
   if (EFI_ERROR (Sd->Publish)) return;
   Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiSimpleFileSystemProtocolGuid, NULL, &Count, &Handles);
   DEBUG ((DEBUG_INFO, "SD filesystem discovery: %r\n", Status));

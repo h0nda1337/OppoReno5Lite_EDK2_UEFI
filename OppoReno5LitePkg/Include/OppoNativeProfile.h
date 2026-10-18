@@ -23,4 +23,7 @@
 #define OPPO_NATIVE_GICD_BASE     0x0c000000
 #define OPPO_NATIVE_GICR_BASE     0x0c040000
 #define OPPO_NATIVE_WDT_BASE      0x10007000
+/* Resolved by compatible role in the captured FDT, not a header comment. */
+#define OPPO_NATIVE_SD_PAD_BASE   0x11c20000
+#define OPPO_NATIVE_SD_PAD_PATH   "/soc/iocfg_rm@11c20000"
 #endif

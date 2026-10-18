@@ -32,11 +32,11 @@ UINT32 EFIAPI MmioRead32 (UINTN Address)
     case 0x11240004: return 0;
     case 0x11240008: return 1U << 16;
     case 0x112400f0: return 0;
-    case 0x11e70030: return mIes;
-    case 0x11e700c0: return mSmt;
-    case 0x11e70060: return mPupd;
-    case 0x11e70080: return mR0;
-    case 0x11e70090: return mR1;
+    case 0x11c20030: return mIes;
+    case 0x11c200c0: return mSmt;
+    case 0x11c20060: return mPupd;
+    case 0x11c20080: return mR0;
+    case 0x11c20090: return mR1;
     default: assert(!"unapproved register read"); return 0;
   }
 }
@@ -44,11 +44,11 @@ UINT32 EFIAPI MmioWrite32 (UINTN Address, UINT32 Value)
 {
   mWrites++;
   switch (Address) {
-    case 0x11e70030: assert(Value==0x800000fcU);if(mScenario!=10)mIes=Value;return Value;
-    case 0x11e700c0: assert(Value==0x8000001dU);mSmt=Value;return Value;
-    case 0x11e70060: assert(Value==0xdeadffc1U);mPupd=Value;return Value;
-    case 0x11e70080: assert(Value==0xcafe00c0U);mR0=Value;return Value;
-    case 0x11e70090: assert(Value==0x233fU);mR1=Value;return Value;
+    case 0x11c20030: assert(Value==0x800000fcU || ((mScenario==10 || mScenario==13) && Value==0x80000000U));if(mScenario!=10 && mScenario!=13)mIes=Value;return Value;
+    case 0x11c200c0: assert(Value==0x8000001dU || ((mScenario==10 || mScenario==13) && Value==0x80000001U));if(!(mScenario==13 && Value==0x80000001U))mSmt=Value;return Value;
+    case 0x11c20060: assert(Value==0xdeadffc1U || ((mScenario==10 || mScenario==13) && Value==0xdeadffffU));mPupd=Value;return Value;
+    case 0x11c20080: assert(Value==0xcafe00c0U || ((mScenario==10 || mScenario==13) && Value==0xcafe00ffU));mR0=Value;return Value;
+    case 0x11c20090: assert(Value==0x233fU || ((mScenario==10 || mScenario==13) && Value==0x2300U));mR1=Value;return Value;
   }
   assert((Address == 0x10000088 && Value == 0x87) ||
          (Address == 0x10000004 && Value == 1U << 24) ||
@@ -92,21 +92,21 @@ int main(void)
 {
   mBoot.InstallMultipleProtocolInterfaces=Install;
   mBoot.RaiseTPL=Raise; mBoot.RestoreTPL=Restore;
-  for (mScenario=0;mScenario<12;mScenario++) {
+  for (mScenario=0;mScenario<14;mScenario++) {
     memset(&mCard,0,sizeof(mCard)); memset(&mStatus,0,sizeof(mStatus));
     memset(&mMedia,0,sizeof(mMedia)); memset(&mHob,0,sizeof(mHob));
     mHob.Header.Header.HobLength=sizeof(mHob);
     mHob.Info.Signature=OPPO_BOOT_INFO_SIGNATURE;
     mHob.Info.Revision=OPPO_BOOT_INFO_REVISION;
-    mHob.Info.Flags=mScenario==2 ? 0 : mScenario==11 ? OPPO_BOOT_SD_PROFILE_VALIDATED :
-      OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED;
+    mHob.Info.Flags=mScenario==2 ? 0 : mScenario==11 ? OPPO_BOOT_SD_PROFILE_VALIDATED : mScenario==12 ? OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED :
+      OPPO_BOOT_SD_PROFILE_VALIDATED | OPPO_BOOT_SD_PAD_BANK_VALIDATED | OPPO_BOOT_SD_RM_ROLE_VALIDATED;
     mIes=0x80000000U;mSmt=0x80000001U;mPupd=0xdeadffffU;mR0=0xcafe00ffU;mR1=0x2300U;
     mReads=mWrites=mCardInits=mCardReads=mInstalls=mTpl=0;
     assert(OppoSdEntry(NULL,NULL)==EFI_SUCCESS);
-    if (mScenario==1 || mScenario==2 || mScenario==11) assert(mReads==0 && mWrites==0 && mCardInits==0);
+    if (mScenario==1 || mScenario==2 || mScenario==11 || mScenario==12) assert(mReads==0 && mWrites==0 && mCardInits==0);
     else if (mScenario==3) assert(mWrites==0 && mCardInits==0 && mStatus.Board==EFI_NOT_READY);
     else if (mScenario==4) assert(mWrites==0 && mCardInits==0 && mStatus.Board==EFI_UNSUPPORTED);
-    else if (mScenario==5 || mScenario==6 || mScenario==10) assert(mCardInits==0 && mStatus.Board==EFI_DEVICE_ERROR);
+    else if (mScenario==5 || mScenario==6 || mScenario==10 || mScenario==13) assert(mCardInits==0 && mStatus.Board==EFI_DEVICE_ERROR);
     else if (mScenario==7) assert(mInstalls==1 && mStatus.Initialize==EFI_TIMEOUT);
     else {
       UINT8 Buffer[513];
@@ -124,6 +124,9 @@ int main(void)
       assert(Reset(&mBlock,FALSE)==EFI_SUCCESS && mMedia.MediaId==2 && mMedia.MediaPresent);
       assert(mTpl==0);
     }
+    if (mCardInits==0) assert(mStatus.Cmd8FirstStatus==EFI_NOT_STARTED);
+    if (mScenario==10) assert(mStatus.PadRestoreStatus==EFI_SUCCESS && mSmt==0x80000001U && mPupd==0xdeadffffU && mR0==0xcafe00ffU && mR1==0x2300U);
+    if (mScenario==13) assert(mStatus.PadRestoreStatus==EFI_DEVICE_ERROR);
   }
   puts("SD binding: missing/untrusted HOB and mux rejection, clock readback faults, read-only/media API and recovery passed synthetic host tests; physical board untested.");
   return 0;

@@ -11,6 +11,7 @@
 
 [Sources]
   OppoHandoffLib.c
+  SdProfile.c
 
 [Packages]
   MdePkg/MdePkg.dec

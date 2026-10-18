@@ -66,5 +66,6 @@
     "sd_file_discovery_host_sanitizers_passed": true
   },
   "test_limit": "Synthetic registers did not establish the selected bank belonged to MSDC1; physical readback rejected it",
-  "card_write_commands_implemented": false
+  "card_write_commands_implemented": false,
+  "source_revision": "d9ac683dfc334e8b321f23430917879e61cc25dd"
 }

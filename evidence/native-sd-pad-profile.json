@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "Offline inspection of a saved CPH2205 runtime FDT and the pinned public MT6779 pin tables; no hardware access",
+  "runtime_fdt_sha256": "15b90220d0658920d37b7756d20c58cd4933190b186cb1e0e099ba18408fddf4",
+  "iocfg_rm": {
+    "path": "/soc/iocfg_rm@11c20000",
+    "compatible": "mediatek,iocfg_rm",
+    "ranges": [
+      {
+        "address": "0x11c20000",
+        "size": "0x1000"
+      }
+    ],
+    "pinctrl_reg_index": 1
+  },
+  "bank_in_incorrect_attempt_10": {
+    "path": "/soc/iocfg_lb@11e70000",
+    "compatible": "mediatek,iocfg_lb",
+    "ranges": [
+      {
+        "address": "0x11e70000",
+        "size": "0x1000"
+      }
+    ]
+  },
+  "msdc1_pins": {
+    "clock_gpio": 134,
+    "command_gpio": 135,
+    "data_gpio_range": [
+      136,
+      139
+    ],
+    "pin_bank": 1,
+    "ies_offset": "0x30",
+    "ies_mask": "0xfc",
+    "smt_offset": "0xc0",
+    "smt_mask": "0x1c",
+    "pupd_offset": "0x60",
+    "r0_offset": "0x80",
+    "r1_offset": "0x90",
+    "pull_mask": "0x3f"
+  },
+  "saved_runtime_fdt_accepted_by_c_validator": true,
+  "tests_include_wrong_role_and_alias": true,
+  "physical_pad_effects_verified": false
+}

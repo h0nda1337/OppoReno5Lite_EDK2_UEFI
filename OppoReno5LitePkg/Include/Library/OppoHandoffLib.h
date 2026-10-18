@@ -7,6 +7,7 @@
 
 #include <Uefi.h>
 #include <Library/OppoPlatformLib.h>
+#include <Library/OppoFdtLib.h>
 
 #define OPPO_MAX_RAM_BANKS 8
 #define OPPO_MAX_BOOT_RESERVATIONS 64
@@ -48,5 +49,10 @@ EFI_STATUS EFIAPI OppoInspectHandoff (
   IN CONST VOID *Fdt, IN UINTN Bytes, IN UINT64 PhysicalFdtBase,
   OUT OPPO_BOOT_HANDOFF *Handoff
   );
+
+/** Require the MT6779 MSDC1 profile, including the named IOCFG_RM role and alias.
+    Validating an existing register range alone does not establish its purpose.
+    Pure inspection: no MMIO or allocations. */
+BOOLEAN EFIAPI OppoSdProfileMatches (IN CONST OPPO_FDT_VIEW *View);
 
 #endif

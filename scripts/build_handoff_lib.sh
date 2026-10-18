@@ -44,6 +44,7 @@ common=(-std=c11 -Wall -Wextra -Werror -fshort-wchar
   -I"$edk2/MdePkg/Include" -IOppoReno5LitePkg/Include)
 gcc "${common[@]}" -I"$edk2/MdePkg/Include/X64" -O1 -g \
   -fsanitize=address,undefined -fno-omit-frame-pointer "$source" \
+  OppoReno5LitePkg/Library/OppoHandoffLib/SdProfile.c \
   OppoReno5LitePkg/Library/OppoFdtLib/OppoFdtLib.c \
   OppoReno5LitePkg/Library/OppoPlatformLib/OppoPlatformLib.c \
   scripts/test_handoff.c -o .build/handoff/test-handoff
@@ -53,4 +54,8 @@ if [[ "$#" == 1 ]]; then args+=("$1"); fi
 aarch64-linux-gnu-gcc "${common[@]}" -I"$edk2/MdePkg/Include/AArch64" \
   -O2 -ffreestanding -fno-stack-protector -fno-builtin -mstrict-align \
   -mgeneral-regs-only -c "$source" -o .build/handoff/OppoHandoffLib.o
+aarch64-linux-gnu-gcc "${common[@]}" -I"$edk2/MdePkg/Include/AArch64" \
+  -O2 -ffreestanding -fno-stack-protector -fno-builtin -mstrict-align \
+  -mgeneral-regs-only -c OppoReno5LitePkg/Library/OppoHandoffLib/SdProfile.c \
+  -o .build/handoff/SdProfile.o
 printf '%s\n' 'Original handoff library compiled for ARM64. Dynamic reservations still require policy; no UEFI memory map generated.'
