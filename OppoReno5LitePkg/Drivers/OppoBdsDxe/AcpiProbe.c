@@ -14,6 +14,7 @@
 #include <Library/OppoAcpiInstallLib.h>
 
 typedef struct { UINT32 Reads, LastValue; UINT64 LastAddress; } READ_TRACE;
+VOID OppoCpuProbeLab (CONST OPPO_ACPI_PROFILE *Profile);
 STATIC EFI_STATUS EFIAPI ReadGic (VOID *Context, UINT64 Address, UINT32 *Value)
 {
   READ_TRACE *T = Context;
@@ -51,13 +52,16 @@ VOID OppoAcpiProbeLab (VOID)
   DEBUG ((DEBUG_INFO, "ACPI PROFILE=%r READS=%u LAST=%Lx VALUE=%x\n",
           Status, Trace.Reads, Trace.LastAddress, Trace.LastValue));
   if (Status == EFI_SUCCESS) {
-    DEBUG ((DEBUG_INFO, "ACPI BOOT AFF=%Lx GICD PIDR=%x TYPER=%x CTLR=%x\n",
-            Observation.Profile.BootMpidr, Observation.DistributorPidr2,
-            Observation.DistributorTyper, Observation.DistributorControl));
-    for (UINTN I = 0; I < OPPO_ACPI_CPU_COUNT; I++)
-      DEBUG ((DEBUG_INFO, "ACPI CPU%u AFF=%Lx GICR=%Lx TYPE=%Lx PIDR=%x\n", (UINT32)I,
+    if (!FeaturePcdGet (PcdNativeCpuProfileLab)) {
+      DEBUG ((DEBUG_INFO, "ACPI BOOT AFF=%Lx GICD PIDR=%x TYPER=%x CTLR=%x\n",
+              Observation.Profile.BootMpidr, Observation.DistributorPidr2,
+              Observation.DistributorTyper, Observation.DistributorControl));
+      for (UINTN I = 0; I < OPPO_ACPI_CPU_COUNT; I++)
+        DEBUG ((DEBUG_INFO, "ACPI CPU%u AFF=%Lx GICR=%Lx TYPE=%Lx PIDR=%x\n", (UINT32)I,
               Observation.Profile.Cpu[I].Mpidr, Observation.Profile.Cpu[I].RedistributorBase,
               Observation.RedistributorTyper[I], Observation.RedistributorPidr2[I]));
+    }
+    if (FeaturePcdGet (PcdNativeCpuProfileLab)) OppoCpuProbeLab (&Observation.Profile);
     if (FeaturePcdGet (PcdNativeAcpiInstallLab)) {
       STATIC CONST volatile CHAR8 InstallIdentity[] = "OPPO_ACPI_INSTALL_NO_OS_LAB_V1";
       OPPO_ACPI_INSTALL_REPORT Report = {0};
@@ -74,7 +78,8 @@ VOID OppoAcpiProbeLab (VOID)
               Report.Layout.DsdtOffset, Report.Layout.MadtOffset, Report.Layout.GtdtOffset));
     }
   }
-  DEBUG ((DEBUG_INFO, FeaturePcdGet (PcdNativeAcpiInstallLab) ?
+  DEBUG ((DEBUG_INFO, FeaturePcdGet (PcdNativeCpuProfileLab) ?
+          "CPU PROFILE LAB COMPLETE: NO TABLES, SD OR OS LAUNCH\n" : FeaturePcdGet (PcdNativeAcpiInstallLab) ?
           "ACPI INSTALL LAB: NO SD OR OS LAUNCH\n" :
           "ACPI READ-ONLY: NO TABLES INSTALLED; NO SD OR OS LAUNCH\n"));
 }

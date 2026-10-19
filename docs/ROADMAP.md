@@ -142,7 +142,10 @@ Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.
   reserva/publicación con servicios UEFI simulados y compilación ARM64 (29).
 - [x] Verificar físicamente reserva, publicación y lectura posterior de las tablas
   y restaurar el recovery original (30).
-- [ ] Validar CPU/PSCI y los demás requisitos de plataforma para el OS.
+- [x] Observar EL1, SRE y PSCI 1.0, soporte anunciado de CPU_ON64 y estado de
+  las ocho afinidades sin arrancar CPU; retorno automático y restauración (31).
+- [ ] Validar ejecución secundaria, entrega de interrupciones y los demás
+  requisitos de plataforma para el OS.
 
 Véase [ACPI.md](ACPI.md). El error `0xc0000225` no tiene aún una causa demostrada.
 

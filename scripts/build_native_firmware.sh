@@ -64,6 +64,11 @@ case "${NATIVE_ACPI_INSTALL_LAB:-0}:$mode" in
   1:acpi-profile-lab) mode=acpi-install-lab; extra+=(-D OPPO_ACPI_INSTALL_LAB=TRUE) ;;
   *) printf '%s\n' 'ACPI installation requires the isolated ACPI profile lab and a 0 or 1 flag' >&2; exit 1 ;;
 esac
+case "${NATIVE_CPU_PROFILE_LAB:-0}:$mode" in
+  0:*) ;;
+  1:acpi-profile-lab) mode=cpu-profile-lab; extra+=(-D OPPO_CPU_PROFILE_LAB=TRUE) ;;
+  *) printf '%s\n' 'CPU observation requires the isolated ACPI profile lab and cannot install tables' >&2; exit 1 ;;
+esac
 export WORKSPACE="$edk2" PACKAGES_PATH="$root"
 export GCC_AARCH64_PREFIX="${GCC_AARCH64_PREFIX:-aarch64-linux-gnu-}"
 export SOURCE_DATE_EPOCH="$(git -C "$edk2" show -s --format=%ct HEAD)"

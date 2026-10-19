@@ -22,6 +22,7 @@ NATIVE_LAB_MARKER = b'OPPO_NATIVE_DXE_SHELL_LAB_90S_V1\0'
 NATIVE_MEMORY_LAB_MARKER = b'OPPO_NATIVE_DXE_SHELL_LAB_1800S_V1\0'
 ACPI_PROFILE_LAB_MARKER = b'OPPO_ACPI_GIC_PROFILE_READ_ONLY_LAB_V1\0'
 ACPI_INSTALL_LAB_MARKER = b'OPPO_ACPI_INSTALL_NO_OS_LAB_V1\0'
+CPU_PROFILE_LAB_MARKER = b'OPPO_CPU_PSCI_READ_ONLY_NO_OS_LAB_V1\0'
 LAB_DEADLINES = {NATIVE_LAB_MARKER: 90, NATIVE_MEMORY_LAB_MARKER: 1800}
 PCD_DRIVER_GUID = '80cf7257-87ab-47f9-a3fe-d50b76d89541'
 REQUIRED = {
@@ -188,8 +189,12 @@ def require_native_lab(raw):
     install = payload.count(ACPI_INSTALL_LAB_MARKER)
     if install > 1 or (install and not acpi):
         raise ValueError('ACPI installation requires exactly one isolated profile marker')
-    report['acpi_profile_read_only_lab'] = bool(acpi and not install)
+    cpu = payload.count(CPU_PROFILE_LAB_MARKER)
+    if cpu > 1 or (cpu and (not acpi or install)):
+        raise ValueError('CPU observation requires isolated profile mode without ACPI installation')
+    report['acpi_profile_read_only_lab'] = bool(acpi and not install and not cpu)
     report['acpi_install_no_os_lab'] = bool(install)
+    report['cpu_profile_read_only_lab'] = bool(cpu)
     # Check the emitted FFS bytecode, not only the DSC source: the producer
     # must bootstrap without the protocol that its consumers wait for.
     producers = [item for item in report['files'] if item['guid'] == PCD_DRIVER_GUID]

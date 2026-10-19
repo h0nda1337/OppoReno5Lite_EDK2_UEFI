@@ -1,0 +1,14 @@
+{
+  "public_path": "docs/images/native-cpu-psci-profile-lab-31.jpg",
+  "bytes": 2271229,
+  "sha256": "2f1bed937a9210bdc2aee625026f579fb14803c58940336e4990803b2530adee",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "compressed_scan_sha256": "3b5a4370f05ca448310201d4734d5817cc88bdadc8610880ff9c9f5222f6d164",
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_documentation": true,
+  "visual_review": "Owner photograph shows CPU/PSCI read-only observation SUCCESS, eight affinity states and no CPU start/table/SD/OS launch. No personal identifiers visible in the scene."
+}

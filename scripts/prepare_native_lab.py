@@ -27,6 +27,9 @@ def require_lab_manifest(manifest, explicit_lab, direct_entry):
             type(manifest.get('acpi_install_no_os_lab', False)) is not bool or
             (manifest.get('acpi_install_no_os_lab', False) and (manifest.get('reset_request_after_seconds') != 90 or
                  manifest.get('acpi_profile_read_only_lab', False))) or
+            type(manifest.get('cpu_profile_read_only_lab', False)) is not bool or
+            (manifest.get('cpu_profile_read_only_lab', False) and (manifest.get('reset_request_after_seconds') != 90 or
+                 manifest.get('acpi_profile_read_only_lab', False) or manifest.get('acpi_install_no_os_lab', False))) or
             manifest.get('bootshim_used') is not False):
         raise ValueError('Expected an explicit reviewed DXE/Shell laboratory image')
 
@@ -41,6 +44,8 @@ def validate_candidate(stock, candidate, manifest):
             raise ValueError('ACPI profile mode differs between the BDS executable and manifest')
         if report['acpi_install_no_os_lab'] != manifest.get('acpi_install_no_os_lab', False):
             raise ValueError('ACPI installation mode differs between the BDS executable and manifest')
+        if report['cpu_profile_read_only_lab'] != manifest.get('cpu_profile_read_only_lab', False):
+            raise ValueError('CPU observation mode differs between the BDS executable and manifest')
     validate_transport(stock, candidate, manifest, validate_deadline)
 
 
@@ -66,6 +71,7 @@ def prepare(stock_path, fd_path, output, avbtool):
         'reset_timer_execution_verified_on_phone': False,
         'acpi_profile_read_only_lab': inspected['acpi_profile_read_only_lab'],
         'acpi_install_no_os_lab': inspected['acpi_install_no_os_lab'],
+        'cpu_profile_read_only_lab': inspected['cpu_profile_read_only_lab'],
         'bootshim_used': False, 'linux_kernel_retained': False,
         'oem_ramdisk_retained': False, 'ramdisk_paths': [],
         'avb_algorithm': 'NONE', 'oem_signature_valid': False,

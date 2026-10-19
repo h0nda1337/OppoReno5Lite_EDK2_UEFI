@@ -5,7 +5,7 @@ import unittest
 from uuid import UUID
 
 from inspect_native_firmware import (FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect,
-    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, NATIVE_MEMORY_LAB_MARKER, ACPI_PROFILE_LAB_MARKER, ACPI_INSTALL_LAB_MARKER, PCD_DRIVER_GUID,
+    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, NATIVE_MEMORY_LAB_MARKER, ACPI_PROFILE_LAB_MARKER, ACPI_INSTALL_LAB_MARKER, CPU_PROFILE_LAB_MARKER, PCD_DRIVER_GUID,
     require_entry_probe, require_native_lab)
 
 
@@ -121,6 +121,17 @@ class NativeFirmwareTests(unittest.TestCase):
         self.assertTrue(r['acpi_install_no_os_lab'])
         self.assertFalse(r['acpi_profile_read_only_lab'])
         for raw in (fixture(lab=True,lab_marker=NATIVE_LAB_MARKER+ACPI_INSTALL_LAB_MARKER),
+                    fixture(lab=True,lab_marker=marker+ACPI_INSTALL_LAB_MARKER),
+                    fixture(lab=True,lab_marker=marker,sd=True)):
+            with self.assertRaises(ValueError):require_native_lab(raw)
+
+    def test_cpu_observation_is_separate_and_excludes_storage(self):
+        marker=NATIVE_LAB_MARKER+ACPI_PROFILE_LAB_MARKER+CPU_PROFILE_LAB_MARKER
+        r=require_native_lab(fixture(lab=True,lab_marker=marker))
+        self.assertTrue(r['cpu_profile_read_only_lab'])
+        self.assertFalse(r['acpi_profile_read_only_lab'] or r['acpi_install_no_os_lab'])
+        for raw in (fixture(lab=True,lab_marker=NATIVE_LAB_MARKER+CPU_PROFILE_LAB_MARKER),
+                    fixture(lab=True,lab_marker=marker+CPU_PROFILE_LAB_MARKER),
                     fixture(lab=True,lab_marker=marker+ACPI_INSTALL_LAB_MARKER),
                     fixture(lab=True,lab_marker=marker,sd=True)):
             with self.assertRaises(ValueError):require_native_lab(raw)

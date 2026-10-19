@@ -45,6 +45,9 @@ El [intento 30](docs/ACPI.md#resultado-físico-del-intento-30) instaló seis tab
 ACPI propias y verificó memoria reclaim, publicación del RSDP y lectura posterior:
 1528 bytes en una página. Android y la restauración del recovery original se
 comprobaron después, con batería al 100 %. WinPE sigue pendiente.
+La [sonda CPU/PSCI del 31](docs/ACPI.md#resultado-físico-del-intento-31) observó
+EL1, SRE habilitado y PSCI 1.0: anuncia CPU_ON64 y reporta CPU0 ON y CPU1–7 OFF.
+Volvió sola a Android y se restauró el recovery original; no se ejecutó CPU_ON.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -66,6 +69,7 @@ Véase
 | Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; GICv3 y ocho asociaciones CPU/GICR observados físicamente en el intento 28; entrega de interrupciones pendiente |
 | ACPI | Seis tablas originales instaladas y comprobadas físicamente: memoria reclaim, RSDP y lectura posterior correctos (30); uso por el OS pendiente |
+| CPU/PSCI nativo | EL1, SRE=1 y PSCI 1.0 observados (31); CPU_ON64 anunciado y CPU0 ON/CPU1–7 OFF. Ejecución secundaria pendiente |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; orden nativo rojo=16/azul=0 contrastado con fotos |
 | Pantalla y entrada para la Shell | Encabezado, mapa FS0 de firmware y prompt visibles; entrada física y comandos sin validar |
 | GOP y framebuffer propios | BLT comprobados con sanitizadores; consola gráfica UEFI mostrando la Shell en el OPPO |

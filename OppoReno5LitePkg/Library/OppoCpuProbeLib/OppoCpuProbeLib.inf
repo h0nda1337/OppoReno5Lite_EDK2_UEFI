@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: BSD-2-Clause
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = OppoCpuProbeLib
+  FILE_GUID = 80de707b-a31f-4b85-baa9-d42368045db2
+  MODULE_TYPE = BASE
+  VERSION_STRING = 0.1
+  LIBRARY_CLASS = OppoCpuProbeLib
+[Sources]
+  OppoCpuProbeLib.c
+[Packages]
+  MdePkg/MdePkg.dec
+  OppoReno5LitePkg/OppoReno5LitePkg.dec
+[LibraryClasses]
+  BaseMemoryLib

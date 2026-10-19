@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "experiment": "native-cpu-psci-profile-31",
+  "stage": "read_only_cpu_and_psci_observation_completed_on_phone",
+  "source_base_revision": "f40f353fcb05f5d3e3d53bf3626e8fb33e987b8c",
+  "host_evidence": "evidence/cpu-psci-profile-lab-31-host-validation.json",
+  "candidate_sha256": "50593ab5059f846bb6b590d02cc6d1288f52676e26c2790f814a554e0307c22f",
+  "native_fd_sha256": "b3038c22a47f8cd4a331038b860ff65576320475f8e0ed981903a8ed2effc937",
+  "photo": "docs/images/native-cpu-psci-profile-lab-31.jpg",
+  "screen": {
+    "current_el_raw": "0x4",
+    "mpidr_el1": "0x81000000",
+    "midr_el1": "0x411fd050",
+    "id_aa64pfr0_el1": "0x11112222",
+    "current_el_sre": "0x1",
+    "boot_reported_on": 1,
+    "legacy_errors_mask": "0x0",
+    "psci_version_raw": "0x00010000",
+    "features_queried": 1,
+    "cpu_on64_feature_result": 0,
+    "affinity_info64_feature_result": 0,
+    "cpu": [
+      {
+        "index": 0,
+        "affinity": "0x000",
+        "state": 0,
+        "raw": "0x0"
+      },
+      {
+        "index": 1,
+        "affinity": "0x100",
+        "state": 1,
+        "raw": "0x1"
+      },
+      {
+        "index": 2,
+        "affinity": "0x200",
+        "state": 1,
+        "raw": "0x1"
+      },
+      {
+        "index": 3,
+        "affinity": "0x300",
+        "state": 1,
+        "raw": "0x1"
+      },
+      {
+        "index": 4,
+        "affinity": "0x400",
+        "state": 1,
+        "raw": "0x1"
+      },
+      {
+        "index": 5,
+        "affinity": "0x500",
+        "state": 1,
+        "raw": "0x1"
+      },
+      {
+        "index": 6,
+        "affinity": "0x600",
+        "state": 1,
+        "raw": "0x1"
+      },
+      {
+        "index": 7,
+        "affinity": "0x700",
+        "state": 1,
+        "raw": "0x1"
+      }
+    ],
+    "profile": "SUCCESS",
+    "logical_register_reads": 5,
+    "smc_queries": 11,
+    "last_smc_function": "0xc4000004",
+    "last_argument": "0x700",
+    "last_result": "0x1",
+    "lab_complete": true,
+    "no_cpu_start_tables_sd_or_os_message_visible": true
+  },
+  "interpretation": {
+    "execution_el": 1,
+    "psci_version": "1.0",
+    "psci_reports_cpu_on64_and_affinity_info64_supported": true,
+    "affinity_info_cpu0_reports_on_and_cpu1_to7_off": true,
+    "affinity_info_is_firmware_view_not_direct_electrical_power_measurement": true,
+    "sre_observation_is_el1": true,
+    "secondary_cpu_execution_verified": false,
+    "interrupt_delivery_verified": false,
+    "windows_pe_boot_verified": false,
+    "cause_of_previous_windows_error_identified": false,
+    "read_only_scope": "Added observer only; existing EDK2 GIC/timer initialization still runs"
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 196.033,
+    "bootreason": "reboot"
+  },
+  "automatic_android_return_owner_confirmed": true,
+  "owner_return_report": "volvio solo a android",
+  "native_90_second_deadline_measured": false,
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_before_test_percent": 100,
+  "battery_after_restoration_percent": 100.0
+}

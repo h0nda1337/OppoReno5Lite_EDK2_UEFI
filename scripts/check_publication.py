@@ -75,6 +75,8 @@ REVIEWED_IMAGES = {
         (2467336, 'a17ed05925470c9b352a51859148954243f36ab632dc5aefe465a7cb1ee8f9f5'),
     'docs/images/native-acpi-install-shape-lab-30.jpg':
         (2814280, '4da0742efd00a4e751cf10dc643f8cf86adfc7f56ac24e05585c17a17b8ab53d'),
+    'docs/images/native-cpu-psci-profile-lab-31.jpg':
+        (2271229, '2f1bed937a9210bdc2aee625026f579fb14803c58940336e4990803b2530adee'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

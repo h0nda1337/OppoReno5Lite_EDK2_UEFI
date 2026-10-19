@@ -238,3 +238,72 @@ del error anterior `0xc0000225`.
 
 Véase [la transcripción y restauración](../evidence/acpi-install-shape-lab-30-validation.json)
 y [la composición exacta del candidato](../evidence/acpi-install-shape-lab-30-host-validation.json).
+
+## Observación CPU/PSCI de solo lectura (31)
+
+La biblioteca original `OppoCpuProbeLib` comprueba el perfil de afinidades y
+el procesador que ejecuta el firmware antes de consultar PSCI. El enlace nativo
+lee CurrentEL, MPIDR, MIDR, PFR0 y SRE del EL actual, con seis instrucciones MRS
+en la ruta completa: la selección de SRE vuelve a leer CurrentEL. PFR0 debe
+anunciar la interfaz de registros GIC antes de acceder a SRE. Los seis helpers
+ARM64 propios contienen únicamente MRS/RET; no escriben registros.
+
+La lista permitida de llamadas SMC contiene `PSCI_VERSION`, `PSCI_FEATURES`
+para CPU_ON64/AFFINITY_INFO64 y ocho consultas AFFINITY_INFO64 de nivel cero.
+Consultar el soporte de CPU_ON no ejecuta CPU_ON. El enlace rechaza las
+llamadas que arrancan, suspenden o apagan CPU, así como argumentos no revisados,
+y pone a cero los argumentos SMC sin usar. La política preserva el resultado
+crudo de afinidad y distingue errores negativos de 64 bits de implementaciones
+antiguas que los extienden con ceros desde 32 bits. Una consulta completa puede
+terminar en `SUCCESS` aunque el firmware devuelva un error PSCI reconocido;
+el estado de cada servicio se registra por separado.
+
+El modo optativo se selecciona con
+`NATIVE_ACPI_PROFILE_LAB=1 NATIVE_CPU_PROFILE_LAB=1`. Primero pasa la validación
+FDT/GIC del mismo arranque. No se combina con instalación ACPI, RAM adicional,
+laboratorios SD o sondas SEC, y no inicia Shell ni Windows. El inspector y el
+manifiesto exigen su marcador exclusivo y un plazo de 90 segundos. «Solo
+lectura» describe el nuevo observador; el firmware conserva la inicialización
+GIC/temporizador de la dependencia EDK2.
+
+Las pruebas con ASan/UBSan cubren 16 escenarios de observación, 16 posiciones
+de fallo de callback, perfiles incorrectos, alias y conservación del resultado
+ante error. El enlace real se comprueba con registros/SMC simulados en EL1 y
+EL2, argumentos sin usar y rechazo de llamadas no permitidas. Se revisó el
+desensamblado ARM64, pasaron 16 escenarios de HOB/PCD, 70 de BDS y 21 pruebas
+Python de inspección/empaquetado. La compilación nativa tardó 26,254 segundos;
+se verificaron los PCD emitidos y las fuentes congeladas del candidato.
+
+### Resultado físico del intento 31
+
+Con batería al 100 %, la fotografía muestra el observador completo:
+
+| Campo | Valor observado |
+| --- | --- |
+| CurrentEL / MPIDR / MIDR | `0x4` (EL1) / `0x81000000` / `0x411fd050` |
+| ID_AA64PFR0_EL1 / ICC_SRE_EL1 | `0x11112222` / `0x1` |
+| PSCI_VERSION | `0x00010000` (1.0) |
+| PSCI_FEATURES para CPU_ON64 / AFFINITY_INFO64 | `0` / `0` |
+| Afinidad `0x000` (CPU0) | Estado `0`, resultado crudo `0` |
+| Afinidades `0x100` a `0x700` (CPU1–7) | Estado `1`, resultado crudo `1` en todas |
+| CPU PROFILE / lecturas lógicas / consultas SMC | `SUCCESS` / `5` / `11` |
+| Última llamada / argumento / resultado | `0xc4000004` / `0x700` / `1` |
+
+Según [Arm PSCI, secciones 5.7 y 5.15](https://documentation-service.arm.com/static/640f584656ea36189d4e94a4),
+las consultas anuncian soporte de esas dos interfaces y reportan CPU0 ON y las
+otras siete OFF. Es la visión del firmware PSCI en ese instante, no una medición
+eléctrica. No se ha probado CPU_ON, ejecución secundaria ni entrega de
+interrupciones. SRE corresponde aquí a EL1, no a una suposición sobre EL2.
+Estos resultados reducen incertidumbre del contrato de plataforma; no
+identifican la causa de `0xc0000225` ni prueban arranque de WinPE.
+
+El propietario confirmó que volvió solo a Android. El observador ADB detectó
+arranque completo y motivo `reboot` a los 196,033 segundos desde el informe de
+entrada; ese intervalo incluye LK y Android y no mide el plazo nativo. Se
+restauró después el recovery original y se verificó Android con batería al 100 %.
+
+![Registros CPU y consultas PSCI observados en el OPPO](images/native-cpu-psci-profile-lab-31.jpg)
+
+Véanse [la transcripción y restauración](../evidence/cpu-psci-profile-lab-31-validation.json),
+[la compilación y comprobaciones de PC](../evidence/cpu-psci-profile-lab-31-host-validation.json)
+y [la revisión de la fotografía](../evidence/cpu-psci-profile-lab-31-photo.json).

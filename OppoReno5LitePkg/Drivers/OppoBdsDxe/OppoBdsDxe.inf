@@ -9,6 +9,9 @@
   OppoBdsDxe.c
   SdRead.c
   AcpiProbe.c
+  CpuProbe.c
+[Sources.AARCH64]
+  AArch64/CpuRegisters.S
 [Packages]
   MdePkg/MdePkg.dec
   OppoReno5LitePkg/OppoReno5LitePkg.dec
@@ -27,6 +30,8 @@
   IoLib
   OppoAcpiProbeLib
   OppoAcpiInstallLib
+  OppoCpuProbeLib
+  ArmSmcLib
 [Protocols]
   gEfiBdsArchProtocolGuid
   gEfiGraphicsOutputProtocolGuid
@@ -46,6 +51,7 @@
 [FeaturePcd]
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiInstallLab
+  gOppoNativeTokenSpaceGuid.PcdNativeCpuProfileLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab
