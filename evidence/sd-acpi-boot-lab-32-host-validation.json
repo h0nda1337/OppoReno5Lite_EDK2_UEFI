@@ -141,11 +141,15 @@
     "callback_hardware_simulated": true
   },
   "private_candidate_container_validated": true,
-  "physical_execution_verified": false,
+  "physical_execution_verified": true,
   "physical_observation_pending": false,
-  "acpi_tables_installed_by_this_candidate_on_phone": false,
-  "windows_launched_by_this_candidate_on_phone": false,
+  "acpi_tables_installed_by_this_candidate_on_phone": true,
+  "windows_launched_by_this_candidate_on_phone": true,
   "windows_pe_boot_verified": false,
   "previous_windows_error_cause_identified": false,
-  "previous_stock_restoration_verified_phase": 31
+  "previous_stock_restoration_verified_phase": 31,
+  "acpi_publication_evidence_method": "Inferred from reviewed fail-closed control flow reaching SD dispatch; ACPI lines not visible in the intermediate photo",
+  "windows_bugcheck_screen_observed": true,
+  "stock_recovery_restored_after_this_attempt": true,
+  "physical_evidence": "evidence/sd-acpi-boot-lab-32-validation.json"
 }

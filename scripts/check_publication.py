@@ -77,6 +77,10 @@ REVIEWED_IMAGES = {
         (2814280, '4da0742efd00a4e751cf10dc643f8cf86adfc7f56ac24e05585c17a17b8ab53d'),
     'docs/images/native-cpu-psci-profile-lab-31.jpg':
         (2271229, '2f1bed937a9210bdc2aee625026f579fb14803c58940336e4990803b2530adee'),
+    'docs/images/native-sd-acpi-boot-lab-32-read.jpg':
+        (3050358, '445e5d2e8526d004802403ccdc6ef26a974b14ee82eb260ccb7b1d90a44ff1c2'),
+    'docs/images/native-sd-acpi-boot-lab-32-bugcheck.jpg':
+        (3121493, '3ba4ad72ac60beabcafc8ed60ab8022220d1d130706bcd42885c07153d6798dc'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

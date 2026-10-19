@@ -757,7 +757,7 @@ de cero. WinPE y su kernel siguen sin arranque verificado.
 [Microsoft define 0xc0000225 como STATUS_NOT_FOUND](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55).
 El código por sí solo no identifica el objeto, archivo, dispositivo o servicio
 que falta; no demuestra que el BCD esté dañado ni identifica un controlador.
-El port todavía carece de tablas ACPI/SMBIOS y de servicios de tiempo completos,
+El intento 25 todavía carecía de tablas ACPI/SMBIOS y de servicios de tiempo completos,
 que forman parte de los [requisitos de firmware de Windows](https://learn.microsoft.com/en-us/windows-hardware/drivers/bringup/uefi-requirements-that-apply-to-all-windows-platforms).
 Son limitaciones conocidas, sin atribuirles todavía este fallo concreto.
 
@@ -846,6 +846,21 @@ faltan en la composición nativa. La [inspección filtrada de prerrequisitos](..
 reúne CPU, GICv3, temporizador y PSCI del FDT capturado como base para código
 propio. Es inspección de PC: no instala ACPI/SMBIOS, no prueba el hardware de
 esas tablas ni atribuye todavía el `0xc0000225` a su ausencia.
+
+### Intento combinado con ACPI (32): pantalla de bugcheck Windows
+
+La variante combinada suministra las tablas ACPI propias después de validar
+de nuevo el FDT/GIC y el contrato CPU/PSCI. El intento SD se bloquea si falla
+el perfil, la publicación o la lectura posterior. La primera foto confirma SD
+correcta, cuatro bits a 13 MHz y el prefijo ARM64 del cargador. Después de varios
+minutos en negro, la foto final muestra **SYSTEM_PTE_MISUSE**, una pantalla de
+parada de Windows, en lugar de la pantalla Recovery capturada antes.
+
+La entrada del kernel se infiere de ese tipo de pantalla y no se trazó con un
+depurador. WinPE no completó el arranque; faltan los parámetros del bugcheck y
+su pila para identificar la causa. El propietario indicó reinicio automático a
+Android unos cinco segundos después; se restauró el recovery original y se
+comprobó Android al 99 %. Véase [el resultado y ambas fotos](ACPI.md#resultado-físico-del-intento-32).
 
 ### Inspección y ruta de carga EFI
 

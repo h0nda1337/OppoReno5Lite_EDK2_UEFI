@@ -308,7 +308,7 @@ Véanse [la transcripción y restauración](../evidence/cpu-psci-profile-lab-31-
 [la compilación y comprobaciones de PC](../evidence/cpu-psci-profile-lab-31-host-validation.json)
 y [la revisión de la fotografía](../evidence/cpu-psci-profile-lab-31-photo.json).
 
-## Variante combinada ACPI y microSD (32): comprobada en PC
+## Variante combinada ACPI y microSD (32)
 
 `NATIVE_SD_ACPI_BOOT_LAB=1` habilita un intento distinto de los observadores
 anteriores. Exige los laboratorios SD boot, alimentación, lectura rápida y RAM
@@ -333,8 +333,47 @@ Las comprobaciones de C usan ASan/UBSan y callbacks simulados. El candidato
 ARM64 compiló en 25,248 segundos, con PCD efectivos contrastados en SEC, BDS,
 runtime y SD; el empaquetado privado y su marcador exclusivo se verificaron.
 
-Esto demuestra preparación y pruebas de PC. La ejecución de esta combinación
-en el OPPO está pendiente; no se presume que Windows vaya a consumir las tablas
-correctamente ni que desaparezca `0xc0000225`. SMBIOS, RTC, entrega de
-interrupciones y ejecución secundaria mantienen sus límites anteriores.
+Estas comprobaciones son de PC; el resultado físico se documenta a continuación.
+SMBIOS, RTC, entrega de interrupciones y ejecución secundaria mantienen sus
+límites anteriores. La prueba no identifica por sí sola la causa de `0xc0000225`.
 Véase [la composición y validación de PC del 32](../evidence/sd-acpi-boot-lab-32-host-validation.json).
+
+### Resultado físico del intento 32
+
+La sesión comprobó identidad y batería al 100 %, escribió únicamente recovery
+y solicitó entrada directa. La primera fotografía muestra inicialización y
+publicación SD correctas, cuatro bits a 13 MHz, apertura de BOOTAA64.EFI y
+verificación de su prefijo ARM64. Las líneas ACPI ya no aparecen en esa captura.
+Según el flujo del binario revisado, alcanzar el laboratorio SD implica que
+el perfil del mismo arranque, el contrato CPU, la publicación ACPI y su lectura
+posterior devolvieron éxito. Es una inferencia del flujo comprobado; no una
+captura directa de los resultados ACPI ni una prueba independiente de su
+interpretación por Windows.
+
+![Etapa de lectura SD del intento combinado](images/native-sd-acpi-boot-lab-32-read.jpg)
+
+Después de varios minutos en negro apareció una pantalla de parada de Windows,
+con cara triste y **SYSTEM_PTE_MISUSE**, corroborado por la transcripción del
+propietario. Esta es una pantalla de bugcheck, distinta de Recovery con
+`0xc0000225`. Sugiere que se alcanzó la inicialización del kernel; no se registró
+su entrada mediante un depurador. No se observó consola, escritorio ni arranque
+completo de WinPE.
+
+![Pantalla de parada SYSTEM_PTE_MISUSE en el OPPO](images/native-sd-acpi-boot-lab-32-bugcheck.jpg)
+
+[Microsoft documenta SYSTEM_PTE_MISUSE como `0x000000DA`](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xda--system-pte-misuse):
+indica uso incorrecto de una rutina relacionada con entradas de tabla de páginas.
+El número hexadecimal procede de esa referencia, no de un código numérico visible
+en la foto. Sus parámetros y una traza de pila permitirían precisar el caso;
+no se obtuvieron. No se atribuye todavía a un controlador concreto, a ACPI o
+al mapa de memoria, y el cambio de pantalla no demuestra cuál era la causa del
+error anterior.
+
+El propietario informó que se reinició solo unos cinco segundos después y volvió
+a Android; ese intervalo es aproximado y no se midió. El observador ADB detectó
+Android completo con motivo `reboot` a los 679,967 segundos desde el informe de
+entrada, incluyendo LK y Android. No mide el plazo nativo de 1800 segundos.
+Se restauró el recovery original y se verificó Android con batería al 99 %.
+
+Véanse [la transcripción y restauración](../evidence/sd-acpi-boot-lab-32-validation.json)
+y [la revisión de ambas fotografías](../evidence/sd-acpi-boot-lab-32-photos.json).

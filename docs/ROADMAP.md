@@ -127,6 +127,8 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
 - [x] Observar Windows Boot Manager y documentar el punto alcanzado.
 - [x] Verificar lectura de cuatro bits a 13 MHz y comparar un prefijo de 16 MiB con Android.
 - [x] Confirmar RAM adicional visible en el mapa UEFI: 2100 MiB libres antes del cargador.
+- [x] Probar la variante con ACPI y registrar la pantalla de bugcheck Windows
+  `SYSTEM_PTE_MISUSE`, retorno automático y restauración del recovery (32).
 - [ ] Avanzar desde la pantalla Recovery de Windows al arranque de WinPE.
 
 Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.

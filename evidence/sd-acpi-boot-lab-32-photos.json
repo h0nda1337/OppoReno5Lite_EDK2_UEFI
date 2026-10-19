@@ -1,0 +1,30 @@
+[
+  {
+    "public_path": "docs/images/native-sd-acpi-boot-lab-32-read.jpg",
+    "bytes": 3050358,
+    "sha256": "445e5d2e8526d004802403ccdc6ef26a974b14ee82eb260ccb7b1d90a44ff1c2",
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "4b439f731419c8e560015bd859be038152159970f609612e641a91449b76da78",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "owner_requested_documentation": true,
+    "visual_review": "Intermediate SD status photograph: initialization/publication/4-bit13MHz success and ARM64 UEFI prefix verification; no visible personal identifiers."
+  },
+  {
+    "public_path": "docs/images/native-sd-acpi-boot-lab-32-bugcheck.jpg",
+    "bytes": 3121493,
+    "sha256": "3ba4ad72ac60beabcafc8ed60ab8022220d1d130706bcd42885c07153d6798dc",
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "1a6e231e84220b81af7c63c2a2edc6cd4e278b926a65bc1237e3300ee0e3de16",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "owner_requested_documentation": true,
+    "visual_review": "Windows sad-face stop screen with SYSTEM_PTE_MISUSE, corroborated by owner transcription; no visible personal identifiers. Bugcheck arguments and stack are not displayed."
+  }
+]

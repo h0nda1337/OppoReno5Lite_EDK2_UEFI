@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "experiment": "native-sd-acpi-boot-32",
+  "stage": "sd_read_and_windows_bugcheck_screen_observed_on_phone",
+  "source_base_revision": "29eea43f88b68176a7f35877fbd9640de3e44df0",
+  "implementation_revision": "10a3e74bb70a49cd86e28047ed2d1f44dd46bf23",
+  "candidate_sha256": "819aad78b3d3b08a6976ee53e038bbff72a507fcda57f3565e656f075a38bbbf",
+  "native_fd_sha256": "6cfc1856f2ff2c6b5e797e717f8d29ed8a9fca3398231f38868ba146a354df3b",
+  "host_evidence": "evidence/sd-acpi-boot-lab-32-host-validation.json",
+  "photos": [
+    "docs/images/native-sd-acpi-boot-lab-32-read.jpg",
+    "docs/images/native-sd-acpi-boot-lab-32-bugcheck.jpg"
+  ],
+  "intermediate_screen": {
+    "sd_status_protocol": "SUCCESS",
+    "profile": "SUCCESS",
+    "board": "SUCCESS",
+    "initialization": "SUCCESS",
+    "publication": "SUCCESS",
+    "fast_setup": "SUCCESS",
+    "bus_width": 4,
+    "clock_hz": 13000000,
+    "maximum_clock_hz": 25000000,
+    "fast_samples_verified": 1,
+    "filesystem_discovery": "SUCCESS",
+    "open_bootaa64": "SUCCESS",
+    "file_prefix": "SUCCESS",
+    "prefix_bytes": 4096,
+    "arm64_uefi_header_verified_message_visible": true,
+    "benchmark_or_loadimage_result_visible_in_this_photo": false,
+    "acpi_gate_results_directly_visible_in_this_photo": false
+  },
+  "final_screen": {
+    "windows_bugcheck_screen": true,
+    "sad_face_visible": true,
+    "stop_code": "SYSTEM_PTE_MISUSE",
+    "stop_code_evidence": "Photograph text and corroborating owner transcription",
+    "numeric_code_from_microsoft_reference": "0x000000da",
+    "numeric_code_directly_displayed": false,
+    "bugcheck_parameters_available": false,
+    "stack_trace_or_dump_available": false,
+    "kernel_execution_inferred_from_bugcheck_screen": true,
+    "kernel_entry_independently_traced": false,
+    "winpe_shell_or_desktop_observed": false,
+    "windows_pe_boot_completed": false,
+    "root_cause_identified": false
+  },
+  "control_flow_interpretation": {
+    "current_boot_profile_cpu_and_acpi_checks_passed_inferred_from_sd_dispatch": true,
+    "reason": "Exact reviewed BDS invokes SD read/boot only after current-boot profile, CPU contract, ACPI publication and readback return success",
+    "independent_os_acpi_parsing_verified": false,
+    "secondary_cpu_execution_or_interrupt_delivery_verified": false,
+    "previous_0xc0000225_root_cause_proven": false
+  },
+  "owner_observation": {
+    "black_screen_preceded_final_photo": true,
+    "automatic_restart_to_android_reported": true,
+    "approximate_seconds_from_bugcheck_to_restart": 5,
+    "five_second_interval_instrumentally_measured": false
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 679.967,
+    "bootreason": "reboot"
+  },
+  "native_1800_second_deadline_measured": false,
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_before_test_percent": 100.0,
+  "battery_after_restoration_percent": 99.0,
+  "firmware_or_windows_binaries_published": false,
+  "reference": "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xda--system-pte-misuse"
+}

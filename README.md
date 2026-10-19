@@ -48,9 +48,11 @@ comprobaron después, con batería al 100 %. WinPE sigue pendiente.
 La [sonda CPU/PSCI del 31](docs/ACPI.md#resultado-físico-del-intento-31) observó
 EL1, SRE habilitado y PSCI 1.0: anuncia CPU_ON64 y reporta CPU0 ON y CPU1–7 OFF.
 Volvió sola a Android y se restauró el recovery original; no se ejecutó CPU_ON.
-La [variante combinada 32](docs/ACPI.md#variante-combinada-acpi-y-microsd-32-comprobada-en-pc)
-ya pasó compilación y pruebas de PC para condicionar el intento SD a la
-validación CPU y a la publicación ACPI. Su ejecución física está pendiente.
+La [variante combinada 32](docs/ACPI.md#resultado-físico-del-intento-32) llegó a
+una pantalla de parada de Windows con `SYSTEM_PTE_MISUSE`, después de validar
+CPU y publicar ACPI antes del intento SD. El propietario confirmó reinicio
+automático a Android; se restauró el recovery original con batería al 99 %.
+El arranque completo de WinPE y la causa concreta del bugcheck siguen pendientes.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -81,7 +83,7 @@ Véase
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
-| microSD y cargador ARM64 | FAT, carga EFI y pantalla Recovery de Windows Boot Manager verificados; cuatro bits a 13 MHz, 16 MiB a 1141 KiB/s y 2100 MiB libres antes del cargador. Nuevo error `0xc0000225`; WinPE pendiente |
+| microSD y cargador ARM64 | FAT, carga EFI y Windows Boot Manager observados; cuatro bits a 13 MHz, 16 MiB a 1141 KiB/s y 2100 MiB libres antes del cargador. Con ACPI, pantalla de bugcheck `SYSTEM_PTE_MISUSE` (32); WinPE completo pendiente |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el
