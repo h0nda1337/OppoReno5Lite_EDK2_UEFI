@@ -973,6 +973,61 @@ el teléfono, cambios de firmware ni una nueva medición de batería. Se prepara
 una referencia oficial ARM64 independiente antes de elegir otra prueba física.
 Véase [el registro filtrado de inspección y simulación](../evidence/winpe-io-inspection-34.json).
 
+### Referencia oficial de WinPE ARM64 (35)
+
+Se obtuvo un medio independiente del complemento WinPE enlazado por la
+[página oficial de ADK](https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install).
+Se comprobaron Authenticode del bootstrap y del cargador, los tamaños y SHA-1
+de los CAB contra el manifiesto del bootstrap firmado, y los 89 archivos
+extraídos. No se ejecutaron ni instalaron el bootstrap o los MSI.
+El paquete de archivos de arranque declara `10.1.26100.9457`; el WIM realmente
+contiene Windows PE ARM64 `10.0.26100.1` y `BOOTAA64.EFI` declara
+`10.0.28000.367`. Se conservaron los archivos suministrados por el kit sin
+sustituir el cargador ni modificar el WIM; esto no declara un WIM completamente
+actualizado. Las imágenes y binarios permanecen privados.
+
+En QEMU `virt`, GICv3, Cortex-A76, un núcleo y 4096 MiB, el medio llegó a la
+consola y ejecutó `ver`: **Microsoft Windows [Version 10.0.26100.1]**. La
+configuración que lo consiguió arranca en EL1, con EL2 deshabilitado para la
+CPU y llamadas SMC disponibles. El intento anterior con EL2 habilitado no
+alcanzó esa consola. No se modificaron registros o memoria del invitado para
+forzar el avance. La lectura FAT completa de los 89 archivos del disco virtual
+coincide con las fuentes; el disco era de solo lectura, sin red ni acceso a
+dispositivos físicos. La VM ya está detenida. Esta simulación no reproduce
+MT6779 ni prueba que WinPE funcione en el teléfono.
+
+Para la prueba física se conservó exactamente el firmware nativo de los
+intentos 32/33. Se verificaron los 89 archivos nuevos en la microSD y se
+preservaron las carpetas originales, con huellas de sus 681 archivos.
+La entrada a recovery se solicitó con batería al 100 %.
+
+![Logo Windows del intento 35](images/native-winpe-clean-reference-lab-35-logo.jpg)
+
+![Detalle IRQL_NOT_LESS_OR_EQUAL del intento 35](images/native-winpe-clean-reference-lab-35-bugcheck-detail.jpg)
+
+Las [fotos revisadas](../evidence/winpe-clean-reference-lab-35-photos.json)
+documentan el logo de Windows y después **IRQL_NOT_LESS_OR_EQUAL**, con
+**What failed: ntoskrnl.exe**. Microsoft identifica este nombre como
+[bugcheck 0xA](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xa--irql-not-less-or-equal),
+por un acceso inválido a memoria a un IRQL elevado. Ese número procede de la
+referencia; la foto no muestra sus cuatro parámetros ni una pila. El nombre del
+kernel por sí solo no identifica el componente responsable. Tampoco se puede
+equiparar esta parada con las de la simulación 34 por compartir el nombre.
+
+El propietario necesitó Encendido + Volumen arriba y confirmó Android. El
+observador registró arranque completo con motivo `PowerKey` a los 682,131
+segundos desde el informe de entrada; incluye LK, Windows, espera y Android.
+Se restauró el recovery y se repusieron los 681 archivos originales de la
+tarjeta, verificando todos sus SHA-256; el medio oficial queda conservado con
+otro nombre. La batería final fue 100 %. No hay entorno WinPE utilizable ni
+arranque de Windows 11 comprobado en el OPPO.
+Véase [el resultado de PC, ejecución física y restauración](../evidence/winpe-clean-reference-lab-35-validation.json).
+
+El aviso Orange State heredado de LK permanece visible en la foto del logo.
+El propietario pidió retirarlo de la presentación de UEFI/Windows. Sigue
+pendiente identificar su composición o superficie en el handoff; no se ha
+verificado una limpieza ni se ha cambiado el estado de bloqueo del bootloader.
+
 ### Inspección y ruta de carga EFI
 
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera

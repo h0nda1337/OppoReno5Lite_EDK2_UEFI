@@ -31,6 +31,12 @@ MT6779 ni aportan código específico al firmware del OPPO. Los símbolos públi
 de Microsoft se consultaron para inspeccionar el kernel privado de WinPE;
 no se publican el PDB, el ejecutable ni su desensamblado.
 
+El medio de comparación 35 se extrajo de los MSI/CAB oficiales del complemento
+WinPE de Microsoft, sin ejecutar sus instaladores. El WIM y los cargadores se
+usan como carga de prueba privada; no se redistribuyen ni forman parte de los
+controladores propios. Su comando `ver` funcionó en QEMU; el OPPO terminó en
+una parada de Windows. Esos resultados se documentan por separado.
+
 El renderer de `OppoDebugLib`, sus glifos 5×7, la página de cursor compartido y
 la prueba de memoria protegida también son originales. El formateador utilizado
 en el firmware sigue siendo el PrintLib genérico de EDK2; el del test de PC es

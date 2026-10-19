@@ -1,0 +1,32 @@
+[
+  {
+    "public_path": "docs/images/native-winpe-clean-reference-lab-35-logo.jpg",
+    "bytes": 2454604,
+    "sha256": "828b97ccfc20ef90489d6f2c83d8eb277027c248ba626e94334b375a90da5a29",
+    "source_orientation_tag": 6,
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "105b4570def3da41b95d3ab471fa96f2b4912892e24676283d3e4fa9a7060e53",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "visual_review": "Full phone photo: centered blue Windows logo on a dark display, and the inherited Orange State warning. It proves a photographed logo stage, not a usable Windows PE environment.",
+    "visible_personal_identifiers": false
+  },
+  {
+    "public_path": "docs/images/native-winpe-clean-reference-lab-35-bugcheck-detail.jpg",
+    "bytes": 3371935,
+    "sha256": "e4c56b156857a00acee88edb6834282dfbc5c518695b7622d7d04e0f76f2284c",
+    "source_orientation_tag": 6,
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "5a17364ca19b49fc27c53c771f0fb30fd1b1d21faba8ca3b35ad9fe73429c514",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "visual_review": "Cropped Windows stop screen: IRQL_NOT_LESS_OR_EQUAL and What failed: ntoskrnl.exe are legible. Numeric bugcheck arguments, stack, full-screen status and exact root cause are not present.",
+    "visible_personal_identifiers": false
+  }
+]

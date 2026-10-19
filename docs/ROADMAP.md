@@ -14,7 +14,8 @@ El propietario fija este orden de trabajo para el OPPO Reno5 Lite CPH2205/MT6779
 
 La Shell UEFI, Windows Boot Manager y una pantalla de bugcheck son hitos
 intermedios. La prueba 32 alcanzó `SYSTEM_PTE_MISUSE` y la 33 terminó con
-`IO1_INITIALIZATION_FAILED`; el arranque correcto de WinPE y el de Windows 11
+`IO1_INITIALIZATION_FAILED`; la referencia oficial del 35 llegó al logo y a
+`IRQL_NOT_LESS_OR_EQUAL`. El arranque correcto de WinPE en el OPPO y el de Windows 11
 siguen pendientes. La aceleración 3D de PowerVR no es
 un criterio de éxito del primer arranque con pantalla básica.
 
@@ -162,8 +163,11 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
   el arranque. El cambio de código no demuestra la corrección del fallo anterior.
 - [x] Inspeccionar los 54 controladores de arranque y comparar el WIM original
   y diagnóstico en PC (34), sin declarar la simulación como validación del OPPO.
-- [ ] Validar una referencia oficial ARM64 independiente y usar el resultado
-  para elegir una prueba física que acote el fallo actual.
+- [x] Validar una referencia oficial ARM64 independiente en PC: ejecuta `ver`
+  en una VM EL1 con SMC. En la prueba física 35 muestra logo y
+  `IRQL_NOT_LESS_OR_EQUAL`, indicando `ntoskrnl.exe`; causa aún sin aislar.
+- [ ] Identificar y limpiar la presentación Orange State heredada al entrar
+  en UEFI, conservando el estado de desbloqueo.
 - [ ] Resolver el fallo de arranque actual y validar un entorno WinPE utilizable
   desde microSD, con entrada básica y un comando comprobado.
 - [ ] Repetir y documentar el arranque correcto de WinPE desde la tarjeta.

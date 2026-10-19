@@ -1,0 +1,105 @@
+{
+  "phase": "35 official ARM64 WinPE reference: PC and physical outcomes distinguished",
+  "native_firmware_changed": false,
+  "same_native_firmware_as_phases_32_33": true,
+  "official_media": {
+    "source_page": "https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install",
+    "bootstrap_download": "https://download.microsoft.com/download/a4a79e7a-f085-41c4-aebf-2538fd000790/adkwinpeaddons/adkwinpesetup.exe",
+    "bootstrap_sha256": "d4de67acc83de253ccc941dd0590808d83726bdd8ea768a374a7beaff7949d6a",
+    "bootstrap_Authenticode": "Valid, Microsoft Corporation",
+    "MSI_boot_files_package_version": "10.1.26100.9457",
+    "WIM_actual_build": "10.0.26100.1 ARM64 WindowsPE",
+    "EFI_Boot_bootaa64_actual_file_version": "10.0.28000.367",
+    "EFI_Boot_bootaa64_Authenticode": "Valid, Microsoft Windows",
+    "files": 89,
+    "important_files": {
+      "EFI/Boot/bootaa64.efi": {
+        "bytes": 3120648,
+        "sha256": "fae47d78487e781aa06466775cb461adeb7ff7f887fe2c15295bb2eb4f4954e1"
+      },
+      "EFI/Microsoft/Boot/BCD": {
+        "bytes": 16384,
+        "sha256": "18582af647e3d089ff560500fa90ac8bf3cd55ba56011ed9707647f73bfa6e6c"
+      },
+      "Boot/boot.sdi": {
+        "bytes": 3170304,
+        "sha256": "cd2c00ce027687ce4a8bdc967f26a8ab82f651c9becd703658ba282ec49702bd"
+      },
+      "sources/boot.wim": {
+        "bytes": 327837719,
+        "sha256": "673bfc827157c76000abedc7ccdc39489cc85d66fe0931a871efe52279bb346e"
+      }
+    },
+    "CAB_sizes_and_manifest_SHA1_checked": true,
+    "full_WIM_file_data_verification_passed": true,
+    "WIM_modified": false,
+    "source_boot_files_replaced_with_other_versions": false,
+    "MSI_or_bootstrap_executed_or_installed": false,
+    "binaries_kept_private": true,
+    "actual_versions_are_not_equivalent_to_a_fully_patched_WIM": true
+  },
+  "simulation": {
+    "scope": "Generic QEMU virt; does not emulate OPPO or MT6779",
+    "emulator": "QEMU 10.0.13, Debian 1:10.0.13+ds-0+deb13u1",
+    "firmware": "AAVMF 2025.02-8+deb13u1, no Secure Boot",
+    "platform": "GICv3, Cortex-A76, EL1, SMC conduit, one CPU, 4096 MiB, GPT FAT32 ESP, ramfb",
+    "cpu_has_el2": false,
+    "cpu_has_el3": false,
+    "psci_conduit_QOM_value": 1,
+    "network_or_physical_passthrough": false,
+    "media_read_only": true,
+    "full_FAT_readback": {
+      "scope": "PC only",
+      "full_FAT_readbacks_match_source": true,
+      "files_verified": 89,
+      "bytes_verified": 356738957,
+      "wim_sha256": "673bfc827157c76000abedc7ccdc39489cc85d66fe0931a871efe52279bb346e",
+      "phone_operations": false
+    },
+    "command_visually_verified": "ver",
+    "output_visually_verified": "Microsoft Windows [Version 10.0.26100.1]",
+    "command_screenshot_sha256": "26c4b15f7896e9c83789e4b58eed38238306f413c81ad9926e96e6d6ee7099ce",
+    "prior_EL2_enabled_configuration_did_not_reach_command_prompt": true,
+    "successful_VM_stopped_with_exit_code": 0,
+    "OPPO_usable_WinPE_proven_by_VM": false
+  },
+  "physical": {
+    "battery_before_entry_percent": 100.0,
+    "matching_media_files_verified_on_card": 89,
+    "original_files_preserved_and_rechecked": 681,
+    "owner_photos": [
+      "docs/images/native-winpe-clean-reference-lab-35-logo.jpg",
+      "docs/images/native-winpe-clean-reference-lab-35-bugcheck-detail.jpg"
+    ],
+    "observed": [
+      "Windows logo",
+      "IRQL_NOT_LESS_OR_EQUAL",
+      "What failed: ntoskrnl.exe"
+    ],
+    "numeric_bugcheck_from_reference_not_photographed": "0xA",
+    "parameters_or_valid_phone_stack_available": false,
+    "ntoskrnl_name_does_not_establish_root_cause": true,
+    "owner_forced_restart_with_buttons": true,
+    "Android_boot_completed": true,
+    "Android_bootreason": "PowerKey",
+    "report_to_Android_seconds": 682.131,
+    "timing_includes_LK_Windows_waiting_and_Android": true,
+    "stock_recovery_restored": true,
+    "all_original_card_boot_assets_restored_SHA256_verified": true,
+    "official_test_media_retained_separately": true,
+    "final_battery_percent": 100.0,
+    "usable_WinPE_environment_verified": false,
+    "Windows_11_boot_verified": false
+  },
+  "Orange_State": {
+    "inherited_warning_visible_in_logo_photo": true,
+    "display_cleanup_requested_by_owner": true,
+    "cleanup_implemented_or_verified": false,
+    "bootloader_lock_state_changed": false
+  },
+  "next_action": "Inspect the platform/display handoff and obtain the physical 0xA parameters or a valid trace. Investigate inherited Orange State display without assuming its layer or changing lock state.",
+  "references": [
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xa--irql-not-less-or-equal",
+    "https://www.qemu.org/docs/master/system/arm/virt.html"
+  ]
+}

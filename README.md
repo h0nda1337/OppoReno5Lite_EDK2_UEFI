@@ -1,8 +1,9 @@
 # OPPO Reno5 Lite — EDK2 UEFI
 
 Port experimental de EDK2 para **OPPO Reno5 Lite CPH2205 / OP4F43L1**, proyecto
-20295, MediaTek MT6779 (Helio P95). El objetivo es conseguir una UEFI Shell nativa
-y después ofrecer una opción **UEFI Shell** en el recovery que muestra Fastbootd.
+20295, MediaTek MT6779 (Helio P95). La prioridad actual es arrancar Windows PE
+ARM64 utilizable y después Windows 11 ARM64 desde microSD mediante el port propio.
+La integración de la Shell en el menú Fastbootd queda pendiente.
 
 **Estado, 18 de octubre de 2026: UEFI Interactive Shell v2.2 llegó al prompt
 `Shell>` en el OPPO, con entrada ARM64, SEC, GOP y BDS propios y núcleo/Shell
@@ -65,7 +66,13 @@ La [inspección de PC del 34](evidence/winpe-io-inspection-34.json) comprobó
 presencia y arquitectura ARM64 de los 54 controladores de arranque del WIM.
 El original y la copia diagnóstica fallaron con `IRQL_NOT_LESS_OR_EQUAL` en
 una VM genérica; esa comparación no identifica la causa del `IO1` del OPPO.
-Se prepara una referencia oficial de WinPE ARM64 independiente.
+La [referencia oficial del 35](docs/MICROSD.md#referencia-oficial-de-winpe-arm64-35)
+ejecutó `ver` en una VM genérica configurada en EL1 con SMC. En el OPPO, con el
+mismo firmware nativo anterior y el nuevo medio, las fotos muestran el logo de
+Windows y después `IRQL_NOT_LESS_OR_EQUAL`, con `ntoskrnl.exe` indicado en pantalla.
+No hay parámetros ni pila física para atribuir la causa. Se usaron los botones
+para volver a Android; se restauraron recovery y los 681 archivos originales
+del medio, con batería final al 100 %. WinPE utilizable en el OPPO sigue pendiente.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
