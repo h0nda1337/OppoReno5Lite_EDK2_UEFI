@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "phase": "winpe-crash-parameters-lab-33",
+  "scope": "Physical Windows stop screen and subsequent restoration; not a successful WinPE boot",
+  "host_validation": "evidence/winpe-crash-parameters-lab-33-host-validation.json",
+  "intermediate_photo": "evidence/winpe-crash-parameters-lab-33-photo.json",
+  "bugcheck_photos": "evidence/winpe-crash-parameters-lab-33-bugcheck-photos.json",
+  "firmware_same_as_trial32": true,
+  "candidate_sha256": "819aad78b3d3b08a6976ee53e038bbff72a507fcda57f3565e656f075a38bbbf",
+  "diagnostic_changes": [
+    "SYSTEM CrashControl DisplayParameters DWORD1",
+    "SYSTEM CrashControl AutoReboot DWORD0"
+  ],
+  "observed_stop_name": "IO1_INITIALIZATION_FAILED",
+  "stop_name_visible_in_photograph": true,
+  "owner_transcription_matches": true,
+  "numeric_bugcheck_code_from_microsoft_reference": "0x00000069",
+  "numeric_code_read_from_photo": false,
+  "reference": "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x69--io1-initialization-failed",
+  "additional_hex_rows_partly_visible_near_camera_cutout": true,
+  "complete_parameters_decoded": false,
+  "stack_or_dump_available": false,
+  "kernel_entry_inferred_from_bugcheck_screen": true,
+  "kernel_entry_independently_traced": false,
+  "loading_indicator": {
+    "owner_reported": true,
+    "photographed": false
+  },
+  "owner_reported_screen_remained_stopped": true,
+  "automatic_reboot_suppression_consistent_with_setting": true,
+  "earlier_SYSTEM_PTE_MISUSE_fix_proven": false,
+  "cause_identified": false,
+  "winpe_usable_environment_verified": false,
+  "windows11_boot_verified": false,
+  "android_return": {
+    "owner_confirmed_android_after_forced_restart_instructions": true,
+    "exact_button_sequence_not_separately_confirmed": true,
+    "boot_completed_detected": true,
+    "bootreason": "PowerKey",
+    "elapsed_since_launch_report_seconds": 931.936,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "automatic_return_claimed": false
+  },
+  "stock_restoration": {
+    "phase": "android_boot_verified",
+    "stock_recovery_sha256": "ac989e3009148792101a764a82fca8ca6212ec0afdd84e13d3b85e87364903b1",
+    "partition_target": "recovery",
+    "other_partitions_written": false,
+    "final_battery_percent": 100.0
+  },
+  "sd_restoration": {
+    "original_wim_restored": true,
+    "original_sha256_verified": "d00bfd4a17a257d6fa0861e09a1c7cf76f5ba3638026ab17cdb768d56152698a",
+    "diagnostic_copy_retained": true,
+    "final_battery_percent": 100.0
+  }
+}

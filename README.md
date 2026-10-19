@@ -53,6 +53,13 @@ una pantalla de parada de Windows con `SYSTEM_PTE_MISUSE`, después de validar
 CPU y publicar ACPI antes del intento SD. El propietario confirmó reinicio
 automático a Android; se restauró el recovery original con batería al 99 %.
 El arranque completo de WinPE y la causa concreta del bugcheck siguen pendientes.
+El [diagnóstico 33](docs/MICROSD.md) conservó ese firmware y usó una copia privada
+del WIM con opciones para mostrar parámetros de parada y desactivar el reinicio
+automático.
+Las fotos confirman `IO1_INITIALIZATION_FAILED` y pantalla detenida; el icono de
+carga fue informado sin foto. El cambio de código no demuestra la corrección
+del fallo anterior, y WinPE aún no completó el arranque.
+Se restauraron el recovery y el WIM originales, con Android comprobado al 100 %.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
@@ -83,7 +90,7 @@ Véase
 | Primer plan de memoria propio | HOBs, cambio de pila y MMU/cachés alcanzados por la prueba corta; mapa de RAM completo pendiente |
 | Arranque temporal con `fastboot boot` | Transferencia completada; fallo de LK y retorno a Android; sin ejecución de RAM demostrada |
 | Opción adicional en el menú de Fastbootd | Diseño propuesto; sin implementar |
-| microSD y cargador ARM64 | FAT, carga EFI y Windows Boot Manager observados; cuatro bits a 13 MHz, 16 MiB a 1141 KiB/s y 2100 MiB libres antes del cargador. Con ACPI, pantalla de bugcheck `SYSTEM_PTE_MISUSE` (32); WinPE completo pendiente |
+| microSD y cargador ARM64 | FAT, carga EFI y Windows Boot Manager observados; cuatro bits a 13 MHz, 16 MiB a 1141 KiB/s y 2100 MiB libres antes del cargador. Con ACPI, `SYSTEM_PTE_MISUSE` (32) y después `IO1_INITIALIZATION_FAILED` con WIM diagnóstico (33); WinPE completo pendiente |
 | Logo original y BGRT | Extractor y biblioteca comprobados en PC; presentación del logo en UEFI y Windows pendiente |
 
 Los respaldos de Android y la recuperación MediaTek ya se obtuvieron durante el

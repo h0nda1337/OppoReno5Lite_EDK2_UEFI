@@ -83,6 +83,10 @@ REVIEWED_IMAGES = {
         (3121493, '3ba4ad72ac60beabcafc8ed60ab8022220d1d130706bcd42885c07153d6798dc'),
     'docs/images/native-winpe-crash-parameters-lab-33-read.jpg':
         (2986657, '5979860d9ad0a6d33238e74f32c89c702eb04212dd02d2e6bb2dbcbc2923d7b2'),
+    'docs/images/native-winpe-crash-parameters-lab-33-bugcheck.jpg':
+        (2320586, '5c48897c18c22102bcf7a1850c31463edc5c470bd4dcfc413097f0af186efa43'),
+    'docs/images/native-winpe-crash-parameters-lab-33-bugcheck-detail.jpg':
+        (2394661, 'c2b746ab95c70128508c13c366873d76de326971312a889dbc72680d82a531a3'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

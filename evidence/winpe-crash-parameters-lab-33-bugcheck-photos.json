@@ -1,0 +1,30 @@
+[
+  {
+    "public_path": "docs/images/native-winpe-crash-parameters-lab-33-bugcheck.jpg",
+    "bytes": 2320586,
+    "sha256": "5c48897c18c22102bcf7a1850c31463edc5c470bd4dcfc413097f0af186efa43",
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "c0cdb3cf09741f99fd6a98a9ff051b2258288ce659bfc2e75b62ed9a6b764fb8",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "owner_requested_documentation": true,
+    "visual_review": "Full phone photograph of a persistent Windows sad-face stop screen: IO1_INITIALIZATION_FAILED and text You can restart are visible. Additional hexadecimal rows near the camera cutout are partly obscured/cropped and are not transcribed as verified parameters. No visible personal identifiers."
+  },
+  {
+    "public_path": "docs/images/native-winpe-crash-parameters-lab-33-bugcheck-detail.jpg",
+    "bytes": 2394661,
+    "sha256": "c2b746ab95c70128508c13c366873d76de326971312a889dbc72680d82a531a3",
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "590295de9c56ff656c01495c6998662558a565961f09c6edfa6b54488641becf",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "owner_requested_documentation": true,
+    "visual_review": "Close photograph makes the Windows stop name IO1_INITIALIZATION_FAILED legible; it does not show the full screen, numeric bugcheck arguments or a stack. No visible personal identifiers."
+  }
+]

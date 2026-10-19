@@ -862,7 +862,7 @@ su pila para identificar la causa. El propietario indicó reinicio automático a
 Android unos cinco segundos después; se restauró el recovery original y se
 comprobó Android al 99 %. Véase [el resultado y ambas fotos](ACPI.md#resultado-físico-del-intento-32).
 
-### Preparación de captura de parámetros del bugcheck (33)
+### Captura de diagnóstico (33): IO1_INITIALIZATION_FAILED
 
 El siguiente diagnóstico conserva exactamente el firmware nativo del intento 32.
 En PC se preparó una copia privada del WIM cuyo único archivo de contenido vivo
@@ -881,9 +881,10 @@ herramientas genéricas de host; sus implementaciones no se incorporan al port.
 Microsoft documenta [DisplayParameters](https://support.microsoft.com/en-us/topic/stop-error-information-isn-t-displayed-on-the-blue-screen-in-windows-216528fb-94fd-11a2-2675-398ecf5cc237)
 para Windows 8/8.1 y [AutoReboot](https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/configure-system-failure-and-recovery-options)
 para Windows 10. El kernel ARM64 de este WinPE contiene el nombre
-`DisplayParameters`, pero eso no demuestra que lo consulte antes de este fallo:
-su eficacia sigue pendiente de la prueba física. Deshabilitar AutoReboot puede
-requerir los botones para regresar a Android después de fotografiar la parada.
+`DisplayParameters`. La foto final contiene filas hexadecimales parcialmente
+ocultas junto a la cámara, sin valores completos que se puedan transcribir con
+fiabilidad. La pantalla quedó detenida, con el texto `You can restart`, conforme
+al informe del propietario y compatible con AutoReboot deshabilitado.
 
 La validación de PC comprobó 12 233 claves y 30 025 valores del hive original,
 el WIM de origen y el actualizado con wimlib, y la extracción del hive actualizado.
@@ -893,8 +894,8 @@ contenido del SYSTEM anterior, identificado por 7-Zip como `DELETED`; no es un
 archivo nuevo del filesystem de WinPE. Los WIM y el registro permanecen privados.
 Véase [la validación de host](../evidence/winpe-crash-parameters-lab-33-host-validation.json).
 La copia diagnóstica se verificó en la tarjeta y el intento se lanzó con batería
-al 100 %; el propietario informó texto seguido de pantalla negra. El resultado
-físico y la captura de parámetros siguen pendientes.
+al 100 %. El propietario informó texto, pantalla negra y después un icono de
+carga de Windows momentáneo; este último no tiene captura fotográfica.
 
 ![Estado SD intermedio del diagnóstico 33](images/native-winpe-crash-parameters-lab-33-read.jpg)
 
@@ -904,6 +905,31 @@ del cargador y lectura de su prefijo de 4096 bytes. No muestra Windows ni las
 líneas anteriores de ACPI o de carga/ejecución EFI; tampoco contiene parámetros
 del bugcheck. Se retiraron los metadatos personales conservando orientación,
 perfil de color y los datos comprimidos de la imagen sin recomprimirlos.
+
+![Parada Windows IO1_INITIALIZATION_FAILED del intento 33](images/native-winpe-crash-parameters-lab-33-bugcheck.jpg)
+
+Las [dos fotos finales revisadas](../evidence/winpe-crash-parameters-lab-33-bugcheck-photos.json)
+confirman **IO1_INITIALIZATION_FAILED**; el
+[detalle del texto](images/native-winpe-crash-parameters-lab-33-bugcheck-detail.jpg)
+permite leer el nombre. Microsoft lo identifica como
+[bugcheck 0x69](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x69--io1-initialization-failed),
+un fallo de inicialización del sistema de E/S. El valor numérico procede de esa
+referencia, no de una lectura completa del diagnóstico superior de la foto.
+No hay volcado ni pila que identifiquen el componente responsable.
+
+El código de parada cambió respecto a `SYSTEM_PTE_MISUSE` del intento 32, pero
+esta única comparación no demuestra que se haya corregido el fallo anterior
+ni que falte un controlador concreto. La ejecución del kernel se infiere de la
+pantalla de parada, sin traza independiente de su entrada. WinPE aún no llegó a
+un entorno utilizable y Windows 11 desde microSD sigue pendiente.
+
+El propietario confirmó Android después de recibir las instrucciones de
+reinicio forzado. El observador detectó arranque completo con motivo `PowerKey`
+a los 931,936 segundos desde el informe de entrada: incluye LK, Windows, la
+espera y Android, y no mide el plazo de BDS ni prueba retorno automático.
+Se restauró el recovery original, se comprobó Android al 100 % y se repuso el
+WIM original en la tarjeta verificando su SHA-256. La copia diagnóstica queda
+conservada con otro nombre. Véase [el resultado físico y la restauración](../evidence/winpe-crash-parameters-lab-33-validation.json).
 
 La revisión del plan de memoria con el FDT capturado también encontró el
 framebuffer cubierto por una reserva `EfiReservedMemoryType`, sin solapamiento

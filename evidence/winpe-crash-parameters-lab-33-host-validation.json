@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "phase": "winpe-crash-parameters-lab-33",
-  "scope": "PC validation of a diagnostic WinPE copy; physical outcome pending",
+  "scope": "PC validation of a diagnostic WinPE copy; physical outcome documented separately",
   "source_base_revision": "2100163270a1069bde53e3d1fe09249c8c11e76b",
   "tool": "scripts/prepare_winpe_crash_hive.py",
   "tool_sha256": "b415580d0d3725d76a4b140887bc17b6475489e3d48c236c5165fd363dd88a20",
@@ -97,7 +97,7 @@
   "firmware_recompiled": false,
   "firmware_same_as_trial32": true,
   "trial_launched_with_battery_percent": 100.0,
-  "physical_trial_result": "Intermediate SD photograph reviewed; owner reports transition to black screen. Windows outcome and bugcheck parameters pending.",
+  "physical_trial_result": "IO1_INITIALIZATION_FAILED photographed; loading indicator owner-reported without photo; stopped screen; Android returned after forced-restart instructions. Stock recovery and original SD WIM restored.",
   "winpe_successful_boot_verified": false,
   "bugcheck_cause_identified": false,
   "bugcheck_parameters_obtained": false,
@@ -117,5 +117,7 @@
     "wimlib": "https://wimlib.net/man1/wimupdate.html",
     "gop": "https://learn.microsoft.com/en-us/windows-hardware/drivers/bringup/uefi-requirements-that-apply-to-all-windows-platforms"
   },
-  "intermediate_photo": "evidence/winpe-crash-parameters-lab-33-photo.json"
+  "intermediate_photo": "evidence/winpe-crash-parameters-lab-33-photo.json",
+  "physical_result": "evidence/winpe-crash-parameters-lab-33-validation.json",
+  "bugcheck_photos": "evidence/winpe-crash-parameters-lab-33-bugcheck-photos.json"
 }

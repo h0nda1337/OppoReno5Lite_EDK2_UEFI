@@ -13,8 +13,9 @@ El propietario fija este orden de trabajo para el OPPO Reno5 Lite CPH2205/MT6779
    un nuevo arranque desde esa misma tarjeta y conservar evidencia física.
 
 La Shell UEFI, Windows Boot Manager y una pantalla de bugcheck son hitos
-intermedios. La prueba 32 alcanzó `SYSTEM_PTE_MISUSE`; el arranque correcto de
-WinPE y el de Windows 11 siguen pendientes. La aceleración 3D de PowerVR no es
+intermedios. La prueba 32 alcanzó `SYSTEM_PTE_MISUSE` y la 33 terminó con
+`IO1_INITIALIZATION_FAILED`; el arranque correcto de WinPE y el de Windows 11
+siguen pendientes. La aceleración 3D de PowerVR no es
 un criterio de éxito del primer arranque con pantalla básica.
 
 Se mantiene el código propio de entrada y controladores específicos, la vía de
@@ -156,6 +157,9 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
 - [x] Confirmar RAM adicional visible en el mapa UEFI: 2100 MiB libres antes del cargador.
 - [x] Probar la variante con ACPI y registrar la pantalla de bugcheck Windows
   `SYSTEM_PTE_MISUSE`, retorno automático y restauración del recovery (32).
+- [x] Capturar `IO1_INITIALIZATION_FAILED` con la copia diagnóstica del WIM (33);
+  el icono de carga fue informado por el propietario sin foto, y WinPE no completó
+  el arranque. El cambio de código no demuestra la corrección del fallo anterior.
 - [ ] Resolver el fallo de arranque actual y validar un entorno WinPE utilizable
   desde microSD, con entrada básica y un comando comprobado.
 - [ ] Repetir y documentar el arranque correcto de WinPE desde la tarjeta.
