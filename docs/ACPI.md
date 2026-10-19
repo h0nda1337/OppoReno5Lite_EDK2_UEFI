@@ -10,7 +10,7 @@ DSDT por Windows en [sus requisitos de tablas ACPI](https://learn.microsoft.com/
 `OppoAcpiLib` es un generador original de estructuras ACPI, comprobado en PC y
 compilado como objeto ARM64. El intento 27 lo comprobó por separado; la variante
 optativa 29 lo enlaza desde BDS para preparar su instalación. La ejecución de
-esa instalación en el teléfono sigue pendiente. No incorpora tablas ni código de
+esa instalación se observó en el intento 30, descrito más abajo. No incorpora tablas ni código de
 otro port. Los formatos C genéricos son los de la dependencia EDK2 identificada.
 
 ## Datos y decisiones de formato
@@ -46,8 +46,9 @@ desordenada, para detectar una asignación accidental por índice.
 El prototipo no publica una estructura GICR de descubrimiento porque no se ha
 demostrado que todos los redistributors estén en un dominio siempre encendido.
 Describe GICC individuales. Los campos de compatibilidad GICv2 son cero; antes
-de instalar tablas hay que confirmar ese contrato y clasificar el tercer rango
-del nodo GIC. No se interpreta `0x0c53a650` como una interfaz GICC.
+de entregar las tablas a un OS hay que confirmar ese contrato. El tercer rango
+del nodo GIC se clasificó documentalmente en el intento 28; no se interpreta
+`0x0c53a650` como una interfaz GICC.
 
 ## Comprobación y trabajo pendiente
 
@@ -64,11 +65,11 @@ cero errores y advertencias; su intérprete evalúa los UID extremos y `_STA`.
 El objeto ARM64 solo depende de `CopyMem` y `ZeroMem`.
 Véase [la evidencia de PC](../evidence/acpi-serialization-host-validation-27.json).
 
-La correspondencia GICR/afinidad ya se observó en el intento 28. Falta enlazarla
-con el generador usando los hechos del FDT recibido en cada arranque y revisar
-CPU/PSCI antes de habilitarlas para un OS.
-La posterior instalación deberá reservar memoria `EfiACPIReclaimMemory`, mantener
-sus direcciones físicas y publicar RSDP únicamente al completar todas las tablas.
+La correspondencia GICR/afinidad se observó en el intento 28 y quedó enlazada
+con el generador usando el FDT y los registros de cada arranque en el 29/30.
+Falta revisar CPU/PSCI antes de habilitarlas para un OS. El intento 30 verificó
+reserva `EfiACPIReclaimMemory`, punteros físicos y publicación del RSDP después
+de construir todas las tablas.
 También faltan SMBIOS, tiempo RTC y la descripción y control de otros dispositivos.
 Estas tablas mínimas no certifican compatibilidad con Windows ni arranque de WinPE.
 La preparación del generador (27) no operó sobre el teléfono; el observador
@@ -203,7 +204,37 @@ privado pasó su validación. El candidato 29 se sustituyó antes de ejecutarse 
 el teléfono. El 30 conserva el perfil de cada arranque, las seis tablas y el
 laboratorio sin SD, Shell ni Windows, con solicitud de reinicio a los 90 segundos.
 
-Tras la confirmación del propietario y los controles de identidad y batería
-al 100 %, se solicitó entrada directa al candidato 30. La observación física
-de `ACPI INSTALL`, `PUBLISH` y `READBACK` y la restauración posterior están
-pendientes; el éxito de PC no las demuestra. Véase [la evidencia del 30](../evidence/acpi-install-shape-lab-30-host-validation.json).
+### Resultado físico del intento 30
+
+Tras la confirmación del propietario y los controles de identidad y batería al
+100 %, el candidato arrancó directamente. La fotografía muestra `SUCCESS` en
+`ACPI INSTALL`, `ALLOC`, `BUILD`, `MEMORY`, `PUBLISH` y `READBACK`, con `INSTALLED=1`.
+Se publicaron RSDP, XSDT, FADT, DSDT, MADT y GTDT: 1528 bytes en una página de
+4096 bytes. `CLEANUP=NOT STARTED` es el resultado esperado al conservar la
+reserva publicada. El RSDP de esta ejecución está en `0x46be7000`; esa dirección
+procede del asignador UEFI y puede variar entre arranques.
+
+| Tabla | Desplazamiento hexadecimal desde la base |
+| --- | --- |
+| XSDT | `0x28` |
+| FADT | `0x68` |
+| DSDT | `0x180` |
+| MADT | `0x2d0` |
+| GTDT | `0x598` |
+
+Las ocho asociaciones GICR/afinidad coinciden con la fotografía 28. El firmware
+comprobó la cobertura de memoria reclaim, la entrada de configuración y las
+firmas, longitudes, revisiones, punteros y checksums. No se recogió un volcado
+físico independiente de las tablas; la prueba visible es su comprobación nativa.
+
+ADB detectó Android con arranque completo y motivo `reboot` a los 197,83 segundos
+del informe de entrada, intervalo que incluye LK y Android. No mide el plazo
+nativo ni confirma intervención o ausencia de botones. Después se restauró el
+recovery original y se verificó Android, con batería al 100 %. Esta variante no
+inició SD, Shell ni Windows, y no demuestra aún arranque de WinPE ni la causa
+del error anterior `0xc0000225`.
+
+![Instalación y lectura posterior ACPI verificadas en el OPPO](images/native-acpi-install-shape-lab-30.jpg)
+
+Véase [la transcripción y restauración](../evidence/acpi-install-shape-lab-30-validation.json)
+y [la composición exacta del candidato](../evidence/acpi-install-shape-lab-30-host-validation.json).

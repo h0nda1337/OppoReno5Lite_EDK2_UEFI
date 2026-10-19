@@ -1,0 +1,14 @@
+{
+  "public_path": "docs/images/native-acpi-install-shape-lab-30.jpg",
+  "bytes": 2814280,
+  "sha256": "4da0742efd00a4e751cf10dc643f8cf86adfc7f56ac24e05585c17a17b8ab53d",
+  "orientation": 6,
+  "icc_segments_preserved": 1,
+  "compressed_pixel_scans_preserved": true,
+  "compressed_scan_sha256": "0ec7462bcb8cdf219645fbf4cf965cb9b3da400c7a15631cb06f511448fe6be0",
+  "retained_exif_tags": [
+    "Orientation"
+  ],
+  "owner_requested_documentation": true,
+  "visual_review": "Owner photo shows ACPI INSTALL/ALLOC/BUILD/MEMORY/PUBLISH/READBACK success, INSTALLED=1,1528 bytes and one page; no personal identifiers visible in the scene."
+}

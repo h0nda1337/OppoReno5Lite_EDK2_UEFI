@@ -73,6 +73,8 @@ REVIEWED_IMAGES = {
         (2806252, '7d120b6626112e52fe6c341567f1f91f66e7d4c3793e9bf01eec28f1d95aac9e'),
     'docs/images/native-acpi-gic-profile-lab-28.jpg':
         (2467336, 'a17ed05925470c9b352a51859148954243f36ab632dc5aefe465a7cb1ee8f9f5'),
+    'docs/images/native-acpi-install-shape-lab-30.jpg':
+        (2814280, '4da0742efd00a4e751cf10dc643f8cf86adfc7f56ac24e05585c17a17b8ab53d'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

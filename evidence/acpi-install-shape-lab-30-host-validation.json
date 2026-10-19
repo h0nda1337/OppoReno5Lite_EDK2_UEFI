@@ -121,17 +121,20 @@
     "interrupt_delivery_or_power_domains_verified": false
   },
   "physical_launch_requested": true,
-  "physical_installation_observation_pending": true,
-  "acpi_tables_installed_on_phone": false,
+  "physical_installation_observation_pending": false,
+  "acpi_tables_installed_on_phone": true,
   "windows_pe_boot_verified": false,
   "battery_before_test_percent": 100.0,
   "direct_recovery_request_confirmed": true,
-  "stock_recovery_restored_after_this_attempt": false,
+  "stock_recovery_restored_after_this_attempt": true,
   "regression": {
     "prior_revision": "b285428b0058b5b87b74dc28d70763bb64519030",
     "pre_fix_test_failed_as_expected": true,
     "pre_fix_madt_missing_cpu_entries_accepted_by_readback": true,
     "fixed_schema_lengths_and_revisions_checked": true,
     "test_source_sha256": "c8f9b4d8e30d3a4e24bc6fb4e483a3907a6a1e01336e5c3042f1e71df35f0f90"
-  }
+  },
+  "physical_configuration_readback_verified": true,
+  "physical_evidence": "evidence/acpi-install-shape-lab-30-validation.json",
+  "battery_after_restoration_percent": 100.0
 }

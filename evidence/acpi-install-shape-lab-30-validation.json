@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "experiment": "native-acpi-install-shape-30",
+  "stage": "original_acpi_tables_published_and_firmware_readback_observed_on_phone",
+  "source_base_revision": "b285428b0058b5b87b74dc28d70763bb64519030",
+  "host_evidence": "evidence/acpi-install-shape-lab-30-host-validation.json",
+  "candidate_sha256": "df99348f3b2914d76e9552168d7eb090ec8400a8d84a0ce24bcb0918f0d44df5",
+  "native_fd_sha256": "5c882930939be14e2945b14aa3579109db7b739570eb308839ad7af1338fa531",
+  "photo": "docs/images/native-acpi-install-shape-lab-30.jpg",
+  "screen": {
+    "install": "SUCCESS",
+    "allocate": "SUCCESS",
+    "build": "SUCCESS",
+    "memory": "SUCCESS",
+    "publish": "SUCCESS",
+    "readback": "SUCCESS",
+    "cleanup": "NOT STARTED",
+    "installed": 1,
+    "rsdp_physical_address": "0x46be7000",
+    "pages": 1,
+    "table_bytes": 1528,
+    "offsets": {
+      "xsdt": "0x28",
+      "fadt": "0x68",
+      "dsdt": "0x180",
+      "madt": "0x2d0",
+      "gtdt": "0x598"
+    },
+    "gicd_pidr2": "0x3b",
+    "gicd_typer": "0x0079040f",
+    "gicd_control": "0x12",
+    "boot_affinity": "0x000",
+    "cpu": [
+      {
+        "uid": 0,
+        "affinity": "0x000",
+        "gicr_base": "0x0c040000",
+        "gicr_typer": "0x0000000000000020",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 1,
+        "affinity": "0x100",
+        "gicr_base": "0x0c060000",
+        "gicr_typer": "0x0000010000000120",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 2,
+        "affinity": "0x200",
+        "gicr_base": "0x0c080000",
+        "gicr_typer": "0x0000020000000220",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 3,
+        "affinity": "0x300",
+        "gicr_base": "0x0c0a0000",
+        "gicr_typer": "0x0000030000000320",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 4,
+        "affinity": "0x400",
+        "gicr_base": "0x0c0c0000",
+        "gicr_typer": "0x0000040000000420",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 5,
+        "affinity": "0x500",
+        "gicr_base": "0x0c0e0000",
+        "gicr_typer": "0x0000050000000520",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 6,
+        "affinity": "0x600",
+        "gicr_base": "0x0c100000",
+        "gicr_typer": "0x0000060000000620",
+        "gicr_pidr2": "0x3b"
+      },
+      {
+        "uid": 7,
+        "affinity": "0x700",
+        "gicr_base": "0x0c120000",
+        "gicr_typer": "0x0000070000000730",
+        "gicr_pidr2": "0x3b"
+      }
+    ],
+    "gic_profile_visually_matches_photo28": true,
+    "no_sd_or_os_launch_message_visible": true,
+    "lab_completion_message_visible": true
+  },
+  "interpretation": {
+    "evidence_method": "Owner photograph of results emitted by the exact reviewed candidate; original firmware performs memory/configuration/table readback",
+    "acpi_reclaim_coverage_verified_by_native_firmware": true,
+    "rsdp_configuration_entry_verified_by_native_firmware": true,
+    "table_pointers_checksums_lengths_revisions_verified_by_native_firmware": true,
+    "independent_physical_table_dump_collected": false,
+    "cleanup_not_started_is_expected_after_successful_publication": true,
+    "tables": [
+      "RSDP",
+      "XSDT",
+      "FADT",
+      "DSDT",
+      "MADT",
+      "GTDT"
+    ],
+    "gic_interrupt_delivery_or_secondary_cpu_startup_verified": false,
+    "smbios_or_rtc_implemented_by_this_trial": false,
+    "shell_launched_in_this_trial": false,
+    "windows_launched_in_this_trial": false,
+    "windows_pe_boot_verified": false,
+    "cause_of_previous_windows_error_identified": false
+  },
+  "return_observation": {
+    "read_only_adb_observer": true,
+    "firmware_writes": false,
+    "timing_scope": "Report mtime to detected Android boot completion, including LK and Android; not a measurement of the native BDS timer",
+    "android_boot_completed_detected": true,
+    "elapsed_since_request_report_seconds": 197.83,
+    "bootreason": "reboot"
+  },
+  "automatic_android_return_owner_confirmed": false,
+  "owner_return_report": "Owner supplied photograph; button use or automatic return was not separately reported",
+  "native_90_second_deadline_measured": false,
+  "stock_recovery_restored": true,
+  "android_boot_completed_after_restoration": true,
+  "battery_before_test_percent": 100,
+  "battery_after_restoration_percent": 100.0
+}

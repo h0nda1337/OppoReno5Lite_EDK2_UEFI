@@ -140,7 +140,8 @@ Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.
   volver a Android y restaurar el recovery original en el intento 28.
 - [x] Vincular el perfil obtenido en cada arranque al generador y comprobar la
   reserva/publicación con servicios UEFI simulados y compilación ARM64 (29).
-- [ ] Verificar físicamente reserva, publicación y lectura posterior de las tablas.
+- [x] Verificar físicamente reserva, publicación y lectura posterior de las tablas
+  y restaurar el recovery original (30).
 - [ ] Validar CPU/PSCI y los demás requisitos de plataforma para el OS.
 
 Véase [ACPI.md](ACPI.md). El error `0xc0000225` no tiene aún una causa demostrada.
