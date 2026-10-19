@@ -81,6 +81,8 @@ REVIEWED_IMAGES = {
         (3050358, '445e5d2e8526d004802403ccdc6ef26a974b14ee82eb260ccb7b1d90a44ff1c2'),
     'docs/images/native-sd-acpi-boot-lab-32-bugcheck.jpg':
         (3121493, '3ba4ad72ac60beabcafc8ed60ab8022220d1d130706bcd42885c07153d6798dc'),
+    'docs/images/native-winpe-crash-parameters-lab-33-read.jpg':
+        (2986657, '5979860d9ad0a6d33238e74f32c89c702eb04212dd02d2e6bb2dbcbc2923d7b2'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

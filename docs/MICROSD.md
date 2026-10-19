@@ -862,6 +862,56 @@ su pila para identificar la causa. El propietario indicó reinicio automático a
 Android unos cinco segundos después; se restauró el recovery original y se
 comprobó Android al 99 %. Véase [el resultado y ambas fotos](ACPI.md#resultado-físico-del-intento-32).
 
+### Preparación de captura de parámetros del bugcheck (33)
+
+El siguiente diagnóstico conserva exactamente el firmware nativo del intento 32.
+En PC se preparó una copia privada del WIM cuyo único archivo de contenido vivo
+modificado es `Windows/System32/config/SYSTEM`. El registro recibe dos DWORD en
+`ControlSet001\Control\CrashControl`: `DisplayParameters=1` y `AutoReboot=0`.
+Se intenta mostrar los parámetros de la parada y conservarla en pantalla; estos
+ajustes no corrigen `SYSTEM_PTE_MISUSE` ni prueban su causa.
+
+La herramienta propia `scripts/prepare_winpe_crash_hive.py` usa libhivex para
+escribir una copia nueva y python-registry como lector independiente. Comprueba
+todas las claves y los bytes/tipos de sus valores antes de aceptar el resultado;
+conserva el origen y rechaza una salida existente o un hive que no sea SYSTEM.
+No accede al registro del PC, a teléfonos ni a particiones. Las dependencias son
+herramientas genéricas de host; sus implementaciones no se incorporan al port.
+
+Microsoft documenta [DisplayParameters](https://support.microsoft.com/en-us/topic/stop-error-information-isn-t-displayed-on-the-blue-screen-in-windows-216528fb-94fd-11a2-2675-398ecf5cc237)
+para Windows 8/8.1 y [AutoReboot](https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/configure-system-failure-and-recovery-options)
+para Windows 10. El kernel ARM64 de este WinPE contiene el nombre
+`DisplayParameters`, pero eso no demuestra que lo consulte antes de este fallo:
+su eficacia sigue pendiente de la prueba física. Deshabilitar AutoReboot puede
+requerir los botones para regresar a Android después de fotografiar la parada.
+
+La validación de PC comprobó 12 233 claves y 30 025 valores del hive original,
+el WIM de origen y el actualizado con wimlib, y la extracción del hive actualizado.
+Un segundo listado con 7-Zip comparó 8 322 entradas vivas y solo encontró cambiado
+SYSTEM. La actualización por anexado retiene un recurso sin referencia con el
+contenido del SYSTEM anterior, identificado por 7-Zip como `DELETED`; no es un
+archivo nuevo del filesystem de WinPE. Los WIM y el registro permanecen privados.
+Véase [la validación de host](../evidence/winpe-crash-parameters-lab-33-host-validation.json).
+La copia diagnóstica se verificó en la tarjeta y el intento se lanzó con batería
+al 100 %; el propietario informó texto seguido de pantalla negra. El resultado
+físico y la captura de parámetros siguen pendientes.
+
+![Estado SD intermedio del diagnóstico 33](images/native-winpe-crash-parameters-lab-33-read.jpg)
+
+La [foto revisada](../evidence/winpe-crash-parameters-lab-33-photo.json) confirma
+perfil, inicialización y publicación SD correctos, cuatro bits a 13 MHz, apertura
+del cargador y lectura de su prefijo de 4096 bytes. No muestra Windows ni las
+líneas anteriores de ACPI o de carga/ejecución EFI; tampoco contiene parámetros
+del bugcheck. Se retiraron los metadatos personales conservando orientación,
+perfil de color y los datos comprimidos de la imagen sin recomprimirlos.
+
+La revisión del plan de memoria con el FDT capturado también encontró el
+framebuffer cubierto por una reserva `EfiReservedMemoryType`, sin solapamiento
+con las cuatro regiones de RAM adicional. Es una evaluación de PC con dirección
+de FDT suministrada, no una captura del mapa que recibió Windows. Continúa
+pendiente la revisión del pitch real y del traspaso de memoria/caché; no se han
+falseado las dimensiones del GOP ni atribuido el bugcheck a PowerVR.
+
 ### Inspección y ruta de carga EFI
 
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera

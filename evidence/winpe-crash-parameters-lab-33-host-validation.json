@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "phase": "winpe-crash-parameters-lab-33",
+  "scope": "PC validation of a diagnostic WinPE copy; physical outcome pending",
+  "source_base_revision": "2100163270a1069bde53e3d1fe09249c8c11e76b",
+  "tool": "scripts/prepare_winpe_crash_hive.py",
+  "tool_sha256": "b415580d0d3725d76a4b140887bc17b6475489e3d48c236c5165fd363dd88a20",
+  "hive_preparation": {
+    "input_sha256": "8a9e1f011407f88d73c2fc9a427e9fe7ad1fc6dc8ce2153f4b5fc4333cd06981",
+    "output_sha256": "2c5cf84a2aeabdde7c4c586e824d296e2e859e81a09395eb55d39fb5d6ac11c9",
+    "input_bytes": 4718592,
+    "output_bytes": 4718592,
+    "keys_checked": 12233,
+    "values_checked": 30025,
+    "all_other_keys_and_value_bytes_unchanged": true,
+    "source_unchanged": true,
+    "edits": [
+      {
+        "key": "ControlSet001\\Control\\CrashControl",
+        "name": "DisplayParameters",
+        "type": "REG_DWORD",
+        "value": 1
+      },
+      {
+        "key": "ControlSet001\\Control\\CrashControl",
+        "name": "AutoReboot",
+        "type": "REG_DWORD",
+        "value": 0
+      }
+    ],
+    "scope": "offline PC hive copy only; physical behavior unverified",
+    "automatic_restart_disabled": true
+  },
+  "wim_preparation": {
+    "original_wim_sha256": "d00bfd4a17a257d6fa0861e09a1c7cf76f5ba3638026ab17cdb768d56152698a",
+    "diagnostic_wim_sha256": "6acb810f491952b7d62865df26811d3ff6a08403c90b36e1e3881ae187601f84",
+    "original_bytes": 562366404,
+    "diagnostic_bytes": 563797628,
+    "original_unchanged": true,
+    "wimlib_verify_source_and_output_passed": true,
+    "embedded_hive_readback_identical": true,
+    "elapsed_seconds": 183.068
+  },
+  "archive_comparison": {
+    "live_listing_entries_compared": 8322,
+    "changed_live_content_entries": [
+      "Windows/System32/config/SYSTEM"
+    ],
+    "all_other_live_paths_types_sizes_sha1_and_link_targets_unchanged": true,
+    "retained_unreferenced_archive_resource": "Original SYSTEM content retained by append update; 7-Zip labels it DELETED. Its size/SHA1 match original SYSTEM. Not an added live WinPE file.",
+    "verification_tools": [
+      "wimlib-imagex 1.14.4",
+      "7-Zip 26.02",
+      "libhivex 1.3.24",
+      "python-registry 1.3.1"
+    ],
+    "same_firmware_as_phase32": true,
+    "firmware_candidate_sha256": "819aad78b3d3b08a6976ee53e038bbff72a507fcda57f3565e656f075a38bbbf",
+    "new_firmware_compilation_needed": false,
+    "scope": "PC preparation only; not a successful WinPE boot"
+  },
+  "hive_tool_validation": {
+    "real_hive_independent_readback": true,
+    "negative_cases": [
+      {
+        "case": "existing_output",
+        "rejected": true
+      },
+      {
+        "case": "non_SYSTEM_hive",
+        "rejected": true
+      }
+    ],
+    "existing_output_preserved": true
+  },
+  "offline_memory_plan_audit": {
+    "offline_capture_only": true,
+    "fdt_address_is_offline_supplied": true,
+    "framebuffer_base": 1985085440,
+    "framebuffer_reservation_bytes": 36569088,
+    "visible_framebuffer_bytes": 10444800,
+    "protecting_ranges": [
+      {
+        "base": 1985085440,
+        "bytes": 36569088,
+        "efi_type": 0
+      }
+    ],
+    "extra_ranges": 4,
+    "extra_bytes": 2146693120,
+    "framebuffer_overlaps_extra": false
+  },
+  "original_wim_had_no_extra_integrity_table": true,
+  "original_wim_7zip_reference_count_warning": true,
+  "diagnostic_wim_extra_integrity_table_added": true,
+  "all_file_data_verified_by_wimlib": true,
+  "firmware_recompiled": false,
+  "firmware_same_as_trial32": true,
+  "trial_launched_with_battery_percent": 100.0,
+  "physical_trial_result": "Intermediate SD photograph reviewed; owner reports transition to black screen. Windows outcome and bugcheck parameters pending.",
+  "winpe_successful_boot_verified": false,
+  "bugcheck_cause_identified": false,
+  "bugcheck_parameters_obtained": false,
+  "known_gop_pitch_contract_mismatch": {
+    "horizontal_resolution": 1080,
+    "pixels_per_scan_line": 1088,
+    "stride_bytes": 4352,
+    "hardware_pitch_changed": false,
+    "bugcheck_causality_verified": false
+  },
+  "references": {
+    "display_parameters": "https://support.microsoft.com/en-us/topic/stop-error-information-isn-t-displayed-on-the-blue-screen-in-windows-216528fb-94fd-11a2-2675-398ecf5cc237",
+    "auto_reboot": "https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/configure-system-failure-and-recovery-options",
+    "bugcheck": "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xda--system-pte-misuse",
+    "hivex": "https://libguestfs.org/hivex.3.html",
+    "python_registry": "https://github.com/williballenthin/python-registry",
+    "wimlib": "https://wimlib.net/man1/wimupdate.html",
+    "gop": "https://learn.microsoft.com/en-us/windows-hardware/drivers/bringup/uefi-requirements-that-apply-to-all-windows-platforms"
+  },
+  "intermediate_photo": "evidence/winpe-crash-parameters-lab-33-photo.json"
+}

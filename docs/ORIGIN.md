@@ -17,6 +17,14 @@ implementaciones originales del proyecto. Las fuentes
 de OPPO, AOSP, Linux y edk2-mtk consultadas sirven para investigar formatos e
 interfaces. Consultar una referencia no autoriza copiar su implementación.
 
+La herramienta `prepare_winpe_crash_hive.py` es código propio para preparar y
+comprobar una copia privada del registro de WinPE. Utiliza libhivex 1.3.24 como
+escritor y python-registry 1.3.1 como lector independiente. wimlib 1.14.4 y
+7-Zip 26.02 se emplearon para actualizar e inspeccionar el contenedor WIM.
+Son dependencias genéricas de host con sus propias licencias; no se incorporan
+sus implementaciones al firmware. El WIM de Microsoft y los hives se conservan
+fuera del repositorio público.
+
 El renderer de `OppoDebugLib`, sus glifos 5×7, la página de cursor compartido y
 la prueba de memoria protegida también son originales. El formateador utilizado
 en el firmware sigue siendo el PrintLib genérico de EDK2; el del test de PC es

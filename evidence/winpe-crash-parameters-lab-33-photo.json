@@ -1,0 +1,16 @@
+[
+  {
+    "public_path": "docs/images/native-winpe-crash-parameters-lab-33-read.jpg",
+    "bytes": 2986657,
+    "sha256": "5979860d9ad0a6d33238e74f32c89c702eb04212dd02d2e6bb2dbcbc2923d7b2",
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "a695c743d83f1ad94a4124e53d38f532a2eff8bcee32be53a1125c285bcd65cc",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "owner_requested_documentation": true,
+    "visual_review": "Intermediate SD status photograph: profile/board/init/publish success; four bits at13MHz; filesystem and BOOTAA64.EFI prefix read success4096bytes; ARM64 UEFI header verified. No Windows screen, bugcheck arguments or ACPI gate lines are visible. No visible personal identifiers."
+  }
+]
