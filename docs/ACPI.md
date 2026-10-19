@@ -8,8 +8,9 @@ demostrada de ese código**. Microsoft describe el uso de RSDP, MADT, GTDT y
 DSDT por Windows en [sus requisitos de tablas ACPI](https://learn.microsoft.com/en-us/windows-hardware/drivers/bringup/acpi-system-description-tables).
 
 `OppoAcpiLib` es un generador original de estructuras ACPI, comprobado en PC y
-compilado como objeto ARM64. No se incluye en `OppoNative.dsc`/`.fdf`, no instala
-tablas UEFI y no se ejecutó en el teléfono. No incorpora tablas ni código de
+compilado como objeto ARM64. El intento 27 lo comprobó por separado; la variante
+optativa 29 lo enlaza desde BDS para preparar su instalación. La ejecución de
+esa instalación en el teléfono sigue pendiente. No incorpora tablas ni código de
 otro port. Los formatos C genéricos son los de la dependencia EDK2 identificada.
 
 ## Datos y decisiones de formato
@@ -144,3 +145,45 @@ lo que no cambia el resultado pendiente de WinPE.
 
 Véase [la transcripción y el retorno físico](../evidence/acpi-gic-profile-lab-28-validation.json).
 Véase [la composición y las comprobaciones 28](../evidence/acpi-gic-profile-lab-28-host-validation.json).
+
+## Instalación ACPI separada (29): validación en PC
+
+`OppoAcpiInstallLib` reserva páginas `EfiACPIReclaimMemory`, construye las seis
+estructuras con punteros físicos y comprueba que el mapa UEFI cubra toda la
+reserva con ese tipo de memoria. Solo entonces publica el RSDP con el GUID
+ACPI 2.0+ mediante `InstallConfigurationTable`. Después vuelve a localizar la
+entrada y comprueba las firmas, los punteros y los checksums de las tablas.
+Estas operaciones siguen los contratos de [memoria y tablas UEFI](https://uefi.org/specs/UEFI/2.10/04_EFI_System_Table.html)
+y [publicación de configuración](https://uefi.org/specs/UEFI/2.10_A/07_Services_Boot_Services.html#efi-boot-services-installconfigurationtable).
+
+Una entrada ACPI existente impide sustituirla. Un fallo previo a la publicación
+libera las páginas y conserva el resultado de la limpieza. Tras publicar,
+la memoria se conserva incluso si la comprobación posterior detecta daños,
+para evitar punteros colgantes. Los buffers temporales del mapa se liberan;
+el código limita su tamaño y el número de reintentos.
+
+El perfil no se copia de la fotografía como una constante de producción:
+se obtiene de nuevo del FDT y de GIC en cada arranque. La validación añade una
+comprobación de que el phandle GIC tenga una única definición; rechaza alias
+`linux,phandle` contradictorios antes de acceder a registros.
+
+`NATIVE_ACPI_PROFILE_LAB=1 NATIVE_ACPI_INSTALL_LAB=1` selecciona esta variante.
+El segundo flag sin el primero se rechaza. SEC y BDS comprueban la combinación,
+y el inspector/manifiesto distinguen instalación de observación de solo lectura.
+Se conservan el plazo de 90 segundos y la exclusión de SD, Shell y Windows.
+El modo normal no publica estas tablas.
+
+Las pruebas ejecutan el serializador e instalador reales con servicios UEFI
+simulados: 26 escenarios de reserva, mapa con stride ampliado, reintentos,
+conflictos, liberación, publicación y daños posteriores. También vuelven a
+comprobar las tablas con un lector independiente y ACPICA. El enlace BDS pasa
+14 escenarios de HOB/PCD y 56 de consola/despacho; el perfil FDT rechaza 35
+árboles sintéticos incorrectos y acepta la captura privada con MMIO simulado.
+Ninguno de esos modelos demuestra ejecución física del instalador ni arranque
+de Windows. CPU/PSCI, dominios de energía, SMBIOS, RTC y dispositivos siguen
+requiriendo trabajo; `0xc0000225` continúa sin causa demostrada.
+
+La compilación final de esta variante terminó en 18,722 segundos, con ocho
+módulos por cuatro tareas de objetos y 32 CPU lógicas disponibles. El candidato
+privado pasó la validación de contenedor y manifiesto; no se ha solicitado su
+ejecución física. Véase [la evidencia de PC del 29](../evidence/acpi-install-lab-29-host-validation.json).

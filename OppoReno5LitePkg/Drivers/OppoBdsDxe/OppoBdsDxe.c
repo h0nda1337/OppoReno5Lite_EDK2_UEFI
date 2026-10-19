@@ -29,6 +29,7 @@ STATIC UINT32 DeadlineSeconds (VOID)
 
 STATIC BOOLEAN LabIdentityValid (VOID)
 {
+  if (FeaturePcdGet (PcdNativeAcpiInstallLab) && !FeaturePcdGet (PcdNativeAcpiProfileLab)) return FALSE;
   if (FeaturePcdGet (PcdNativeAcpiProfileLab) &&
       (FeaturePcdGet (PcdNativeSdReadLab) || FeaturePcdGet (PcdNativeSdBootLab) ||
        FeaturePcdGet (PcdNativeSdFastReadLab) || FeaturePcdGet (PcdNativeExtraMemoryLab))) return FALSE;
@@ -232,7 +233,8 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   }
   if (!EFI_ERROR (ConsoleStatus))
     gST->ConOut->OutputString (gST->ConOut, FeaturePcdGet (PcdNativeAcpiProfileLab) ?
-      L"Read-only ACPI profile lab complete.\r\n" : FeaturePcdGet (PcdNativeSdReadLab) ?
+      (FeaturePcdGet (PcdNativeAcpiInstallLab) ? L"ACPI install lab complete.\r\n" :
+       L"Read-only ACPI profile lab complete.\r\n") : FeaturePcdGet (PcdNativeSdReadLab) ?
       L"microSD read lab complete.\r\n" : L"Shell returned or could not start.\r\n");
   // Repeat the useful context after Shell, whose ClearScreen may erase it.
   DEBUG ((DEBUG_INFO, "BDS text initial=%d selected=%d size=%ux%u setup=%r\n",

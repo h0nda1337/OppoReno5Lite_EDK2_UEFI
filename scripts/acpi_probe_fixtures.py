@@ -77,7 +77,9 @@ def main():
         ('/timer','interrupts',words(1,13,4,1,14,4,1,11,4,1,10,4)),
         ('/pmu','interrupts',words(0,7,8)), (gic,'#interrupt-cells',words(4)),
         (gic,'phandle',words(0)), (gic,'#redistributor-regions',words(2)),
-        (gic,'redistributor-stride',words(0,0x40000)), (gic,'reg',words(0,0x10000000,0,0x1000))]
+        (gic,'redistributor-stride',words(0,0x40000)), (gic,'reg',words(0,0x10000000,0,0x1000)),
+        ('/timer','phandle',words(2)), ('/pmu','linux,phandle',words(2)),
+        (gic,'linux,phandle',words(3))]
     bad = []
     for path,key,value in mutations:
         t=deepcopy(tree); replace(t,path,key,value); bad.append(pack(t))

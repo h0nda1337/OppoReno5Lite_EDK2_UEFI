@@ -11,7 +11,9 @@
 #define _PCD_GET_MODE_BOOL_PcdNativeSdBootLab FALSE
 #define _PCD_GET_MODE_BOOL_PcdNativeSdFastReadLab FALSE
 STATIC BOOLEAN mAcpiLab;
+STATIC BOOLEAN mAcpiInstall;
 #define _PCD_GET_MODE_BOOL_PcdNativeAcpiProfileLab mAcpiLab
+#define _PCD_GET_MODE_BOOL_PcdNativeAcpiInstallLab mAcpiInstall
 STATIC UINTN mAcpiCalls;
 VOID OppoAcpiProbeLab(VOID) { assert(mAcpiLab);mAcpiCalls++; }
 STATIC BOOLEAN mExtraMemory;
@@ -199,8 +201,9 @@ int main(void)
   mInfo.HorizontalResolution=1080;mInfo.VerticalResolution=2400;
   mOut.ClearScreen=Clear;mOut.OutputString=Output;mOut.QueryMode=Query;mOut.SetMode=SetMode;
   mVolume.ReadSection=ReadSection;
-  for(mMemoryCase=0;mMemoryCase<3;mMemoryCase++)for(mScenario=0;mScenario<14;mScenario++) {
-    mExtraMemory=(BOOLEAN)(mMemoryCase==1);mAcpiLab=(BOOLEAN)(mMemoryCase==2);mAcpiCalls=0;
+  for(mMemoryCase=0;mMemoryCase<4;mMemoryCase++)for(mScenario=0;mScenario<14;mScenario++) {
+    mExtraMemory=(BOOLEAN)(mMemoryCase==1);mAcpiLab=(BOOLEAN)(mMemoryCase>=2);
+    mAcpiInstall=(BOOLEAN)(mMemoryCase==3);mAcpiCalls=0;
     mAllocated=mFreed=mStarts=mUnloads=mClosed=0;
     mModeSets=mClears=0;mOut.Mode=&mTextMode;mTextMode.Mode=-1;mTextMode.MaxMode=5;
     if(mScenario==7)mTextMode.MaxMode=0;
@@ -223,6 +226,7 @@ int main(void)
     if(mCounterDeadlineReady)assert(mCounterTicks==13000000ULL*(mExtraMemory ? 1800ULL : 90ULL));
   }
   mAcpiLab=TRUE;mExtraMemory=TRUE;assert(!LabIdentityValid());
-  puts("Original BDS:42 host scenarios across90s/1800s deadlines, console failures, ACPI observer/no Shell dispatch and incompatible-mode rejection passed sanitizers; no hardware test.");
+  mAcpiLab=FALSE;mExtraMemory=FALSE;assert(!LabIdentityValid());
+  puts("Original BDS:56 host scenarios across90s/1800s deadlines, console failures, ACPI observer/install with no Shell and incompatible-mode rejection passed sanitizers; no hardware test.");
   return 0;
 }

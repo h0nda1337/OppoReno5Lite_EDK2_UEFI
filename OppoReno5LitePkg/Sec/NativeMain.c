@@ -215,6 +215,7 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   UINT64 Fdt = Entry->Fdt;
   EFI_STATUS Status;
   if (FeaturePcdGet (PcdNativeEntryProbe) && FeaturePcdGet (PcdNativeMmuProbe)) Stop ();
+  if (FeaturePcdGet (PcdNativeAcpiInstallLab) && !FeaturePcdGet (PcdNativeAcpiProfileLab)) Stop ();
   if (FeaturePcdGet (PcdNativeAcpiProfileLab) &&
       (FeaturePcdGet (PcdNativeEntryProbe) || FeaturePcdGet (PcdNativeMmuProbe) ||
        FeaturePcdGet (PcdNativeSdReadLab) || FeaturePcdGet (PcdNativeSdBootLab) ||

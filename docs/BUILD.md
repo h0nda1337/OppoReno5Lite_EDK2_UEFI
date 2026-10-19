@@ -287,3 +287,18 @@ de Shell, sin medir su plazo ni distinguir evento de contador; no garantiza
 recuperación desde una aplicación bloqueada. Un build correcto no demuestra que
 estos componentes funcionen en el OPPO. La prueba física requiere una estrategia
 de retorno.
+
+## Laboratorio de instalación ACPI
+
+```console
+EDK2_HEADERS=/ruta/a/edk2 bash scripts/test_acpi_install.sh
+EDK2_HEADERS=/ruta/a/edk2 bash scripts/test_acpi_binding.sh
+EDK2_HEADERS=/ruta/a/edk2 bash scripts/test_acpi_probe.sh
+EDK2_SOURCE=/ruta/a/edk2 NATIVE_ACPI_PROFILE_LAB=1 NATIVE_ACPI_INSTALL_LAB=1 bash scripts/build_native_firmware.sh
+```
+
+La salida de esta variante es `.build/native/acpi-install-lab/OPPONATIVE.fd`.
+El script compila en PC y no realiza operaciones sobre el teléfono. El inspector
+y `prepare_native_lab.py` comprueban que el FD y el manifiesto indiquen instalación
+ACPI aislada, con plazo de 90 segundos y sin controlador SD. Las opciones
+normales y de solo observación no activan el instalador. Véase [ACPI.md](ACPI.md).

@@ -1,5 +1,5 @@
 /** @file
-  Original, allocation-free ACPI serialization prototype. Not in native firmware.
+  Original, allocation-free ACPI serialization with a caller-supplied profile.
   SPDX-License-Identifier: BSD-2-Clause
 **/
 #ifndef OPPO_ACPI_LIB_H

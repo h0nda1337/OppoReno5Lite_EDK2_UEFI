@@ -26,6 +26,7 @@
   HobLib
   IoLib
   OppoAcpiProbeLib
+  OppoAcpiInstallLib
 [Protocols]
   gEfiBdsArchProtocolGuid
   gEfiGraphicsOutputProtocolGuid
@@ -44,6 +45,7 @@
   gEfiEventReadyToBootGuid
 [FeaturePcd]
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab
+  gOppoNativeTokenSpaceGuid.PcdNativeAcpiInstallLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab

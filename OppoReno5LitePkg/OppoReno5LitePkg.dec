@@ -13,6 +13,7 @@
 [LibraryClasses]
   OppoAcpiLib|Include/Library/OppoAcpiLib.h
   OppoAcpiProbeLib|Include/Library/OppoAcpiProbeLib.h
+  OppoAcpiInstallLib|Include/Library/OppoAcpiInstallLib.h
   OppoPlatformLib|Include/Library/OppoPlatformLib.h
   OppoBgrtLib|Include/Library/OppoBgrtLib.h
   OppoFrameBufferLib|Include/Library/OppoFrameBufferLib.h
@@ -42,3 +43,4 @@
   gOppoNativeTokenSpaceGuid.PcdNativeExtraMemoryLab|FALSE|BOOLEAN|0x00000006
   gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab|FALSE|BOOLEAN|0x00000007
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab|FALSE|BOOLEAN|0x00000008
+  gOppoNativeTokenSpaceGuid.PcdNativeAcpiInstallLab|FALSE|BOOLEAN|0x00000009

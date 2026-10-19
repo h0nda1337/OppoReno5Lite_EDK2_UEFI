@@ -62,7 +62,7 @@ Véase
 | Firmware integrado MT6779 | Shell v2.2 inicializada hasta el prompt; regreso automático a Android y restauración de recovery original comprobados |
 | Entrada ARM64 propia | QEMU EL1/EL2; franja verde de SEC observada en el OPPO y regreso a Android; registros de entrada aún sin medir |
 | GIC, UART y watchdog | Direcciones extraídas del DTB original; GICv3 y ocho asociaciones CPU/GICR observados físicamente en el intento 28; entrega de interrupciones pendiente |
-| ACPI | Generador original comprobado en PC y perfil GICv3 observado; tablas aún sin instalar |
+| ACPI | Generador e instalador originales comprobados en PC; perfil GICv3 observado; instalación física de tablas pendiente |
 | RAM y framebuffer bajo Linux | 6 GiB; 1080 × 2400, stride 4352; captura física verificada. SEC y primer mapa MMU observados; orden nativo rojo=16/azul=0 contrastado con fotos |
 | Pantalla y entrada para la Shell | Encabezado, mapa FS0 de firmware y prompt visibles; entrada física y comandos sin validar |
 | GOP y framebuffer propios | BLT comprobados con sanitizadores; consola gráfica UEFI mostrando la Shell en el OPPO |

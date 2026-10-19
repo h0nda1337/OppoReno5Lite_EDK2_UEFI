@@ -41,4 +41,4 @@ aarch64-linux-gnu-gcc "${common[@]}" -I"$edk2/MdePkg/Include/AArch64" \
   -O2 -ffreestanding -fno-stack-protector -fno-builtin -mstrict-align \
   -mgeneral-regs-only -c "$source" -o .build/acpi/OppoAcpiLib.o
 aarch64-linux-gnu-readelf -h .build/acpi/OppoAcpiLib.o > .build/acpi/elf-header.txt
-printf '%s\n' 'ACPI serialization prototype checked on host and compiled for ARM64; not linked into native firmware or installed on phone.'
+printf '%s\n' 'ACPI serializer checked on host and compiled for ARM64; this host run does not install tables on a phone.'

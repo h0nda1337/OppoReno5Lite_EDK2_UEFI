@@ -56,6 +56,25 @@ STATIC BOOLEAN Enabled (CONST OPPO_FDT_VIEW *V, CONST CHAR8 *Path)
 }
 
 typedef struct { CONST OPPO_FDT_VIEW *V; UINT32 Seen; } CPU_SCAN;
+typedef struct { CONST OPPO_FDT_VIEW *V; UINT32 Wanted, Definitions; } PHANDLE_SCAN;
+
+STATIC EFI_STATUS EFIAPI PhandleDefinition (CONST CHAR8 *Path, VOID *Context)
+{
+  PHANDLE_SCAN *Scan = Context;
+  CONST VOID *Value;
+  UINT32 Bytes, Id[2] = {0, 0};
+  CONST CHAR8 *Keys[2] = {"phandle", "linux,phandle"};
+  for (UINTN I = 0; I < 2; I++) {
+    EFI_STATUS S = OppoFdtProperty (Scan->V, Path, Keys[I], &Value, &Bytes);
+    if (S == EFI_NOT_FOUND) continue;
+    if (S != EFI_SUCCESS || Bytes != 4) return EFI_UNSUPPORTED;
+    Id[I] = Be32 (Value);
+    if (Id[I] == 0 || Id[I] == MAX_UINT32) return EFI_UNSUPPORTED;
+  }
+  if (Id[0] != 0 && Id[1] != 0 && Id[0] != Id[1]) return EFI_UNSUPPORTED;
+  if (Id[0] == Scan->Wanted || Id[1] == Scan->Wanted) Scan->Definitions++;
+  return EFI_SUCCESS;
+}
 
 STATIC EFI_STATUS EFIAPI Cpu (CONST CHAR8 *Path, VOID *Context)
 {
@@ -109,7 +128,9 @@ STATIC BOOLEAN FdtMatches (CONST OPPO_FDT_VIEW *V)
       OppoFdtProperty (V, GIC_PATH, "phandle", &Value, &Bytes) != EFI_SUCCESS || Bytes != 4)
     return FALSE;
   Phandle = Be32 (Value);
+  PHANDLE_SCAN Handles = {V, Phandle, 0};
   if (Phandle == 0 || Phandle == MAX_UINT32 ||
+      OppoFdtVisitNodes (V, PhandleDefinition, &Handles) != EFI_SUCCESS || Handles.Definitions != 1 ||
       !Enabled (V, "/timer") || !Text (V, "/timer", "compatible", "arm,armv8-timer") ||
       !Numbers (V, "/timer", "interrupts", Timer, ARRAY_SIZE (Timer)) ||
       !Numbers (V, "/timer", "interrupt-parent", &Phandle, 1) ||

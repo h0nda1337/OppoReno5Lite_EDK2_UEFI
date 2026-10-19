@@ -138,7 +138,9 @@ Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.
 - [x] Validar el perfil del FDT antes de leer registros GICv3.
 - [x] Observar físicamente las ocho asociaciones entre afinidad y redistributor,
   volver a Android y restaurar el recovery original en el intento 28.
-- [ ] Vincular el perfil observado al generador y comprobar su instalación UEFI.
+- [x] Vincular el perfil obtenido en cada arranque al generador y comprobar la
+  reserva/publicación con servicios UEFI simulados y compilación ARM64 (29).
+- [ ] Verificar físicamente reserva, publicación y lectura posterior de las tablas.
 - [ ] Validar CPU/PSCI y los demás requisitos de plataforma para el OS.
 
 Véase [ACPI.md](ACPI.md). El error `0xc0000225` no tiene aún una causa demostrada.

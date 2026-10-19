@@ -5,7 +5,7 @@ import unittest
 from uuid import UUID
 
 from inspect_native_firmware import (FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect,
-    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, NATIVE_MEMORY_LAB_MARKER, ACPI_PROFILE_LAB_MARKER, PCD_DRIVER_GUID,
+    ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, NATIVE_MEMORY_LAB_MARKER, ACPI_PROFILE_LAB_MARKER, ACPI_INSTALL_LAB_MARKER, PCD_DRIVER_GUID,
     require_entry_probe, require_native_lab)
 
 
@@ -114,6 +114,16 @@ class NativeFirmwareTests(unittest.TestCase):
                     fixture(lab=True,lab_marker=NATIVE_MEMORY_LAB_MARKER+ACPI_PROFILE_LAB_MARKER),
                     fixture(lab=True,lab_marker=marker+ACPI_PROFILE_LAB_MARKER)):
             with self.assertRaises(ValueError): require_native_lab(raw)
+
+    def test_acpi_installation_needs_profile_without_storage(self):
+        marker=NATIVE_LAB_MARKER+ACPI_PROFILE_LAB_MARKER+ACPI_INSTALL_LAB_MARKER
+        r=require_native_lab(fixture(lab=True,lab_marker=marker))
+        self.assertTrue(r['acpi_install_no_os_lab'])
+        self.assertFalse(r['acpi_profile_read_only_lab'])
+        for raw in (fixture(lab=True,lab_marker=NATIVE_LAB_MARKER+ACPI_INSTALL_LAB_MARKER),
+                    fixture(lab=True,lab_marker=marker+ACPI_INSTALL_LAB_MARKER),
+                    fixture(lab=True,lab_marker=marker,sd=True)):
+            with self.assertRaises(ValueError):require_native_lab(raw)
 
     def test_lab_rejects_pcd_self_dependency_and_missing_bootstrap(self):
         circular = b'\x02' + UUID('13a3f0f6-264a-3ef0-f2e0-dec512342f34').bytes_le + b'\x08'

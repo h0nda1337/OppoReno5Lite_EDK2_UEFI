@@ -50,6 +50,7 @@
 
 [FeaturePcd]
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab
+  gOppoNativeTokenSpaceGuid.PcdNativeAcpiInstallLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab
   gOppoNativeTokenSpaceGuid.PcdNativeExtraMemoryLab
