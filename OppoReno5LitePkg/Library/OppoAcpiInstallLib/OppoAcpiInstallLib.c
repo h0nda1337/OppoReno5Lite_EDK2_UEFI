@@ -103,10 +103,22 @@ STATIC EFI_STATUS Readback (CONST OPPO_ACPI_INSTALL_REPORT *R)
   UINT32 Offsets[] = {L->XsdtOffset, L->FadtOffset, L->DsdtOffset, L->MadtOffset, L->GtdtOffset};
   UINT32 Signatures[] = {SIGNATURE_32 ('X','S','D','T'), SIGNATURE_32 ('F','A','C','P'),
     SIGNATURE_32 ('D','S','D','T'), SIGNATURE_32 ('A','P','I','C'), SIGNATURE_32 ('G','T','D','T')};
+  // This provider publishes a fixed six-table schema, not arbitrary ACPI data.
+  // A checksum alone cannot distinguish a truncated but self-consistent table.
+  UINT32 Lengths[] = {sizeof (EFI_ACPI_DESCRIPTION_HEADER) + 3 * sizeof (UINT64),
+    sizeof (EFI_ACPI_6_0_FIXED_ACPI_DESCRIPTION_TABLE), 332, // Eight-device CPU-only AML.
+    sizeof (EFI_ACPI_6_0_MULTIPLE_APIC_DESCRIPTION_TABLE_HEADER) +
+      OPPO_ACPI_CPU_COUNT * sizeof (EFI_ACPI_6_0_GIC_STRUCTURE) +
+      sizeof (EFI_ACPI_6_0_GIC_DISTRIBUTOR_STRUCTURE),
+    sizeof (EFI_ACPI_6_0_GENERIC_TIMER_DESCRIPTION_TABLE)};
+  UINT8 Revisions[] = {1, EFI_ACPI_6_0_FIXED_ACPI_DESCRIPTION_TABLE_REVISION, 2,
+    EFI_ACPI_6_0_MULTIPLE_APIC_DESCRIPTION_TABLE_REVISION,
+    EFI_ACPI_6_0_GENERIC_TIMER_DESCRIPTION_TABLE_REVISION};
   for (UINTN I = 0; I < ARRAY_SIZE (Offsets); I++) {
-    if (Offsets[I] > L->TotalBytes - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) return EFI_COMPROMISED_DATA;
+    if ((Offsets[I] & 7U) != 0 ||
+        Offsets[I] > L->TotalBytes - sizeof (EFI_ACPI_DESCRIPTION_HEADER)) return EFI_COMPROMISED_DATA;
     EFI_ACPI_DESCRIPTION_HEADER *H = (VOID *)(B + Offsets[I]);
-    if (H->Signature != Signatures[I] || H->Length < sizeof (*H) ||
+    if (H->Signature != Signatures[I] || H->Length != Lengths[I] || H->Revision != Revisions[I] ||
         H->Length > L->TotalBytes - Offsets[I] || !SumZero (H, H->Length)) return EFI_COMPROMISED_DATA;
   }
   EFI_ACPI_DESCRIPTION_HEADER *Xsdt = (VOID *)(B + L->XsdtOffset);

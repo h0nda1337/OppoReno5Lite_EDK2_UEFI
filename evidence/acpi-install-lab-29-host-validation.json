@@ -120,7 +120,8 @@
     "interrupt_delivery_or_power_domains_verified": false
   },
   "physical_launch_requested": false,
-  "physical_installation_observation_pending": true,
+  "physical_installation_observation_pending": false,
   "acpi_tables_installed_on_phone": false,
-  "windows_pe_boot_verified": false
+  "windows_pe_boot_verified": false,
+  "superseded_before_physical_execution_by": "acpi-install-shape-lab-30"
 }

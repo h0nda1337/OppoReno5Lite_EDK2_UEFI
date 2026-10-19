@@ -187,3 +187,23 @@ La compilación final de esta variante terminó en 18,722 segundos, con ocho
 módulos por cuatro tareas de objetos y 32 CPU lógicas disponibles. El candidato
 privado pasó la validación de contenedor y manifiesto; no se ha solicitado su
 ejecución física. Véase [la evidencia de PC del 29](../evidence/acpi-install-lab-29-host-validation.json).
+
+## Comprobación de forma y revisión (30)
+
+Una nueva prueba de PC reprodujo una aceptación incorrecta en la lectura
+posterior del 29: una MADT reducida a su cabecera, con checksum recalculado,
+pasaba esa comprobación aunque ya no contuviera las ocho CPU y el distribuidor.
+El verificador ahora exige las longitudes y revisiones concretas del conjunto
+que produce este instalador, además de límites, firmas, punteros y checksums.
+También rechaza una GTDT con revisión distinta aunque su checksum sea válido.
+
+Los 28 escenarios del instalador pasan con ASan/UBSan, incluidos esos dos casos.
+La compilación ARM64 final terminó en 17,286 segundos y el nuevo contenedor
+privado pasó su validación. El candidato 29 se sustituyó antes de ejecutarse en
+el teléfono. El 30 conserva el perfil de cada arranque, las seis tablas y el
+laboratorio sin SD, Shell ni Windows, con solicitud de reinicio a los 90 segundos.
+
+Tras la confirmación del propietario y los controles de identidad y batería
+al 100 %, se solicitó entrada directa al candidato 30. La observación física
+de `ACPI INSTALL`, `PUBLISH` y `READBACK` y la restauración posterior están
+pendientes; el éxito de PC no las demuestra. Véase [la evidencia del 30](../evidence/acpi-install-shape-lab-30-host-validation.json).

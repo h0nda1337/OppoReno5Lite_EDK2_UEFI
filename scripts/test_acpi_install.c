@@ -62,6 +62,8 @@ static EFI_STATUS EFIAPI memory_map(UINTN *bytes,EFI_MEMORY_DESCRIPTOR *map,UINT
 }
 static UINT8 sum(CONST VOID *p,UINTN n)
 { CONST UINT8 *b=p;UINT8 s=0;for(UINTN i=0;i<n;i++)s=(UINT8)(s+b[i]);return s; }
+static VOID checksum(VOID *p,UINTN n)
+{ UINT8 *b=p;b[9]=0;b[9]=(UINT8)(0-sum(p,n)); }
 static VOID validate_tables(VOID *pointer)
 {
   assert(pointer==page);UINT8 *b=page;
@@ -98,6 +100,14 @@ static EFI_STATUS EFIAPI install(EFI_GUID *guid,VOID *p)
   if(scenario==23)((UINT8 *)p)[8]^=1;
   if(scenario==24){EFI_ACPI_6_0_ROOT_SYSTEM_DESCRIPTION_POINTER *r=p;EFI_ACPI_DESCRIPTION_HEADER *x=(VOID *)(UINTN)r->XsdtAddress;x->Length=MAX_UINT32;}
   if(scenario==25){EFI_ACPI_6_0_ROOT_SYSTEM_DESCRIPTION_POINTER *r=p;r->XsdtAddress=MAX_UINT64;}
+  if(scenario==26 || scenario==27) {
+    EFI_ACPI_6_0_ROOT_SYSTEM_DESCRIPTION_POINTER *r=p;UINT64 pointers[3];
+    memcpy(pointers,(UINT8 *)(UINTN)r->XsdtAddress+36,sizeof(pointers));
+    EFI_ACPI_DESCRIPTION_HEADER *h=(VOID *)(UINTN)pointers[scenario==26?1:2];
+    if(scenario==26)h->Length=44; /* A checksummed MADT with no CPU/GIC entries. */
+    else h->Revision=0xff;
+    checksum(h,h->Length);
+  }
   return EFI_SUCCESS;
 }
 int main(void)
@@ -108,7 +118,7 @@ int main(void)
   services.AllocatePages=allocate_pages;services.FreePages=free_pages;
   services.AllocatePool=allocate_pool;services.FreePool=free_pool;
   services.GetMemoryMap=memory_map;services.InstallConfigurationTable=install;
-  for(scenario=0;scenario<=25;scenario++) {
+  for(scenario=0;scenario<=27;scenario++) {
     gBS=&services;gST=&system_table;memset(&system_table,0,sizeof(system_table));
     page_allocs=page_frees=pool_allocs=pool_frees=installs=map_calls=0;
     page=map_buffer=NULL;OPPO_ACPI_INSTALL_REPORT report;OPPO_ACPI_PROFILE p=profile;
@@ -142,6 +152,6 @@ int main(void)
   assert(OppoInstallAcpi(NULL,NULL)==EFI_INVALID_PARAMETER);
   OPPO_ACPI_INSTALL_REPORT alias;
   assert(OppoInstallAcpi((VOID *)&alias,&alias)==EFI_INVALID_PARAMETER);
-  puts("ACPI install:26 UEFI transaction cases, physical-profile replay, checksums/pointers/padding, retries, conflicts, cleanup and post-publication damage detection passed; host only");
+  puts("ACPI install:28 UEFI transaction cases, physical-profile replay, checksums/pointers/padding, retries, conflicts, cleanup and post-publication damage detection passed; host only");
   return 0;
 }
