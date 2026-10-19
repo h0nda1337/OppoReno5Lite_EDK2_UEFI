@@ -1078,3 +1078,56 @@ el intento 16 también se requiere `NATIVE_SD_POWER_LAB=1`; ambos controles est�
 desactivados por defecto. No debe confundirse la compilación con una prueba
 física del cargador. La ruta y el plazo exactos del retorno siguen sin
 medir. La batería mínima sigue siendo 20 % antes de cada fase física.
+
+
+## Captura de parámetros sobre la referencia oficial (38)
+
+El intento 37 conserva el medio oficial del 35 y vuelve a mostrar
+`SYSTEM_PTE_MISUSE`, con Orange State aún visible. La foto no muestra los
+cuatro parámetros del fallo; el resultado y la restauración están en
+[la validación física del 37](../evidence/display-clean-boot-lab-37-validation.json).
+
+Se preparó una copia privada de ese WinPE oficial para obtener información
+del bugcheck, manteniendo exactamente el firmware del 37. El WIM
+original se conserva. Entre las 17 533 rutas del WIM, solo cambian los datos
+de `Windows/System32/config/SYSTEM`; los hashes y tamaños de los demás
+archivos permanecen iguales. Un lector de registro independiente comprueba
+que no hay cambios en otras claves o valores. `DisplayParameters` pasa de
+ausente a `1`; `AutoReboot` ya era `0` y conserva ese valor. No se modifican
+los datos del kernel, controladores o cargadores EFI.
+
+La copia arrancó en la misma VM genérica EL1/SMC usada para la referencia:
+ejecutó `ver` y mostró `Microsoft Windows [Version 10.0.26100.1]`. Una consulta
+dentro de ese WinPE confirmó los dos valores de CrashControl. Se leyeron y
+verificaron los 89 archivos del disco FAT virtual; QEMU terminó con código `0`.
+Es una validación de PC y no demuestra un WinPE utilizable en el OPPO ni
+que se haya corregido la causa del bugcheck físico.
+
+Véase [la preparación de PC del 38](../evidence/winpe-reference-parameters-lab-38-host-validation.json).
+
+
+### Resultado físico y cierre solicitado por el propietario
+
+![Pantallazo SYSTEM_PTE_MISUSE del intento 38](images/native-winpe-reference-parameters-lab-38-bugcheck.jpg)
+
+![Detalle de las filas hexadecimales parcialmente ocultas](images/native-winpe-reference-parameters-lab-38-bugcheck-detail.jpg)
+
+Las [dos fotografías revisadas](../evidence/winpe-reference-parameters-lab-38-photos.json)
+confirman `SYSTEM_PTE_MISUSE`. Se ven filas hexadecimales en la esquina superior
+izquierda, pero el borde redondeado y la cámara ocultan partes de los números.
+No se acepta una transcripción completa de los cuatro parámetros ni una causa
+del fallo. El propietario confirma que utilizó los botones para reiniciar.
+ADB detectó Android completo a los 560,756 segundos desde el informe de entrada
+y registró `usb` como motivo de arranque; ese dato no sustituye el relato del
+reinicio forzado ni mide el tiempo de carga del kernel.
+
+A petición del propietario se terminó la sesión y se restauró únicamente
+el recovery original. Fastboot confirmó la escritura y Android volvió a
+arrancar, con batería al 100 %. La microSD conserva activa la copia de
+diagnóstico; los 681 archivos originales comprobados antes del intento
+siguen preservados en el respaldo separado de la tarjeta. No se ejecutó
+la restauración del medio después de la petición de solo restaurar recovery.
+El objetivo WinPE utilizable y después Windows 11 ARM sigue sin cumplirse;
+el trabajo queda en pausa por solicitud del propietario.
+
+Véase [el resultado físico y el estado de cierre del 38](../evidence/winpe-reference-parameters-lab-38-validation.json).

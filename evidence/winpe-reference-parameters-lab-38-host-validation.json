@@ -1,0 +1,73 @@
+{
+  "phase": 38,
+  "scope": "Record of PC preparation and generic VM validation before OPPO trial; later physical result recorded separately",
+  "native_firmware": {
+    "same_exact_bytes_as_phase37": true,
+    "rebuilt": false,
+    "candidate_sha256": "d6e5ab7f8d15327c9b339535a593db14481b9ecc1ce3e4d0448999db2963e885"
+  },
+  "WinPE": {
+    "version": "10.0.26100.1",
+    "architecture": "ARM64",
+    "source_reference_phase": 35,
+    "unmodified_source_WIM_sha256": "673bfc827157c76000abedc7ccdc39489cc85d66fe0931a871efe52279bb346e",
+    "diagnostic_WIM_sha256": "b5239a8f6fc2518ba38e3ed04705b6e33060ba86310a4e9276560558c08989f9",
+    "diagnostic_WIM_bytes": 329681363,
+    "original_source_preserved": true,
+    "source_and_diagnostic_WIM_verification_passed": true,
+    "WIM_paths_checked": 17533,
+    "only_WIM_file_data_changed": "/Windows/System32/config/SYSTEM",
+    "all_other_WIM_file_data_hashes_and_sizes_unchanged": true,
+    "independent_hive_reader_verified_all_other_keys_and_value_bytes_unchanged": true,
+    "embedded_hive_readback_matches": true,
+    "offline_setting_comparison": [
+      {
+        "name": "DisplayParameters",
+        "original": null,
+        "diagnostic": 1,
+        "semantic_change": true
+      },
+      {
+        "name": "AutoReboot",
+        "original": 0,
+        "diagnostic": 0,
+        "semantic_change": false
+      }
+    ],
+    "AutoReboot_was_already_zero_in_source": true,
+    "kernel_drivers_and_EFI_loader_data_unchanged": true
+  },
+  "VM": {
+    "scope": "Generic simulation, not an OPPO model",
+    "CPU": "Cortex-A76",
+    "exception_level": 1,
+    "PSCI": "SMC",
+    "GIC": 3,
+    "CPUs": 1,
+    "RAM_MiB": 4096,
+    "NIC": false,
+    "media_read_only": true,
+    "all89_FAT_files_read_back_and_sha256_verified": true,
+    "command_executed": "ver",
+    "version_output": "Microsoft Windows [Version 10.0.26100.1]",
+    "runtime_CrashControl_query_visually_verified": {
+      "DisplayParameters": 1,
+      "AutoReboot": 0
+    },
+    "private_command_screenshot_sha256": "d20cc22cef0bb72b67da1ae914a5ba800f5f8b0e60dc9d1baeb6aeda967fb854",
+    "terminal_exit_code": 0,
+    "elapsed_seconds": 212.569
+  },
+  "physical_numeric_bugcheck_capture_verified": false,
+  "physical_WinPE_success": false,
+  "limitations": [
+    "Loaded registry settings and VM boot do not prove the OPPO will display bugcheck parameters.",
+    "No crash dump or debugger stack is available yet.",
+    "Physical SYSTEM_PTE_MISUSE cause remains unverified."
+  ],
+  "references": [
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xda--system-pte-misuse",
+    "https://support.microsoft.com/en-us/topic/stop-error-information-isn-t-displayed-on-the-blue-screen-in-windows-216528fb-94fd-11a2-2675-398ecf5cc237"
+  ],
+  "subsequent_physical_result": "evidence/winpe-reference-parameters-lab-38-validation.json"
+}

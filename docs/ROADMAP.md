@@ -172,6 +172,10 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
   La sonda física 36 identificó dos superficies; la limpieza condicionada del 37
   compiló y pasó los modelos de PC, pero en la prueba física el aviso siguió
   visible y Windows terminó en `SYSTEM_PTE_MISUSE`. Escritura efectiva sin capturar.
+- [x] Probar una copia diagnóstica de la referencia oficial (38): `ver` y
+  CrashControl comprobados en VM; en el OPPO repite `SYSTEM_PTE_MISUSE` con
+  filas numéricas parcialmente ocultas. No hay cuatro parámetros completos.
+  Recovery original restaurado; trabajo en pausa por solicitud del propietario.
 - [ ] Resolver el fallo de arranque actual y validar un entorno WinPE utilizable
   desde microSD, con entrada básica y un comando comprobado.
 - [ ] Repetir y documentar el arranque correcto de WinPE desde la tarjeta.

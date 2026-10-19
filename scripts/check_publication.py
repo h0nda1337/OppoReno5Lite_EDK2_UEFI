@@ -95,6 +95,10 @@ REVIEWED_IMAGES = {
         (3005979, 'd5ba724631e1cc7a7449887ac6a40e5d4ddad8410fdf544d770777c30d40db4b'),
     'docs/images/native-display-clean-boot-lab-37-bugcheck.jpg':
         (1881566, '1666ca841d543b28f0e6234206aaac45e9f75a691a9e757f0e68eba4593d6f71'),
+    'docs/images/native-winpe-reference-parameters-lab-38-bugcheck.jpg':
+        (2024052, '7daa7823b2b537f7ebce9e73ec1d2fb06b17c92f9ee2b6e349f098c4651419e7'),
+    'docs/images/native-winpe-reference-parameters-lab-38-bugcheck-detail.jpg':
+        (1327598, '20aadc302fa4167e9089fa9d852953284d7d78fb6c3471a8a9df3790defce256'),
 }
 PRIVATE = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----'),

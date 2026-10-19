@@ -1,0 +1,47 @@
+{
+  "phase": 38,
+  "scope": "Physical diagnostic WinPE boot, return and recovery-only restoration; PC validation recorded separately",
+  "host_preparation": "evidence/winpe-reference-parameters-lab-38-host-validation.json",
+  "photos": "evidence/winpe-reference-parameters-lab-38-photos.json",
+  "same_native_firmware_bytes_as_phase37": true,
+  "native_candidate_sha256": "d6e5ab7f8d15327c9b339535a593db14481b9ecc1ce3e4d0448999db2963e885",
+  "diagnostic_WIM_sha256": "b5239a8f6fc2518ba38e3ed04705b6e33060ba86310a4e9276560558c08989f9",
+  "physical": {
+    "entry_battery_percent": 100.0,
+    "media_files_sha256_verified_before_trial": 89,
+    "Windows_stop_name_visually_verified": "SYSTEM_PTE_MISUSE",
+    "hexadecimal_rows_visible": true,
+    "four_complete_numeric_parameters_verified": false,
+    "values_partly_obscured_by_display_boundary_and_camera_cutout": true,
+    "complete_numeric_transcription_accepted": false,
+    "stack_or_dump_available": false,
+    "bugcheck_cause_identified": false,
+    "usable_WinPE_reached": false,
+    "Windows_11_reached": false,
+    "owner_confirmed_forced_restart_using_buttons": true,
+    "Android_boot_completed_detected": true,
+    "reported_Android_bootreason": "usb",
+    "report_to_Android_seconds": 560.756,
+    "interval_includes_waiting_restart_and_Android_not_kernel_boot_time": true
+  },
+  "end_of_session": {
+    "owner_requested_stop_for_today": true,
+    "stock_recovery_restored": true,
+    "stock_source_sha256_verified": "ac989e3009148792101a764a82fca8ca6212ec0afdd84e13d3b85e87364903b1",
+    "Fastboot_recovery_write_acknowledged": true,
+    "Android_boot_verified_after_stock_restore": true,
+    "final_battery_percent": 100.0,
+    "card_media_restored": false,
+    "diagnostic_card_media_retained_active": true,
+    "card_original_files_preserved_and_sha256_verified_before_trial": 681,
+    "card_originals_retained_in_separate_on_card_backup": true,
+    "card_restore_not_run_after_owner_recovery_only_request": true,
+    "new_physical_trials_scheduled": false
+  },
+  "status": "Paused at owner request; usable physical WinPE and Windows11 remain unverified",
+  "limits": [
+    "Partial hexadecimal rows are not a complete set of bugcheck parameters.",
+    "The Windows stop name alone does not identify an invalid PTE, driver, GPU or firmware defect.",
+    "Android bootreason is recorded without using it to contradict the owner-confirmed forced restart."
+  ]
+}

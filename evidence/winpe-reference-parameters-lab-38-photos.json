@@ -1,0 +1,32 @@
+[
+  {
+    "public_path": "docs/images/native-winpe-reference-parameters-lab-38-bugcheck.jpg",
+    "bytes": 2024052,
+    "sha256": "7daa7823b2b537f7ebce9e73ec1d2fb06b17c92f9ee2b6e349f098c4651419e7",
+    "source_orientation_tag": 6,
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "e3df90d6d772cc68537e728cd38cac0e4a35c686524ec044cca38c7072e66787",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "visual_review": "Owner physical phase38 photo: Windows stop screen with SYSTEM_PTE_MISUSE readable. Hexadecimal diagnostic rows appear in the upper-left corner but are partly hidden by the rounded display boundary and camera cutout; four complete parameter values cannot be verified. Owner confirms using buttons for a forced restart. No usable WinPE, complete debugger trace, dump or cause is established.",
+    "visible_personal_identifiers": false
+  },
+  {
+    "public_path": "docs/images/native-winpe-reference-parameters-lab-38-bugcheck-detail.jpg",
+    "bytes": 1327598,
+    "sha256": "20aadc302fa4167e9089fa9d852953284d7d78fb6c3471a8a9df3790defce256",
+    "source_orientation_tag": 6,
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "bb35ca01fb1de9caac51eac60596fbc3b50f05d367af130246c4fc981955314f",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "visual_review": "Owner close-up of the same physical phase38 Windows stop: several hexadecimal diagnostic rows are visible near the upper-left corner. Rounded display boundary and camera cutout hide parts of the values. This photo does not provide a complete, verified set of four bugcheck parameters or identify the cause. It supplements the wider SYSTEM_PTE_MISUSE photo.",
+    "visible_personal_identifiers": false
+  }
+]

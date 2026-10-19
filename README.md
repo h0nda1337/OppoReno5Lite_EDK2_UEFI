@@ -80,6 +80,11 @@ de la capa heredada pasó modelos de PC y compiló para la variante 37.
 En la [prueba física 37](evidence/display-clean-boot-lab-37-validation.json),
 Orange State persistió y Windows mostró `SYSTEM_PTE_MISUSE`, sin parámetros
 numéricos capturados. No se comprobó si ocurrió la escritura condicionada.
+El [diagnóstico del 38](evidence/winpe-reference-parameters-lab-38-validation.json)
+volvió a `SYSTEM_PTE_MISUSE`; las filas hexadecimales quedaron parcialmente
+ocultas. Se restauró el recovery original y se verificó Android al 100 %.
+La sesión quedó en pausa a petición del propietario; la microSD conserva
+la copia diagnóstica activa y sus archivos originales respaldados.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
