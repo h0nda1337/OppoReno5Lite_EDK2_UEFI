@@ -1,5 +1,32 @@
 # Etapas del port
 
+## Meta actual — Windows PE y después Windows 11 ARM64 desde microSD
+
+El propietario fija este orden de trabajo para el OPPO Reno5 Lite CPH2205/MT6779:
+
+1. Arrancar Windows PE ARM64 desde la microSD física mediante el port EDK2
+   propio. Comprobar que llega a un entorno utilizable, con salida de pantalla
+   y entrada básica que permitan ejecutar y verificar un comando. Repetir el
+   arranque y documentar el resultado en el teléfono.
+2. Después de validar WinPE, arrancar Windows 11 ARM64 instalado en la microSD
+   hasta un escritorio utilizable, con pantalla y entrada básicas; comprobar
+   un nuevo arranque desde esa misma tarjeta y conservar evidencia física.
+
+La Shell UEFI, Windows Boot Manager y una pantalla de bugcheck son hitos
+intermedios. La prueba 32 alcanzó `SYSTEM_PTE_MISUSE`; el arranque correcto de
+WinPE y el de Windows 11 siguen pendientes. La aceleración 3D de PowerVR no es
+un criterio de éxito del primer arranque con pantalla básica.
+
+Se mantiene el código propio de entrada y controladores específicos, la vía de
+regreso a Android, los respaldos verificados, el mínimo del 20 % de batería
+comprobado antes de cada fase física y los archivos voluminosos en G:. Se
+publican únicamente fuentes, documentación y evidencia pública revisadas.
+La integración en el menú Fastbootd queda fuera de esta prioridad; antes de
+iniciarla sigue siendo obligatorio avisar al propietario para cambiar a Astra.
+
+Las etapas siguientes conservan el historial y las tareas técnicas del port;
+el orden de prioridad vigente es WinPE y después Windows 11 desde microSD.
+
 ## Recuperación de Android — completada; precauciones vigentes
 
 - [x] Restaurar recovery original y comprobar sus 64 MiB mediante lectura.
@@ -129,7 +156,11 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
 - [x] Confirmar RAM adicional visible en el mapa UEFI: 2100 MiB libres antes del cargador.
 - [x] Probar la variante con ACPI y registrar la pantalla de bugcheck Windows
   `SYSTEM_PTE_MISUSE`, retorno automático y restauración del recovery (32).
-- [ ] Avanzar desde la pantalla Recovery de Windows al arranque de WinPE.
+- [ ] Resolver el fallo de arranque actual y validar un entorno WinPE utilizable
+  desde microSD, con entrada básica y un comando comprobado.
+- [ ] Repetir y documentar el arranque correcto de WinPE desde la tarjeta.
+- [ ] Después de WinPE, validar Windows 11 ARM64 desde microSD hasta el escritorio
+  con entrada básica y comprobar un nuevo arranque.
 
 Véase [MICROSD.md](MICROSD.md). No se ha iniciado la integración de Fastbootd.
 
