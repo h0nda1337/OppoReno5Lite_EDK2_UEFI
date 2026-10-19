@@ -7,9 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#define _PCD_GET_MODE_BOOL_PcdNativeSdReadLab FALSE
-#define _PCD_GET_MODE_BOOL_PcdNativeSdBootLab FALSE
-#define _PCD_GET_MODE_BOOL_PcdNativeSdFastReadLab FALSE
+STATIC BOOLEAN mSdRead,mSdBoot,mSdFast,mSdAcpi;
+#define _PCD_GET_MODE_BOOL_PcdNativeSdReadLab mSdRead
+#define _PCD_GET_MODE_BOOL_PcdNativeSdBootLab mSdBoot
+#define _PCD_GET_MODE_BOOL_PcdNativeSdFastReadLab mSdFast
+#define _PCD_GET_MODE_BOOL_PcdNativeSdAcpiBootLab mSdAcpi
 STATIC BOOLEAN mAcpiLab;
 STATIC BOOLEAN mAcpiInstall;
 STATIC BOOLEAN mCpuLab;
@@ -20,6 +22,9 @@ STATIC UINTN mAcpiCalls;
 VOID OppoAcpiProbeLab(VOID) { assert(mAcpiLab);mAcpiCalls++; }
 STATIC BOOLEAN mExtraMemory;
 STATIC UINTN mMemoryCase;
+STATIC UINTN mPlatformCalls,mSdCalls;
+EFI_STATUS OppoAcpiPrepareForOs(VOID) {assert(mSdAcpi && mSdCalls==0);mPlatformCalls++;return mMemoryCase==6?EFI_COMPROMISED_DATA:EFI_SUCCESS;}
+VOID OppoSdReadLab(EFI_HANDLE Parent) {assert(Parent==(EFI_HANDLE)(UINTN)0x100 && mPlatformCalls==1);mSdCalls++;}
 #define _PCD_GET_MODE_BOOL_PcdNativeExtraMemoryLab mExtraMemory
 #include "../OppoReno5LitePkg/Drivers/OppoBdsDxe/OppoBdsDxe.c"
 
@@ -47,7 +52,7 @@ STATIC UINTN mScenario, mAllocated, mFreed, mStarts, mUnloads, mClosed;
 STATIC BOOLEAN mTimerAttempted, mSetTimer, mApplicationAlive, mEventFired;
 STATIC UINTN mModeSets, mClears;
 STATIC BOOLEAN ExpectConsole(VOID) { return mScenario<5 || mScenario==12; }
-STATIC BOOLEAN ExpectShellStart(VOID) { return !mAcpiLab && ExpectConsole(); }
+STATIC BOOLEAN ExpectShellStart(VOID) { return !mAcpiLab && !mSdRead && ExpectConsole(); }
 
 BOOLEAN EFIAPI DebugPrintEnabled(VOID) { return TRUE; }
 BOOLEAN EFIAPI DebugPrintLevelEnabled(UINTN Level) { (VOID)Level;return TRUE; }
@@ -203,8 +208,9 @@ int main(void)
   mInfo.HorizontalResolution=1080;mInfo.VerticalResolution=2400;
   mOut.ClearScreen=Clear;mOut.OutputString=Output;mOut.QueryMode=Query;mOut.SetMode=SetMode;
   mVolume.ReadSection=ReadSection;
-  for(mMemoryCase=0;mMemoryCase<5;mMemoryCase++)for(mScenario=0;mScenario<14;mScenario++) {
-    mExtraMemory=(BOOLEAN)(mMemoryCase==1);mAcpiLab=(BOOLEAN)(mMemoryCase>=2);
+  for(mMemoryCase=0;mMemoryCase<7;mMemoryCase++)for(mScenario=0;mScenario<14;mScenario++) {
+    mExtraMemory=(BOOLEAN)(mMemoryCase==1 || mMemoryCase>=5);mAcpiLab=(BOOLEAN)(mMemoryCase>=2 && mMemoryCase<=4);
+    mSdRead=mSdBoot=mSdFast=mSdAcpi=(BOOLEAN)(mMemoryCase>=5);mPlatformCalls=mSdCalls=0;
     mAcpiInstall=(BOOLEAN)(mMemoryCase==3);mAcpiCalls=0;
     mCpuLab=(BOOLEAN)(mMemoryCase==4);
     mAllocated=mFreed=mStarts=mUnloads=mClosed=0;
@@ -221,6 +227,8 @@ int main(void)
     assert(mTimerAttempted && mStarts==(ExpectShellStart()?1U:0U) && mUnloads==0 && mFreed==mAllocated);
     assert((mSystem.ConOut==&mOut)==ExpectConsole());
     assert(mAcpiCalls==((mAcpiLab && ExpectConsole())?1U:0U));
+    assert(mPlatformCalls==((mSdAcpi && ExpectConsole())?1U:0U));
+    assert(mSdCalls==((mMemoryCase==5 && ExpectConsole())?1U:0U));
     assert(mClears==(ExpectConsole() || mScenario==6?1U:0U));
     assert(mModeSets==(mScenario<=6 || mScenario>=12?1U:0U));
     assert(mEventFired==(mScenario==0 || mScenario==4));
@@ -228,10 +236,18 @@ int main(void)
     assert(mCounterDeadlineReady==(mScenario!=4) && mSystem.Hdr.CRC32==0x1234);
     if(mCounterDeadlineReady)assert(mCounterTicks==13000000ULL*(mExtraMemory ? 1800ULL : 90ULL));
   }
+  mSdRead=mSdBoot=mSdFast=mSdAcpi=FALSE;
+  mCpuLab=TRUE;
   mAcpiLab=TRUE;mExtraMemory=TRUE;assert(!LabIdentityValid());
   mAcpiLab=FALSE;mExtraMemory=FALSE;assert(!LabIdentityValid());
   mAcpiLab=TRUE;mAcpiInstall=TRUE;assert(!LabIdentityValid());
   mAcpiInstall=FALSE;assert(LabIdentityValid());
-  puts("Original BDS:70 host scenarios across90s/1800s deadlines, console failures, isolated ACPI/CPU observation and incompatible-mode rejection passed sanitizers; no hardware test.");
+  mAcpiLab=mCpuLab=FALSE;mSdRead=mSdBoot=mSdFast=mSdAcpi=mExtraMemory=TRUE;
+  assert(LabIdentityValid());
+  BOOLEAN *required[]={&mSdRead,&mSdBoot,&mSdFast,&mExtraMemory};
+  for(UINTN i=0;i<ARRAY_SIZE(required);i++){*required[i]=FALSE;assert(!LabIdentityValid());*required[i]=TRUE;}
+  BOOLEAN *denied[]={&mAcpiLab,&mAcpiInstall,&mCpuLab};
+  for(UINTN i=0;i<ARRAY_SIZE(denied);i++){*denied[i]=TRUE;assert(!LabIdentityValid());*denied[i]=FALSE;}
+  puts("Original BDS:98 host scenarios; combined ACPI gate success/failure before SD, isolated labs, console/deadline and incompatible-mode checks passed sanitizers; no hardware test.");
   return 0;
 }

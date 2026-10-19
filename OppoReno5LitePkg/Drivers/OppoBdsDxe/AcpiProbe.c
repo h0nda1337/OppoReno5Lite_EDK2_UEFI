@@ -30,14 +30,12 @@ STATIC EFI_STATUS EFIAPI ReadGic (VOID *Context, UINT64 Address, UINT32 *Value)
   return EFI_SUCCESS;
 }
 
-VOID OppoAcpiProbeLab (VOID)
+EFI_STATUS OppoReadNativeAcpiProfile (OPPO_ACPI_GIC_OBSERVATION *Observation)
 {
-  STATIC CONST volatile CHAR8 Identity[] = "OPPO_ACPI_GIC_PROFILE_READ_ONLY_LAB_V1";
-  OPPO_ACPI_GIC_OBSERVATION Observation;
   READ_TRACE Trace = {0,0,0};
   VOID *Hob;
   EFI_STATUS Status = EFI_COMPROMISED_DATA;
-  if (!FeaturePcdGet (PcdNativeAcpiProfileLab) || Identity[0] != 'O') return;
+  if (Observation == NULL) return EFI_INVALID_PARAMETER;
   Hob = GetFirstGuidHob (&gOppoAcpiHandoffHobGuid);
   if (Hob != NULL && GET_GUID_HOB_DATA_SIZE (Hob) == sizeof (OPPO_ACPI_HANDOFF)) {
     CONST OPPO_ACPI_HANDOFF *H = GET_GUID_HOB_DATA (Hob);
@@ -46,11 +44,20 @@ VOID OppoAcpiProbeLab (VOID)
         (H->FdtBase & 7U) == 0 && H->FdtBase >= OPPO_NATIVE_DRAM_BASE &&
         H->FdtBase <= (UINT64)OPPO_NATIVE_DRAM_END - H->FdtBytes) {
       Status = OppoAcpiObserveGic ((CONST VOID *)(UINTN)H->FdtBase, H->FdtBytes,
-                                  ArmReadMpidr (), ReadGic, &Trace, &Observation);
+                                  ArmReadMpidr (), ReadGic, &Trace, Observation);
     }
   }
   DEBUG ((DEBUG_INFO, "ACPI PROFILE=%r READS=%u LAST=%Lx VALUE=%x\n",
           Status, Trace.Reads, Trace.LastAddress, Trace.LastValue));
+  return Status;
+}
+
+VOID OppoAcpiProbeLab (VOID)
+{
+  STATIC CONST volatile CHAR8 Identity[] = "OPPO_ACPI_GIC_PROFILE_READ_ONLY_LAB_V1";
+  OPPO_ACPI_GIC_OBSERVATION Observation;
+  if (!FeaturePcdGet (PcdNativeAcpiProfileLab) || Identity[0] != 'O') return;
+  EFI_STATUS Status = OppoReadNativeAcpiProfile (&Observation);
   if (Status == EFI_SUCCESS) {
     if (!FeaturePcdGet (PcdNativeCpuProfileLab)) {
       DEBUG ((DEBUG_INFO, "ACPI BOOT AFF=%Lx GICD PIDR=%x TYPER=%x CTLR=%x\n",

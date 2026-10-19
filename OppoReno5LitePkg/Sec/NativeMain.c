@@ -192,7 +192,7 @@ STATIC VOID EFIAPI ContinueBoot (VOID *Context, VOID *Unused)
   if (State->SdPowerProfile) Info.Flags |= OPPO_BOOT_SD_POWER_PROFILE_VALIDATED;
   if (State->SdVoltageProfile) Info.Flags |= OPPO_BOOT_SD_VOLTAGE_PROFILE_VALIDATED;
   if (BuildGuidDataHob (&gOppoBootInfoHobGuid, &Info, sizeof (Info)) == NULL) Stop ();
-  if (FeaturePcdGet (PcdNativeAcpiProfileLab)) {
+  if (FeaturePcdGet (PcdNativeAcpiProfileLab) || FeaturePcdGet (PcdNativeSdAcpiBootLab)) {
     // OppoInspectHandoff/PlanEarlyMemory already reserve and map this FDT.
     OPPO_ACPI_HANDOFF H = {OPPO_ACPI_HANDOFF_SIGNATURE, OPPO_ACPI_HANDOFF_REVISION,
                           State->Entry->Fdt, State->FdtBytes, 0};
@@ -215,6 +215,12 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   UINT64 Fdt = Entry->Fdt;
   EFI_STATUS Status;
   if (FeaturePcdGet (PcdNativeEntryProbe) && FeaturePcdGet (PcdNativeMmuProbe)) Stop ();
+  if (FeaturePcdGet (PcdNativeSdAcpiBootLab) &&
+      (!FeaturePcdGet (PcdNativeSdReadLab) || !FeaturePcdGet (PcdNativeSdBootLab) ||
+       !FeaturePcdGet (PcdNativeSdFastReadLab) || !FeaturePcdGet (PcdNativeExtraMemoryLab) ||
+       FeaturePcdGet (PcdNativeAcpiProfileLab) || FeaturePcdGet (PcdNativeAcpiInstallLab) ||
+       FeaturePcdGet (PcdNativeCpuProfileLab) || FeaturePcdGet (PcdNativeEntryProbe) ||
+       FeaturePcdGet (PcdNativeMmuProbe))) Stop ();
   if (FeaturePcdGet (PcdNativeAcpiInstallLab) && !FeaturePcdGet (PcdNativeAcpiProfileLab)) Stop ();
   if (FeaturePcdGet (PcdNativeCpuProfileLab) &&
       (!FeaturePcdGet (PcdNativeAcpiProfileLab) || FeaturePcdGet (PcdNativeAcpiInstallLab))) Stop ();

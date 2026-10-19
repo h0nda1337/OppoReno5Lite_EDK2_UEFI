@@ -8,19 +8,25 @@ static BOOLEAN enabled=TRUE;
 #include "../OppoReno5LitePkg/Drivers/OppoBdsDxe/CpuProbe.c"
 static UINTN reg_calls, smc_calls, messages;
 static UINT64 current_el=4;
+static UINTN fault;
 UINT64 EFIAPI OppoCpuCurrentEl(VOID) {reg_calls++;return current_el;}
 UINT64 EFIAPI OppoCpuMpidrValue(VOID) {reg_calls++;return 0x80000000;}
 UINT64 EFIAPI OppoCpuMidrValue(VOID) {reg_calls++;return 0x410fd050;}
 UINT64 EFIAPI OppoCpuPfr0Value(VOID) {reg_calls++;return 0x1000000;}
-UINT64 EFIAPI OppoCpuSreEl1(VOID) {assert(current_el==4);reg_calls++;return 7;}
+UINT64 EFIAPI OppoCpuSreEl1(VOID) {assert(current_el==4);reg_calls++;return fault==1?0:7;}
 UINT64 EFIAPI OppoCpuSreEl2(VOID) {assert(current_el==8);reg_calls++;return 15;}
 VOID EFIAPI ArmCallSmc(ARM_SMC_ARGS *a)
 {
   assert(a->Arg2==0 && a->Arg3==0 && a->Arg4==0 && a->Arg5==0 && a->Arg6==0 && a->Arg7==0);
   smc_calls++;
-  if(a->Arg0==ARM_SMC_ID_PSCI_VERSION){assert(a->Arg1==0);a->Arg0=0x10000;}
-  else if(a->Arg0==ARM_SMC_ID_PSCI_FEATURES){assert(a->Arg1==ARM_SMC_ID_PSCI_CPU_ON_AARCH64 || a->Arg1==ARM_SMC_ID_PSCI_AFFINITY_INFO_AARCH64);a->Arg0=0;}
-  else {assert(a->Arg0==ARM_SMC_ID_PSCI_AFFINITY_INFO_AARCH64 && (a->Arg1&~0x700ULL)==0);a->Arg0=a->Arg1?1:0;}
+  if(a->Arg0==ARM_SMC_ID_PSCI_VERSION){assert(a->Arg1==0);a->Arg0=fault==4?2:0x10000;}
+  else if(a->Arg0==ARM_SMC_ID_PSCI_FEATURES){assert(a->Arg1==ARM_SMC_ID_PSCI_CPU_ON_AARCH64 || a->Arg1==ARM_SMC_ID_PSCI_AFFINITY_INFO_AARCH64);a->Arg0=(fault==2 && a->Arg1==ARM_SMC_ID_PSCI_CPU_ON_AARCH64) || (fault==3 && a->Arg1==ARM_SMC_ID_PSCI_AFFINITY_INFO_AARCH64)?0xffffffff:0;}
+  else {
+    assert(a->Arg0==ARM_SMC_ID_PSCI_AFFINITY_INFO_AARCH64 && (a->Arg1&~0x700ULL)==0);
+    a->Arg0=a->Arg1?1:0;
+    if(fault==5 && a->Arg1==0)a->Arg0=1;
+    if(a->Arg1==0x100 && fault>=6)a->Arg0=fault==6?0:fault==7?(UINT64)(INT64)-8:3;
+  }
 }
 VOID *EFIAPI ZeroMem(VOID *p,UINTN n) {return memset(p,0,n);}
 VOID *EFIAPI CopyMem(VOID *a,CONST VOID *b,UINTN n) {return memmove(a,b,n);}
@@ -46,6 +52,13 @@ int main(void)
   assert(ReadPsci(&t,ARM_SMC_ID_PSCI_AFFINITY_INFO_AARCH64,0,1,&value)==EFI_ACCESS_DENIED);
   assert(ReadRegister(&t,(OPPO_CPU_REGISTER)99,&value)==EFI_ACCESS_DENIED);
   assert(smc_calls==0 && reg_calls==0 && t.Smcs==0 && t.Registers==0 && value==0x12345678);
-  puts("CPU native binding:EL1/EL2 and disabled dispatch; exact SMC/register allowlists deny all state-changing PSCI calls; host stubs only");
+  enabled=TRUE;
+  for(UINTN test=0;test<10;test++) {
+    fault=test<9?test:0;current_el=test==9?8:4;reg_calls=smc_calls=0;
+    EFI_STATUS s=OppoCpuCheckForOs(&p);
+    assert((s==EFI_SUCCESS)==(test==0));
+    assert(reg_calls==6 && smc_calls<12);
+  }
+  puts("CPU native binding:EL1/EL2 and disabled dispatch; exact SMC/register allowlists;10 OS gate cases reject unsupported features, SRE, boot/secondary states and EL2; host stubs only");
   return 0;
 }

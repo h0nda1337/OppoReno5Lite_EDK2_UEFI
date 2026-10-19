@@ -69,6 +69,11 @@ case "${NATIVE_CPU_PROFILE_LAB:-0}:$mode" in
   1:acpi-profile-lab) mode=cpu-profile-lab; extra+=(-D OPPO_CPU_PROFILE_LAB=TRUE) ;;
   *) printf '%s\n' 'CPU observation requires the isolated ACPI profile lab and cannot install tables' >&2; exit 1 ;;
 esac
+case "${NATIVE_SD_ACPI_BOOT_LAB:-0}:$mode:${NATIVE_EXTRA_MEMORY_LAB:-0}:${NATIVE_SD_FAST_READ_LAB:-0}:${NATIVE_SD_POWER_LAB:-0}" in
+  0:*) ;;
+  1:sd-boot-lab:1:1:1) mode=sd-acpi-boot-lab; extra+=(-D OPPO_SD_ACPI_BOOT_LAB=TRUE) ;;
+  *) printf '%s\n' 'ACPI SD boot requires the SD boot, power, fast and extra memory labs without isolated ACPI/CPU modes' >&2; exit 1 ;;
+esac
 export WORKSPACE="$edk2" PACKAGES_PATH="$root"
 export GCC_AARCH64_PREFIX="${GCC_AARCH64_PREFIX:-aarch64-linux-gnu-}"
 export SOURCE_DATE_EPOCH="$(git -C "$edk2" show -s --format=%ct HEAD)"

@@ -10,6 +10,7 @@
   SdRead.c
   AcpiProbe.c
   CpuProbe.c
+  AcpiBoot.c
 [Sources.AARCH64]
   AArch64/CpuRegisters.S
 [Packages]
@@ -52,6 +53,7 @@
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiInstallLab
   gOppoNativeTokenSpaceGuid.PcdNativeCpuProfileLab
+  gOppoNativeTokenSpaceGuid.PcdNativeSdAcpiBootLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab

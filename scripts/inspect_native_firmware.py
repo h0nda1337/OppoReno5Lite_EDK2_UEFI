@@ -23,6 +23,7 @@ NATIVE_MEMORY_LAB_MARKER = b'OPPO_NATIVE_DXE_SHELL_LAB_1800S_V1\0'
 ACPI_PROFILE_LAB_MARKER = b'OPPO_ACPI_GIC_PROFILE_READ_ONLY_LAB_V1\0'
 ACPI_INSTALL_LAB_MARKER = b'OPPO_ACPI_INSTALL_NO_OS_LAB_V1\0'
 CPU_PROFILE_LAB_MARKER = b'OPPO_CPU_PSCI_READ_ONLY_NO_OS_LAB_V1\0'
+SD_ACPI_BOOT_LAB_MARKER = b'OPPO_SD_ACPI_BOOT_LAB_V1\0'
 LAB_DEADLINES = {NATIVE_LAB_MARKER: 90, NATIVE_MEMORY_LAB_MARKER: 1800}
 PCD_DRIVER_GUID = '80cf7257-87ab-47f9-a3fe-d50b76d89541'
 REQUIRED = {
@@ -192,9 +193,15 @@ def require_native_lab(raw):
     cpu = payload.count(CPU_PROFILE_LAB_MARKER)
     if cpu > 1 or (cpu and (not acpi or install)):
         raise ValueError('CPU observation requires isolated profile mode without ACPI installation')
+    combined = payload.count(SD_ACPI_BOOT_LAB_MARKER)
+    sd_present = any(item['guid'] == '056d7218-2168-44b9-9784-a28349858cc2' for item in report['files'])
+    if combined > 1 or (combined and (acpi or install or cpu or not sd_present or
+                                    report['reset_request_after_seconds'] != 1800)):
+        raise ValueError('Combined ACPI SD boot must be unique,1800 seconds and include SD without isolated modes')
     report['acpi_profile_read_only_lab'] = bool(acpi and not install and not cpu)
     report['acpi_install_no_os_lab'] = bool(install)
     report['cpu_profile_read_only_lab'] = bool(cpu)
+    report['sd_acpi_boot_lab'] = bool(combined)
     # Check the emitted FFS bytecode, not only the DSC source: the producer
     # must bootstrap without the protocol that its consumers wait for.
     producers = [item for item in report['files'] if item['guid'] == PCD_DRIVER_GUID]

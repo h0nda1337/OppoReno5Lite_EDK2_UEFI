@@ -77,3 +77,20 @@ VOID OppoCpuProbeLab (CONST OPPO_ACPI_PROFILE *Profile)
   if (S != EFI_SUCCESS) DEBUG ((DEBUG_INFO, "CPU LAST_REG=%u VALUE=%Lx\n", Trace.LastRegister, Trace.LastRegisterValue));
   DEBUG ((DEBUG_INFO, "CPU READ-ONLY: NO CPU START; NO TABLES, SD OR OS LAUNCH\n"));
 }
+
+// Recheck the measured EL1/PSCI contract before the opt-in combined OS trial.
+// CPU_ON remains a feature query, never a state-changing call here.
+EFI_STATUS OppoCpuCheckForOs (CONST OPPO_ACPI_PROFILE *Profile)
+{
+  CPU_TRACE Trace = {0};
+  OPPO_CPU_OBSERVATION O;
+  EFI_STATUS S = OppoObserveCpu (Profile, ReadRegister, ReadPsci, &Trace, &O);
+  if (S != EFI_SUCCESS) return S;
+  DEBUG ((DEBUG_INFO, "OS CPU EL=%Lx SRE=%Lx PSCI=%x CPU_ON64=%d AFF64=%d BOOT_ON=%u\n",
+    O.CurrentEl, O.Sre, O.PsciVersion, O.CpuOnFeature, O.AffinityFeature, (UINT32)O.BootReportedOn));
+  if (O.CurrentEl != 4 || (O.Sre & 1U) == 0 || !O.BootReportedOn || !O.FeaturesQueried ||
+      O.CpuOnFeature != 0 || O.AffinityFeature != 0) return EFI_UNSUPPORTED;
+  for (UINTN I = 1; I < OPPO_ACPI_CPU_COUNT; I++)
+    if (O.AffinityState[I] != ARM_SMC_ID_PSCI_AFFINITY_INFO_OFF) return EFI_UNSUPPORTED;
+  return EFI_SUCCESS;
+}

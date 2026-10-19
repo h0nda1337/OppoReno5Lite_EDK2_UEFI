@@ -307,3 +307,34 @@ restauró después el recovery original y se verificó Android con batería al 1
 Véanse [la transcripción y restauración](../evidence/cpu-psci-profile-lab-31-validation.json),
 [la compilación y comprobaciones de PC](../evidence/cpu-psci-profile-lab-31-host-validation.json)
 y [la revisión de la fotografía](../evidence/cpu-psci-profile-lab-31-photo.json).
+
+## Variante combinada ACPI y microSD (32): comprobada en PC
+
+`NATIVE_SD_ACPI_BOOT_LAB=1` habilita un intento distinto de los observadores
+anteriores. Exige los laboratorios SD boot, alimentación, lectura rápida y RAM
+adicional, y rechaza los modos aislados ACPI/CPU y las sondas SEC. Conserva
+el plazo experimental de 1800 segundos y el controlador Block I/O de solo
+lectura. El modo normal y las variantes anteriores conservan su comportamiento.
+
+SEC entrega también el HOB del FDT protegido en esta variante. Antes del intento
+de arranque SD, BDS vuelve a validar el perfil FDT/GIC y consulta el contrato CPU.
+Exige EL1, SRE habilitado, PSCI 1.x con CPU_ON64/AFFINITY_INFO64 anunciados,
+CPU de arranque ON y las otras siete OFF. Después instala las tablas originales
+y exige éxito tanto de publicación como de lectura posterior. Un fallo o un
+resultado distinto de éxito bloquea la llamada al laboratorio de arranque SD;
+no hay una ruta de respaldo que omita las comprobaciones. La consulta CPU
+conserva su lista de llamadas de solo lectura y no ejecuta CPU_ON.
+
+Las pruebas pasan 10 casos del contrato CPU, ocho de la transacción previa a
+SD y 98 de BDS, incluyendo fallo de plataforma, consola y plazo. Los 16 casos
+de enlace FDT/HOB siguen pasando. Hay 23 pruebas Python de contenedor/manifiesto
+y siete combinaciones de compilación incorrectas rechazadas antes del build.
+Las comprobaciones de C usan ASan/UBSan y callbacks simulados. El candidato
+ARM64 compiló en 25,248 segundos, con PCD efectivos contrastados en SEC, BDS,
+runtime y SD; el empaquetado privado y su marcador exclusivo se verificaron.
+
+Esto demuestra preparación y pruebas de PC. La ejecución de esta combinación
+en el OPPO está pendiente; no se presume que Windows vaya a consumir las tablas
+correctamente ni que desaparezca `0xc0000225`. SMBIOS, RTC, entrega de
+interrupciones y ejecución secundaria mantienen sus límites anteriores.
+Véase [la composición y validación de PC del 32](../evidence/sd-acpi-boot-lab-32-host-validation.json).

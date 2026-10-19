@@ -48,6 +48,9 @@ comprobaron después, con batería al 100 %. WinPE sigue pendiente.
 La [sonda CPU/PSCI del 31](docs/ACPI.md#resultado-físico-del-intento-31) observó
 EL1, SRE habilitado y PSCI 1.0: anuncia CPU_ON64 y reporta CPU0 ON y CPU1–7 OFF.
 Volvió sola a Android y se restauró el recovery original; no se ejecutó CPU_ON.
+La [variante combinada 32](docs/ACPI.md#variante-combinada-acpi-y-microsd-32-comprobada-en-pc)
+ya pasó compilación y pruebas de PC para condicionar el intento SD a la
+validación CPU y a la publicación ACPI. Su ejecución física está pendiente.
 
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró

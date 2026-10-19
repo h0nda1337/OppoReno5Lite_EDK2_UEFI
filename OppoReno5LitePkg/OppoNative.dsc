@@ -22,6 +22,7 @@
   DEFINE OPPO_ACPI_PROFILE_LAB = FALSE
   DEFINE OPPO_ACPI_INSTALL_LAB = FALSE
   DEFINE OPPO_CPU_PROFILE_LAB = FALSE
+  DEFINE OPPO_SD_ACPI_BOOT_LAB = FALSE
 
 !include MdePkg/MdeLibs.dsc.inc
 
@@ -126,6 +127,7 @@
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab|$(OPPO_ACPI_PROFILE_LAB)
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiInstallLab|$(OPPO_ACPI_INSTALL_LAB)
   gOppoNativeTokenSpaceGuid.PcdNativeCpuProfileLab|$(OPPO_CPU_PROFILE_LAB)
+  gOppoNativeTokenSpaceGuid.PcdNativeSdAcpiBootLab|$(OPPO_SD_ACPI_BOOT_LAB)
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|FALSE
   gArmTokenSpaceGuid.PcdRemapUnusedMemoryNx|FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdHiiOsRuntimeSupport|FALSE

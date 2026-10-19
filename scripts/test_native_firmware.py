@@ -6,7 +6,7 @@ from uuid import UUID
 
 from inspect_native_firmware import (FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect,
     ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, NATIVE_MEMORY_LAB_MARKER, ACPI_PROFILE_LAB_MARKER, ACPI_INSTALL_LAB_MARKER, CPU_PROFILE_LAB_MARKER, PCD_DRIVER_GUID,
-    require_entry_probe, require_native_lab)
+    require_entry_probe, require_native_lab, SD_ACPI_BOOT_LAB_MARKER)
 
 
 def pe_fixture():
@@ -134,6 +134,19 @@ class NativeFirmwareTests(unittest.TestCase):
                     fixture(lab=True,lab_marker=marker+CPU_PROFILE_LAB_MARKER),
                     fixture(lab=True,lab_marker=marker+ACPI_INSTALL_LAB_MARKER),
                     fixture(lab=True,lab_marker=marker,sd=True)):
+            with self.assertRaises(ValueError):require_native_lab(raw)
+
+    def test_combined_acpi_boot_requires_storage_and_long_deadline(self):
+        marker=NATIVE_MEMORY_LAB_MARKER+SD_ACPI_BOOT_LAB_MARKER
+        r=require_native_lab(fixture(lab=True,lab_marker=marker,sd=True))
+        self.assertTrue(r['sd_acpi_boot_lab'])
+        self.assertFalse(r['acpi_install_no_os_lab'] or r['cpu_profile_read_only_lab'] or r['acpi_profile_read_only_lab'])
+        for raw in (fixture(lab=True,lab_marker=marker),
+                    fixture(lab=True,lab_marker=NATIVE_LAB_MARKER+SD_ACPI_BOOT_LAB_MARKER,sd=True),
+                    fixture(lab=True,lab_marker=marker+SD_ACPI_BOOT_LAB_MARKER,sd=True),
+                    fixture(lab=True,lab_marker=marker+ACPI_PROFILE_LAB_MARKER,sd=True),
+                    fixture(lab=True,lab_marker=marker+CPU_PROFILE_LAB_MARKER,sd=True),
+                    fixture(lab=True,lab_marker=marker+ACPI_INSTALL_LAB_MARKER,sd=True)):
             with self.assertRaises(ValueError):require_native_lab(raw)
 
     def test_lab_rejects_pcd_self_dependency_and_missing_bootstrap(self):

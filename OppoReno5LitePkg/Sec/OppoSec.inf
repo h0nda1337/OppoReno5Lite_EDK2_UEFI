@@ -52,6 +52,8 @@
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiInstallLab
   gOppoNativeTokenSpaceGuid.PcdNativeCpuProfileLab
+  gOppoNativeTokenSpaceGuid.PcdNativeSdAcpiBootLab
+  gOppoNativeTokenSpaceGuid.PcdNativeSdFastReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab
   gOppoNativeTokenSpaceGuid.PcdNativeSdBootLab
   gOppoNativeTokenSpaceGuid.PcdNativeExtraMemoryLab

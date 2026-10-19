@@ -24,11 +24,17 @@
 STATIC EFI_HANDLE mImage;
 VOID OppoSdReadLab (EFI_HANDLE Parent);
 VOID OppoAcpiProbeLab (VOID);
+EFI_STATUS OppoAcpiPrepareForOs (VOID);
 STATIC UINT32 DeadlineSeconds (VOID)
 { return FeaturePcdGet (PcdNativeExtraMemoryLab) ? 1800U : 90U; }
 
 STATIC BOOLEAN LabIdentityValid (VOID)
 {
+  if (FeaturePcdGet (PcdNativeSdAcpiBootLab) &&
+      (!FeaturePcdGet (PcdNativeSdReadLab) || !FeaturePcdGet (PcdNativeSdBootLab) ||
+       !FeaturePcdGet (PcdNativeSdFastReadLab) || !FeaturePcdGet (PcdNativeExtraMemoryLab) ||
+       FeaturePcdGet (PcdNativeAcpiProfileLab) || FeaturePcdGet (PcdNativeAcpiInstallLab) ||
+       FeaturePcdGet (PcdNativeCpuProfileLab))) return FALSE;
   if (FeaturePcdGet (PcdNativeAcpiInstallLab) && !FeaturePcdGet (PcdNativeAcpiProfileLab)) return FALSE;
   if (FeaturePcdGet (PcdNativeCpuProfileLab) &&
       (!FeaturePcdGet (PcdNativeAcpiProfileLab) || FeaturePcdGet (PcdNativeAcpiInstallLab))) return FALSE;
@@ -201,7 +207,11 @@ STATIC VOID EFIAPI Entry (EFI_BDS_ARCH_PROTOCOL *This)
   gST->Hdr.CRC32 = 0;
   gBS->CalculateCrc32 (gST, gST->Hdr.HeaderSize, &gST->Hdr.CRC32);
   if (FeaturePcdGet (PcdNativeAcpiProfileLab) && !EFI_ERROR (ConsoleStatus)) OppoAcpiProbeLab ();
-  if (FeaturePcdGet (PcdNativeSdReadLab) && !EFI_ERROR (ConsoleStatus)) OppoSdReadLab (mImage);
+  if (FeaturePcdGet (PcdNativeSdReadLab) && !EFI_ERROR (ConsoleStatus)) {
+    EFI_STATUS Platform = FeaturePcdGet (PcdNativeSdAcpiBootLab) ? OppoAcpiPrepareForOs () : EFI_SUCCESS;
+    DEBUG ((DEBUG_INFO, "BDS SD PLATFORM GATE=%r\n", Platform));
+    if (Platform == EFI_SUCCESS) OppoSdReadLab (mImage);
+  }
   // Do not invoke Shell with an uninitialized graphical text console.
   Status = (FeaturePcdGet (PcdNativeSdReadLab) || FeaturePcdGet (PcdNativeAcpiProfileLab)) ? EFI_ABORTED : EFI_ERROR (ConsoleStatus) ? ConsoleStatus :
     gBS->LocateHandleBuffer (ByProtocol, &gEfiFirmwareVolume2ProtocolGuid, NULL, &Count, &Handles);
