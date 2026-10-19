@@ -160,6 +160,10 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
 - [x] Capturar `IO1_INITIALIZATION_FAILED` con la copia diagnóstica del WIM (33);
   el icono de carga fue informado por el propietario sin foto, y WinPE no completó
   el arranque. El cambio de código no demuestra la corrección del fallo anterior.
+- [x] Inspeccionar los 54 controladores de arranque y comparar el WIM original
+  y diagnóstico en PC (34), sin declarar la simulación como validación del OPPO.
+- [ ] Validar una referencia oficial ARM64 independiente y usar el resultado
+  para elegir una prueba física que acote el fallo actual.
 - [ ] Resolver el fallo de arranque actual y validar un entorno WinPE utilizable
   desde microSD, con entrada básica y un comando comprobado.
 - [ ] Repetir y documentar el arranque correcto de WinPE desde la tarjeta.

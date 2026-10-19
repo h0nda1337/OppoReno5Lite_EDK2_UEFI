@@ -61,6 +61,12 @@ carga fue informado sin foto. El cambio de código no demuestra la corrección
 del fallo anterior, y WinPE aún no completó el arranque.
 Se restauraron el recovery y el WIM originales, con Android comprobado al 100 %.
 
+La [inspección de PC del 34](evidence/winpe-io-inspection-34.json) comprobó
+presencia y arquitectura ARM64 de los 54 controladores de arranque del WIM.
+El original y la copia diagnóstica fallaron con `IRQL_NOT_LESS_OR_EQUAL` en
+una VM genérica; esa comparación no identifica la causa del `IO1` del OPPO.
+Se prepara una referencia oficial de WinPE ARM64 independiente.
+
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
 y su lectura completa se verificó. Android volvió a arrancar tras un

@@ -938,6 +938,41 @@ de FDT suministrada, no una captura del mapa que recibió Windows. Continúa
 pendiente la revisión del pitch real y del traspaso de memoria/caché; no se han
 falseado las dimensiones del GOP ni atribuido el bugcheck a PowerVR.
 
+### Inspección de E/S en PC (34)
+
+Se revisó el SYSTEM original sin modificarlo y se resolvieron los archivos de
+sus 54 servicios de arranque. Los 54 están presentes en el WIM y sus cabeceras
+PE extraídas indican ARM64. Esto comprueba presencia y arquitectura; no prueba
+su carga efectiva, firma aceptada, compatibilidad ni enlace con hardware.
+Entre ellos hay seis servicios específicos de Qualcomm. No se desactivaron ni
+se atribuye el fallo a su presencia.
+
+Para la inspección estática se obtuvo el PDB correspondiente del servidor
+público de Microsoft. Coinciden el GUID, la edad de DBI y los RVA de tres
+funciones exportadas con el kernel extraído. La edad del stream Info es 5 y la
+de DBI es 1; no se confunden ambos campos. Los binarios, símbolos y desensamblado
+permanecen privados y no se incorporó su implementación al port.
+
+La ruta revisada comprueba el resultado booleano de `IoInitSystem` y, si falla,
+llama a `KeBugCheck(0x69)` con parámetros cero. Por ello, `DisplayParameters`
+por sí solo no identifica la subetapa de E/S en esa ruta. Es inspección estática,
+no una traza de la ejecución del OPPO. Todavía falta capturar el estado interno
+del fallo o una pila válida del teléfono.
+
+También se compararon copias privadas del WIM original y del diagnóstico 33
+en QEMU ARM64 con firmware AAVMF genérico, GICv3, EL2 habilitado y 4096 MiB.
+Ambas terminaron en **IRQL_NOT_LESS_OR_EQUAL**; el diagnóstico dio el mismo
+nombre con uno y cuatro núcleos. Se verificó mediante lectura FAT completa que
+los WIM de los discos virtuales conservan los SHA-256 de sus fuentes. La VM no
+reproduce el hardware del OPPO y ninguna comparación llegó a un WinPE utilizable.
+El resultado no certifica el medio ni explica el `IO1` físico; tampoco permite
+culpar a los dos ajustes de CrashControl del error común de la simulación.
+
+Las máquinas de esta comparación ya están detenidas. No hubo operaciones sobre
+el teléfono, cambios de firmware ni una nueva medición de batería. Se prepara
+una referencia oficial ARM64 independiente antes de elegir otra prueba física.
+Véase [el registro filtrado de inspección y simulación](../evidence/winpe-io-inspection-34.json).
+
 ### Inspección y ruta de carga EFI
 
 Una copia privada leída mediante ADB `exec-out` mide 1 538 888 bytes. Su cabecera

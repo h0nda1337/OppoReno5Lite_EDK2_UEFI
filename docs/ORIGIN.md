@@ -25,6 +25,12 @@ Son dependencias genéricas de host con sus propias licencias; no se incorporan
 sus implementaciones al firmware. El WIM de Microsoft y los hives se conservan
 fuera del repositorio público.
 
+QEMU 10.0.13, el firmware AAVMF de Debian 2025.02-8+deb13u1 y mtools 4.0.48
+se emplean únicamente como herramientas de comparación en PC. No emulan el
+MT6779 ni aportan código específico al firmware del OPPO. Los símbolos públicos
+de Microsoft se consultaron para inspeccionar el kernel privado de WinPE;
+no se publican el PDB, el ejecutable ni su desensamblado.
+
 El renderer de `OppoDebugLib`, sus glifos 5×7, la página de cursor compartido y
 la prueba de memoria protegida también son originales. El formateador utilizado
 en el firmware sigue siendo el PrintLib genérico de EDK2; el del test de PC es

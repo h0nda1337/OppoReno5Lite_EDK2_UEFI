@@ -1,0 +1,94 @@
+{
+  "phase": "34 PC-only I/O initialization investigation",
+  "scope": "offline inspection and generic ARM64 simulation; no OPPO operations",
+  "source_native_firmware_changed": false,
+  "new_phone_trial": false,
+  "boot_registry": {
+    "source_system_sha256": "8a9e1f011407f88d73c2fc9a427e9fe7ad1fc6dc8ce2153f4b5fc4333cd06981",
+    "selected_control_set": 1,
+    "boot_start_service_count": 54,
+    "all_resolved_paths_present": true,
+    "all_54_extracted_PE_files_AA64": true,
+    "presence_or_architecture_does_not_prove_successful_driver_load": true,
+    "hardware_specific_Qualcomm_service_count": 6,
+    "services_disabled": []
+  },
+  "kernel_symbols": {
+    "kernel_sha256": "4d3c55897534ce9e33fc04da5515ced81315d284a94a79d86f1ca3aa2f2a0f3d",
+    "pdb_sha256": "9fcfcc78a8725b4ca9c3a41067a3e6744f095997ba1a70db5e3b84b5bfb16f7a",
+    "codeview_guid": "95A3D1D2-6F4F-D176-902A-415958D1B959",
+    "pe_codeview_age": 1,
+    "pdb_DBI_age": 1,
+    "pdb_Info_age": 5,
+    "three_exported_RVAs_match_PDB": {
+      "IoGetDeviceObjectPointer": "0x55cbd0",
+      "KeBugCheck": "0x48ff90",
+      "KeBugCheckEx": "0x3bdac0"
+    },
+    "source": "Microsoft public symbol server",
+    "binaries_PDB_and_disassembly_kept_private": true
+  },
+  "static_inspection": {
+    "path": "Phase1Initialization checks IoInitSystem Boolean result; a false result reaches KeBugCheck(0x69).",
+    "parameter_limit": "The inspected KeBugCheck wrapper supplies zero parameters. This route cannot identify the failed I/O substage through DisplayParameters alone.",
+    "phone_execution_of_exact_path_traced": false,
+    "IopInitFailCode_RVA_for_future_debugger_only": "0xc43808",
+    "IopInitFailCode_read_from_OPPO": false
+  },
+  "simulation": {
+    "emulator": "QEMU 10.0.13, Debian package 1:10.0.13+ds-0+deb13u1",
+    "firmware": "Debian AAVMF 2025.02-8+deb13u1, no Secure Boot",
+    "firmware_sha256": "5d3147294c56ce8cb636c57c181776a89bc7ba254274c35698dc5795758052d3",
+    "platform": "virt, GICv3, EL2 enabled; Cortex-A72, 4096 MiB, GPT FAT32 ESP, RAM framebuffer",
+    "network_and_physical_device_passthrough": false,
+    "full_virtual_FAT_WIM_readbacks": [
+      {
+        "virtual_disk": "qemu-diagnostic-33-gpt",
+        "wim_bytes": 563797628,
+        "sha256": "6acb810f491952b7d62865df26811d3ff6a08403c90b36e1e3881ae187601f84",
+        "full_fat_readback_matches_source": true
+      },
+      {
+        "virtual_disk": "qemu-original-pflash-el2-onecpu",
+        "wim_bytes": 562366404,
+        "sha256": "d00bfd4a17a257d6fa0861e09a1c7cf76f5ba3638026ab17cdb768d56152698a",
+        "full_fat_readback_matches_source": true
+      }
+    ],
+    "comparisons": [
+      {
+        "media": "diagnostic phase33",
+        "cpus": 4,
+        "screen": "IRQL_NOT_LESS_OR_EQUAL",
+        "screenshot_sha256": "2dda5124224aaf77bb999aaadcf4ff8acf6b5112952330ff9ed23058912f431f",
+        "vm_stopped": true,
+        "windows_pe_usable_environment_verified": false
+      },
+      {
+        "media": "diagnostic phase33",
+        "cpus": 1,
+        "screen": "IRQL_NOT_LESS_OR_EQUAL",
+        "screenshot_sha256": "9a3ccce10ac2755262aa6fd2abd9affbf5ab935d5433ddc8c5ca5511b750ac20",
+        "vm_stopped": true,
+        "windows_pe_usable_environment_verified": false
+      },
+      {
+        "media": "unmodified original",
+        "cpus": 1,
+        "screen": "IRQL_NOT_LESS_OR_EQUAL",
+        "screenshot_sha256": "90b85274a18fb1c121d953dd050cc939f6a781c78a9a1ec2c8c927b7f3a6efcc",
+        "vm_stopped": true,
+        "windows_pe_usable_environment_verified": false
+      }
+    ],
+    "earlier_environment_attempts": "Superfloppy layout was rejected; configurations without working SMC handling or with an unsuitable EL3/firmware loading combination did not provide a usable comparison.",
+    "conclusion": "The original WIM and phase33 diagnostic WIM reproduce the same simulation stop name. No successful reference WinPE boot was established, so this simulation does not isolate the OPPO cause or certify the media."
+  },
+  "next_action": "Validate independently sourced official ARM64 WinPE media on PC, then coordinate a concrete guarded OPPO trial. Keep platform, RAM, ramdisk and driver causes open.",
+  "references": [
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x69--io1-initialization-failed",
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/microsoft-public-symbols",
+    "https://www.qemu.org/docs/master/system/arm/virt.html"
+  ],
+  "physical_status": "Last verified OPPO state remains Android, stock recovery and original SD WIM restored after phase33. No fresh battery measurement in this PC-only phase."
+}
