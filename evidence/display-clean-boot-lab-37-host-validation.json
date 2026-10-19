@@ -1,0 +1,37 @@
+{
+  "phase": 37,
+  "scope": "Record of PC preparation before the physical trial; later physical outcome recorded separately",
+  "build_exit_code": 0,
+  "elapsed_wall_seconds": 37.382,
+  "edk2_revision": "b03a21a63e3bd001f52c527e5a57feddb53a690b",
+  "native_fd_sha256": "c8a61acb2515d9cc0a626edd899d782c8b2f9c35794eb15851c2134cac01162f",
+  "candidate_sha256": "d6e5ab7f8d15327c9b339535a593db14481b9ecc1ce3e4d0448999db2963e885",
+  "SEC_read_only_probe_disabled": true,
+  "SD_ACPI_power_fast_read_and_additional_RAM_modes_verified_in_AutoGen": true,
+  "same_official_WinPE_media_as_phase35": true,
+  "official_WIM_modified": false,
+  "full_89_local_media_hashes_rechecked": true,
+  "conditional_display_write": {
+    "address": "0x1400802c",
+    "expected_before": "0x12",
+    "expected_after": "0x10",
+    "only_changed_bit": 1,
+    "requires_exact_live_phase36_profile": true,
+    "GOP_address_pitch_format_clock_timing_not_written": true,
+    "other_storage_or_lock_state_changes": false
+  },
+  "host_model_validation": {
+    "ASan_UBSan_passed": true,
+    "synthetic_and_captured_FDT_bindings": true,
+    "mismatched_profile_fields_skip_write": 21,
+    "individual_read_failures_in_cleanup_path": 23,
+    "concurrent_source_change_prevents_write": true,
+    "write_error_and_readback_mismatch_reported": true,
+    "one_write_only_no_retry": true
+  },
+  "phone_trial_launched": false,
+  "visual_cleanup_verified": false,
+  "Windows_IRQL_stop_resolved": false,
+  "recorded_before_phone_trial": true,
+  "subsequent_physical_result": "evidence/display-clean-boot-lab-37-validation.json"
+}

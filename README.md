@@ -74,6 +74,13 @@ No hay parámetros ni pila física para atribuir la causa. Se usaron los botones
 para volver a Android; se restauraron recovery y los 681 archivos originales
 del medio, con batería final al 100 %. WinPE utilizable en el OPPO sigue pendiente.
 
+La [sonda de pantalla 36](docs/DISPLAY_HANDOFF.md) identificó dos superficies
+activas y volvió a Android; se restauró el recovery. La limpieza condicionada
+de la capa heredada pasó modelos de PC y compiló para la variante 37.
+En la [prueba física 37](evidence/display-clean-boot-lab-37-validation.json),
+Orange State persistió y Windows mostró `SYSTEM_PTE_MISUSE`, sin parámetros
+numéricos capturados. No se comprobó si ocurrió la escritura condicionada.
+
 Una prueba anterior de recovery terminó en un retorno repetido al recovery, con
 fallos al abrir las claves de cifrado de datos. El recovery original se restauró
 y su lectura completa se verificó. Android volvió a arrancar tras un

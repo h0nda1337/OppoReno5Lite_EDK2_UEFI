@@ -1,0 +1,17 @@
+[
+  {
+    "public_path": "docs/images/native-display-clean-boot-lab-37-bugcheck.jpg",
+    "bytes": 1881566,
+    "sha256": "1666ca841d543b28f0e6234206aaac45e9f75a691a9e757f0e68eba4593d6f71",
+    "source_orientation_tag": 6,
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "b4431d85fe8c20d0fe3a5e902da189cf0ca576855a7945ac174ada0543d003ae",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "visual_review": "Owner photo of physical Windows stop screen in phase37: SYSTEM_PTE_MISUSE is readable. The screen says the device needs to restart and You can restart. Four numeric bugcheck parameters, a stack, a dump and the DISPLAY HANDOFF CLEAN diagnostic are not visible. Part of the inherited yellow unlocked-device warning remains visible at the lower edge; owner also reports Orange State persists. This photo does not establish whether the conditional display write occurred or the cause of the bugcheck.",
+    "visible_personal_identifiers": false
+  }
+]

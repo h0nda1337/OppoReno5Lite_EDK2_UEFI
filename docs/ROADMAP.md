@@ -15,8 +15,9 @@ El propietario fija este orden de trabajo para el OPPO Reno5 Lite CPH2205/MT6779
 La Shell UEFI, Windows Boot Manager y una pantalla de bugcheck son hitos
 intermedios. La prueba 32 alcanzó `SYSTEM_PTE_MISUSE` y la 33 terminó con
 `IO1_INITIALIZATION_FAILED`; la referencia oficial del 35 llegó al logo y a
-`IRQL_NOT_LESS_OR_EQUAL`. El arranque correcto de WinPE en el OPPO y el de Windows 11
-siguen pendientes. La aceleración 3D de PowerVR no es
+`IRQL_NOT_LESS_OR_EQUAL`; el 37 volvió a `SYSTEM_PTE_MISUSE` con el mismo
+medio oficial y otra variante de firmware. El arranque correcto de WinPE en
+el OPPO y el de Windows 11 siguen pendientes. La aceleración 3D de PowerVR no es
 un criterio de éxito del primer arranque con pantalla básica.
 
 Se mantiene el código propio de entrada y controladores específicos, la vía de
@@ -168,6 +169,9 @@ validación independiente; su funcionamiento no se presumirá por compartir SoC.
   `IRQL_NOT_LESS_OR_EQUAL`, indicando `ntoskrnl.exe`; causa aún sin aislar.
 - [ ] Identificar y limpiar la presentación Orange State heredada al entrar
   en UEFI, conservando el estado de desbloqueo.
+  La sonda física 36 identificó dos superficies; la limpieza condicionada del 37
+  compiló y pasó los modelos de PC, pero en la prueba física el aviso siguió
+  visible y Windows terminó en `SYSTEM_PTE_MISUSE`. Escritura efectiva sin capturar.
 - [ ] Resolver el fallo de arranque actual y validar un entorno WinPE utilizable
   desde microSD, con entrada básica y un comando comprobado.
 - [ ] Repetir y documentar el arranque correcto de WinPE desde la tarjeta.

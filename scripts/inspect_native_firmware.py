@@ -17,7 +17,8 @@ FD_SIZE = 0x800000
 FV_START = 0x1000
 ENTRY_PROBE_MARKER = b'OPPO_SEC_PROBE_ONLY_V1\0'
 MMU_PROBE_MARKER = b'OPPO_SEC_MMU_PROBE_ONLY_V1\0'
-PROBE_MARKERS = {'handoff': ENTRY_PROBE_MARKER, 'mmu': MMU_PROBE_MARKER}
+DISPLAY_PROBE_MARKER = b'OPPO_SEC_DISPLAY_READ_ONLY_PROBE_V1\0'
+PROBE_MARKERS = {'handoff': ENTRY_PROBE_MARKER, 'mmu': MMU_PROBE_MARKER, 'display': DISPLAY_PROBE_MARKER}
 NATIVE_LAB_MARKER = b'OPPO_NATIVE_DXE_SHELL_LAB_90S_V1\0'
 NATIVE_MEMORY_LAB_MARKER = b'OPPO_NATIVE_DXE_SHELL_LAB_1800S_V1\0'
 ACPI_PROFILE_LAB_MARKER = b'OPPO_ACPI_GIC_PROFILE_READ_ONLY_LAB_V1\0'
@@ -163,6 +164,8 @@ def require_entry_probe(raw, phase='handoff'):
     if (payload.count(PROBE_MARKERS[phase]) != 1 or
             any(marker in payload for name, marker in PROBE_MARKERS.items() if name != phase)):
         raise ValueError('Expected only the selected short SEC probe, not another mode')
+    if phase == 'display' and any(item['guid'] == '056d7218-2168-44b9-9784-a28349858cc2' for item in report['files']):
+        raise ValueError('Display observation must exclude the SD driver')
     return report
 
 

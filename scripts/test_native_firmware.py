@@ -6,7 +6,7 @@ from uuid import UUID
 
 from inspect_native_firmware import (FD_BASE, FD_SIZE, FV_START, REQUIRED, inspect,
     ENTRY_PROBE_MARKER, MMU_PROBE_MARKER, NATIVE_LAB_MARKER, NATIVE_MEMORY_LAB_MARKER, ACPI_PROFILE_LAB_MARKER, ACPI_INSTALL_LAB_MARKER, CPU_PROFILE_LAB_MARKER, PCD_DRIVER_GUID,
-    require_entry_probe, require_native_lab, SD_ACPI_BOOT_LAB_MARKER)
+    require_entry_probe, require_native_lab, SD_ACPI_BOOT_LAB_MARKER, DISPLAY_PROBE_MARKER)
 
 
 def pe_fixture():
@@ -32,7 +32,7 @@ def file_fixture(identifier, kind, section_type, payload, depex=None):
 
 
 def fixture(probe=False, mmu=False, lab=False, pcd_depex=b'\x06\x08', pcd_present=True,
-            lab_marker=NATIVE_LAB_MARKER, sd=False):
+            lab_marker=NATIVE_LAB_MARKER, sd=False, display=False):
     raw = bytearray(b'\xff' * FD_SIZE)
     raw[:64] = b'\0' * 64
     struct.pack_into('<IIQQ', raw, 0, 0x14000400, 0xd503201f, 0x80000, FD_SIZE)
@@ -46,7 +46,7 @@ def fixture(probe=False, mmu=False, lab=False, pcd_depex=b'\x06\x08', pcd_presen
     struct.pack_into('<II', header, 56, (FD_SIZE - FV_START) // 4096, 4096)
     position = FV_START + len(header)
     te_at = position + 24 + 4
-    te = bytearray(44) + (ENTRY_PROBE_MARKER if probe else b'') + (MMU_PROBE_MARKER if mmu else b'')
+    te = bytearray(44) + (ENTRY_PROBE_MARKER if probe else b'') + (MMU_PROBE_MARKER if mmu else b'') + (DISPLAY_PROBE_MARKER if display else b'')
     struct.pack_into('<HHBBHIIQ', te, 0, 0x5a56, 0xaa64, 0, 10, 40, 40, 40, FD_BASE + te_at)
     struct.pack_into('<I', te, 40, 0xd503201f)
     sec_entry = te_at + 40
@@ -74,6 +74,13 @@ def fixture(probe=False, mmu=False, lab=False, pcd_depex=b'\x06\x08', pcd_presen
 
 
 class NativeFirmwareTests(unittest.TestCase):
+    def test_display_probe_is_isolated_and_not_a_DXE_lab(self):
+        require_entry_probe(fixture(display=True), 'display')
+        for raw in [fixture(display=True,probe=True), fixture(display=True,mmu=True),
+                    fixture(display=True,sd=True), fixture(probe=True), fixture(lab=True)]:
+            with self.assertRaises(ValueError): require_entry_probe(raw, 'display')
+        with self.assertRaises(ValueError): require_native_lab(fixture(display=True,lab=True))
+
     def test_full_integration_firmware_cannot_pass_short_probe_guard(self):
         with self.assertRaises(ValueError):
             require_entry_probe(fixture())

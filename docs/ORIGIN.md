@@ -37,6 +37,11 @@ usan como carga de prueba privada; no se redistribuyen ni forman parte de los
 controladores propios. Su comando `ver` funcionó en QEMU; el OPPO terminó en
 una parada de Windows. Esos resultados se documentan por separado.
 
+El observador SEC de las superficies OVL y la limpieza condicionada de una capa
+heredada también son originales. Las referencias OPPO solo se consultaron para
+los recursos, registros y bits de reloj; no se importaron sus controladores de
+composición o de GPU. La lectura física del 36 no prueba la limpieza visual.
+
 El renderer de `OppoDebugLib`, sus glifos 5×7, la página de cursor compartido y
 la prueba de memoria protegida también son originales. El formateador utilizado
 en el firmware sigue siendo el PrintLib genérico de EDK2; el del test de PC es

@@ -11,6 +11,7 @@
 
 [Sources]
   NativeMain.c
+  DisplayProbe.c
 
 [Sources.AARCH64]
   AArch64/Entry.S
@@ -49,6 +50,7 @@
   gOppoAcpiHandoffHobGuid
 
 [FeaturePcd]
+  gOppoNativeTokenSpaceGuid.PcdNativeDisplayProbe
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiProfileLab
   gOppoNativeTokenSpaceGuid.PcdNativeAcpiInstallLab
   gOppoNativeTokenSpaceGuid.PcdNativeCpuProfileLab

@@ -89,7 +89,7 @@ def validate_candidate(stock, candidate, manifest):
     if (manifest.get('purpose') != 'native-sec-entry-probe' or
             manifest.get('probe_only') is not True or
             manifest.get('reset_request_after_seconds') != 10 or
-            manifest.get('probe_stage') not in ('handoff', 'mmu') or
+            manifest.get('probe_stage') not in ('handoff', 'mmu', 'display') or
             manifest.get('kernel_transport') != 'gzip' or
             manifest.get('bootshim_used') is not False):
         raise ValueError('Expected a reviewed short SEC probe manifest')
@@ -157,7 +157,7 @@ def main():
     parser.add_argument('--native-probe-fd', type=Path, required=True)
     parser.add_argument('--private-output-dir', type=Path, required=True)
     parser.add_argument('--avbtool', type=Path, required=True)
-    parser.add_argument('--probe-stage', choices=('handoff', 'mmu'), default='handoff')
+    parser.add_argument('--probe-stage', choices=('handoff', 'mmu', 'display'), default='handoff')
     args = parser.parse_args()
     prepare(args.stock_recovery, args.native_probe_fd, args.private_output_dir, args.avbtool, args.probe_stage)
 

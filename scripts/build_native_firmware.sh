@@ -30,6 +30,11 @@ case "${NATIVE_ENTRY_PROBE:-0}:${NATIVE_MMU_PROBE:-0}" in
   0:1) mode=mmu-probe; extra=(-D OPPO_MMU_PROBE=TRUE) ;;
   *) printf '%s\n' 'Select at most one probe; NATIVE_ENTRY_PROBE and NATIVE_MMU_PROBE must be 0 or 1' >&2; exit 1 ;;
 esac
+case "${NATIVE_DISPLAY_PROBE:-0}:$mode" in
+  0:*) ;;
+  1:integration) mode=display-probe; extra=(-D OPPO_DISPLAY_PROBE=TRUE) ;;
+  *) printf '%s\n' 'Display observation must be isolated from SEC entry/MMU probes and use a 0 or 1 flag' >&2; exit 1 ;;
+esac
 case "${NATIVE_SD_READ_LAB:-0}:${NATIVE_SD_BOOT_LAB:-0}:$mode" in
   0:0:*) ;;
   1:0:integration) mode=sd-read-lab; extra=(-D OPPO_SD_READ_LAB=TRUE) ;;

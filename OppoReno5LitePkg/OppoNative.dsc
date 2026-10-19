@@ -14,6 +14,7 @@
   FLASH_DEFINITION = OppoReno5LitePkg/OppoNative.fdf
   DEFINE OPPO_ENTRY_PROBE = FALSE
   DEFINE OPPO_MMU_PROBE = FALSE
+  DEFINE OPPO_DISPLAY_PROBE = FALSE
   DEFINE OPPO_SD_READ_LAB = FALSE
   DEFINE OPPO_SD_BOOT_LAB = FALSE
   DEFINE OPPO_SD_POWER_LAB = FALSE
@@ -117,6 +118,7 @@
   MemoryAllocationLib|MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationLib.inf
 
 [PcdsFeatureFlag]
+  gOppoNativeTokenSpaceGuid.PcdNativeDisplayProbe|$(OPPO_DISPLAY_PROBE)
   gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe|$(OPPO_ENTRY_PROBE)
   gOppoNativeTokenSpaceGuid.PcdNativeMmuProbe|$(OPPO_MMU_PROBE)
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab|$(OPPO_SD_READ_LAB)

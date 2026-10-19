@@ -1,0 +1,79 @@
+{
+  "phase": 36,
+  "scope": "Short SEC display observation, physical results separate from PC models",
+  "build": {
+    "exit_code": 0,
+    "elapsed_seconds": 31.0,
+    "edk2_revision": "b03a21a63e3bd001f52c527e5a57feddb53a690b",
+    "native_fd_sha256": "304b17133b0abe4b7a5e9689955ff34eeb0661dedd3fca32f929d486fe590e87",
+    "source_snapshot_unchanged_at_build": true,
+    "probe_stage": "display",
+    "display_register_writes": false,
+    "DXE_SD_or_OS_execution": false
+  },
+  "host_validation": {
+    "read_only_model_ASan_UBSan_passed": true,
+    "synthetic_and_captured_FDT_bindings_checked": true,
+    "read_failures_injected_individually": 31,
+    "invalid_bindings_prevent_all_MMIO_reads": true,
+    "gated_banks_and_disabled_layers_skipped": true,
+    "native_Python_tests_passed": 24
+  },
+  "physical": {
+    "battery_before_entry_percent": 100.0,
+    "profile": "SUCCESS",
+    "EL": 1,
+    "counter_Hz": 13000000,
+    "selected_transcription": {
+      "OVL0": {
+        "base": "0x14008000",
+        "gated": 0,
+        "enable": "0x1",
+        "sources": "0x12",
+        "extended": "0x0",
+        "path": "0x07000001",
+        "ROI": "0x09600438",
+        "layer1": {
+          "address": "0x76f16000",
+          "control": "0x21ff",
+          "pitch": "0x21ff10e0",
+          "size": "0x09600438",
+          "offset": "0x0"
+        }
+      },
+      "OVL0_2L": {
+        "base": "0x14009000",
+        "gated": 0,
+        "enable": "0x1",
+        "sources": "0x1",
+        "extended": "0x0",
+        "path": "0x07000001",
+        "ROI": "0x09600438",
+        "layer0": {
+          "address": "0x76520000",
+          "control": "0x31ff",
+          "pitch": "0x21ff1100",
+          "size": "0x09600438",
+          "offset": "0x0"
+        }
+      },
+      "OVL1_2L": {
+        "base": "0x1400a000",
+        "gated": 1,
+        "register_reads_skipped": true
+      }
+    },
+    "complete_CG_hex_not_transcribed_as_verified": true,
+    "surface_pixel_contents_not_read": true,
+    "Orange_State_removed_proven": false,
+    "owner_no_buttons_confirmation": null,
+    "Android_boot_completed_detected": true,
+    "bootreason": "reboot",
+    "report_to_Android_seconds": 118.643,
+    "interval_is_not_probe_wait_measurement": true,
+    "stock_recovery_restored": true,
+    "final_battery_percent": 100.0,
+    "SD_media_unchanged_original": true
+  },
+  "next_action": "Test conditional disable of only inherited OVL0 L1 while preserving LC and the GOP surface. It is not a verified fix for Orange State or the Windows IRQL stop."
+}

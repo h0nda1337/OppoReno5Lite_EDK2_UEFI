@@ -25,6 +25,7 @@
 #include <Library/OppoFrameBufferLib.h>
 #include <Library/OppoMemoryPlanLib.h>
 #include <Library/OppoHandoffLib.h>
+#include "DisplayProbe.h"
 
 VOID EFIAPI ProcessLibraryConstructorList (VOID);
 
@@ -68,7 +69,10 @@ STATIC VOID Stop (VOID)
 STATIC VOID EntryProbe (CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
 {
   // Each build retains only its selected marker. Packaging rejects other modes.
-  if (FeaturePcdGet (PcdNativeMmuProbe)) {
+  if (FeaturePcdGet (PcdNativeDisplayProbe)) {
+    STATIC CONST volatile CHAR8 Identity[] = "OPPO_SEC_DISPLAY_READ_ONLY_PROBE_V1";
+    if (Identity[0] != 'O') Stop ();
+  } else if (FeaturePcdGet (PcdNativeMmuProbe)) {
     STATIC CONST volatile CHAR8 Identity[] = "OPPO_SEC_MMU_PROBE_ONLY_V1";
     if (Identity[0] != 'O') Stop ();
   } else {
@@ -96,6 +100,51 @@ STATIC BOOLEAN RegisterMatches (CONST OPPO_FDT_VIEW *View, CONST CHAR8 *Path,
       Offset > Bytes || Bytes - Offset < 16) return FALSE;
   CONST UINT8 *Reg = (CONST UINT8 *)Value + Offset;
   return (BOOLEAN)(BigNumber (Reg, 8) == Base && BigNumber (Reg + 8, 8) >= MinimumSize);
+}
+
+STATIC EFI_STATUS EFIAPI DisplayRead (VOID *Context, UINT64 Address, UINT32 *Value)
+{
+  (VOID)Context;
+  if (Value == NULL || Address < 0x14000000 || Address > 0x1400affc || (Address & 3))
+    return EFI_INVALID_PARAMETER;
+  MemoryFence ();
+  *Value = *(volatile UINT32 *)(UINTN)Address;
+  MemoryFence ();
+  return EFI_SUCCESS;
+}
+
+STATIC EFI_STATUS EFIAPI DisplayWrite (VOID *Context, UINT64 Address, UINT32 Value)
+{
+  (VOID)Context;
+  // The SD handoff may only disable the observed inherited layer, never replace
+  // framebuffer addresses, pitch, formats, clocks, timing or lock state.
+  if (Address != 0x1400802c || Value != 0x10) return EFI_INVALID_PARAMETER;
+  MemoryFence ();
+  *(volatile UINT32 *)(UINTN)Address = Value;
+  MemoryFence ();
+  return EFI_SUCCESS;
+}
+
+STATIC VOID DisplayProfile (CONST OPPO_FDT_VIEW *View)
+{
+  OPPO_DISPLAY_SNAPSHOT Snapshot;
+  EFI_STATUS Status = OppoDisplayReadSnapshot (View, DisplayRead, NULL, &Snapshot);
+  DEBUG ((DEBUG_INFO, "DISPLAY READ ONLY PROFILE=%r CG=%08x\n", Status, Snapshot.ClockGate));
+  if (EFI_ERROR (Status)) return;
+  for (UINT32 B = 0; B < 3; B++) {
+    OPPO_DISPLAY_BANK *Bank = &Snapshot.Banks[B];
+    DEBUG ((DEBUG_INFO, "DISPLAY BANK%u BASE=%08x GATED=%u EN=%08x SRC=%08x EXT=%08x\n",
+            B, Bank->Base, Bank->ClockOff, Bank->Enable, Bank->Sources, Bank->Extended));
+    DEBUG ((DEBUG_INFO, "DISPLAY BANK%u PATH=%08x ROI=%08x\n", B, Bank->DataPath, Bank->Roi));
+    for (UINT32 L = 0; L < ARRAY_SIZE (Bank->Layers); L++) {
+      OPPO_DISPLAY_LAYER *Layer = &Bank->Layers[L];
+      if (!Layer->Enabled) continue;
+      DEBUG ((DEBUG_INFO, "DISPLAY B%u %a%u ADDR=%08x CON=%08x PITCH=%08x\n",
+              B, L >= 4 ? "E" : "L", L >= 4 ? L-4 : L, Layer->Address, Layer->Control, Layer->Pitch));
+      DEBUG ((DEBUG_INFO, "DISPLAY B%u SLOT%u SIZE=%08x OFFSET=%08x\n", B, L, Layer->Size, Layer->Offset));
+    }
+  }
+  DEBUG ((DEBUG_INFO, "DISPLAY NO REGISTER WRITES; NO DXE SD OR WINDOWS\n"));
 }
 
 STATIC VOID MapRegion (ARM_MEMORY_REGION_DESCRIPTOR *Map, UINTN Capacity, UINTN *Count,
@@ -214,6 +263,12 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
   ARM_SMC_ARGS Args;
   UINT64 Fdt = Entry->Fdt;
   EFI_STATUS Status;
+  if (FeaturePcdGet (PcdNativeDisplayProbe) &&
+      (FeaturePcdGet (PcdNativeEntryProbe) || FeaturePcdGet (PcdNativeMmuProbe) ||
+       FeaturePcdGet (PcdNativeSdReadLab) || FeaturePcdGet (PcdNativeSdBootLab) ||
+       FeaturePcdGet (PcdNativeExtraMemoryLab) || FeaturePcdGet (PcdNativeSdFastReadLab) ||
+       FeaturePcdGet (PcdNativeAcpiProfileLab) || FeaturePcdGet (PcdNativeAcpiInstallLab) ||
+       FeaturePcdGet (PcdNativeCpuProfileLab) || FeaturePcdGet (PcdNativeSdAcpiBootLab))) Stop ();
   if (FeaturePcdGet (PcdNativeEntryProbe) && FeaturePcdGet (PcdNativeMmuProbe)) Stop ();
   if (FeaturePcdGet (PcdNativeSdAcpiBootLab) &&
       (!FeaturePcdGet (PcdNativeSdReadLab) || !FeaturePcdGet (PcdNativeSdBootLab) ||
@@ -290,7 +345,17 @@ VOID EFIAPI OppoSecMain (IN CONST OPPO_SEC_ENTRY_CONTEXT *Entry)
           (UINT32)Entry->ExceptionLevel, Entry->CounterFrequency));
   DEBUG ((DEBUG_INFO, "SEC extra RAM: %u ranges, %Lu MiB; initial pool unchanged\n",
           (UINT32)State.Extra.Count, State.Extra.TotalBytes / (1024 * 1024)));
+  if (FeaturePcdGet (PcdNativeDisplayProbe)) {
+    DisplayProfile (&View);
+    EntryProbe (Entry);
+  }
   if (FeaturePcdGet (PcdNativeEntryProbe)) EntryProbe (Entry);
+  if (FeaturePcdGet (PcdNativeSdBootLab)) {
+    OPPO_DISPLAY_CLEAN_RESULT Clean;
+    EFI_STATUS CleanStatus = OppoDisplayHideInherited (&View, DisplayRead, DisplayWrite, NULL, &Clean);
+    DEBUG ((DEBUG_INFO, "DISPLAY HANDOFF CLEAN=%r WRITE=%u SRC=%08x TO=%08x\n",
+            CleanStatus, (UINT32)Clean.Attempted, Clean.Before, Clean.After));
+  }
   SwitchStack (ContinueBoot, &State, NULL,
                (VOID *)(UINTN)(State.Plan.Pool.Base + State.Plan.Pool.Length));
   Stop ();

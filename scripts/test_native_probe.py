@@ -69,6 +69,7 @@ class NativeProbeTests(unittest.TestCase):
         manifest={'purpose':'native-sec-entry-probe','probe_only':True,'reset_request_after_seconds':10,'probe_stage':'handoff'}
         require_native_probe(manifest,True,True)
         require_native_probe(dict(manifest,probe_stage='mmu'),True,True)
+        require_native_probe(dict(manifest,probe_stage='display'),True,True)
         for explicit,direct in [(False,True),(True,False),(False,False)]:
             with self.assertRaises(ValueError):require_native_probe(manifest,explicit,direct)
         for altered in [dict(manifest,probe_only=False),dict(manifest,reset_request_after_seconds=90),

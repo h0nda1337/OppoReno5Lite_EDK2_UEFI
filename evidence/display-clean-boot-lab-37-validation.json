@@ -1,0 +1,41 @@
+{
+  "phase": 37,
+  "scope": "Physical Windows boot outcome, distinct from PC preparation and model tests",
+  "preparation": "evidence/display-clean-boot-lab-37-host-validation.json",
+  "photo": "evidence/display-clean-boot-lab-37-photo.json",
+  "firmware_sha256": "d6e5ab7f8d15327c9b339535a593db14481b9ecc1ce3e4d0448999db2963e885",
+  "same_unmodified_official_WinPE_media_as_phase35": true,
+  "physical": {
+    "entry_battery_percent": 100.0,
+    "deployment_official_files_sha256_verified": 89,
+    "original_files_preserved_and_sha256_verified": 681,
+    "Windows_stop_name_visually_verified": "SYSTEM_PTE_MISUSE",
+    "numeric_bugcheck_parameters_visible": false,
+    "stack_or_dump_available": false,
+    "usable_WinPE_reached": false,
+    "Windows_11_reached": false,
+    "inherited_yellow_warning_visible_at_photo_lower_edge": true,
+    "owner_reports_Orange_State_persists": true,
+    "visual_cleanup_succeeded": false,
+    "DISPLAY_HANDOFF_CLEAN_diagnostic_captured": false,
+    "conditional_register_write_occurred": null,
+    "owner_announced_forced_restart": true,
+    "actual_button_combination_independently_verified": false,
+    "Android_boot_completed_detected": true,
+    "bootreason": "PowerKey",
+    "report_to_Android_seconds": 537.432,
+    "interval_is_not_kernel_boot_time_or_BDS_wait_measurement": true,
+    "stock_recovery_restored": true,
+    "original_card_media_restored": true,
+    "restoration_status": "complete",
+    "original_card_files_sha256_verified_after_restore": 681,
+    "test_media_retained_separately": true,
+    "final_battery_percent": 100.0
+  },
+  "limits": [
+    "A PC model pass and build do not prove a live display-register write or cleanup.",
+    "Phase35 and37 use the same official WinPE media with different native firmware; different stop names alone do not isolate cause.",
+    "No bugcheck subtype, invalid PTE, responsible driver or GPU cause can be identified from this photo alone."
+  ],
+  "next_action": "Capture numeric bugcheck parameters using a separately verified diagnostic copy of the official WinPE; keep the unmodified reference. Stock recovery and original card assets are restored."
+}

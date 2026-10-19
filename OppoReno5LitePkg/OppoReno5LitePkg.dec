@@ -36,6 +36,7 @@
   gOppoSdStatusProtocolGuid = { 0x086991fb, 0x7c98, 0x4a86, {0x9f, 0x39, 0xcd, 0x9c, 0xf7, 0x5a, 0xcf, 0x35} }
 
 [PcdsFeatureFlag]
+  gOppoNativeTokenSpaceGuid.PcdNativeDisplayProbe|FALSE|BOOLEAN|0x0000000C
   gOppoNativeTokenSpaceGuid.PcdNativeEntryProbe|FALSE|BOOLEAN|0x00000001
   gOppoNativeTokenSpaceGuid.PcdNativeMmuProbe|FALSE|BOOLEAN|0x00000002
   gOppoNativeTokenSpaceGuid.PcdNativeSdReadLab|FALSE|BOOLEAN|0x00000003

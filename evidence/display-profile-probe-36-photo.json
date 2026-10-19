@@ -1,0 +1,17 @@
+[
+  {
+    "public_path": "docs/images/native-display-profile-probe-36.jpg",
+    "bytes": 3005979,
+    "sha256": "d5ba724631e1cc7a7449887ac6a40e5d4ddad8410fdf544d770777c30d40db4b",
+    "source_orientation_tag": 6,
+    "orientation": 6,
+    "icc_segments_preserved": 1,
+    "compressed_pixel_scans_preserved": true,
+    "compressed_scan_sha256": "08f649e638499547fb199d5f37e5cf618b5fa750c63f0ee8c06b2a5815362488",
+    "retained_exif_tags": [
+      "Orientation"
+    ],
+    "visual_review": "Owner photo of the short SEC display observer: profile SUCCESS, two active overlay banks, inherited surface address 0x76F16000 and GOP surface address 0x76520000, with their controls, pitches, sizes and offsets. Third bank is gated. No display register writes or OS execution in this probe. The framing does not prove that Orange State was removed. Clock-gate hex value is not transcribed as fully verified.",
+    "visible_personal_identifiers": false
+  }
+]

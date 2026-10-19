@@ -34,7 +34,8 @@ GICv3 con ocho afinidades del 28, de la instalación ACPI del 30, de CPU/PSCI de
 y las dos del intento combinado ACPI/SD con bugcheck de Windows del 32 y la
 fotografía SD intermedia y las dos fotos de IO1_INITIALIZATION_FAILED del
 diagnóstico de parámetros de WinPE del 33 y las del logo y bugcheck de la
-referencia oficial WinPE del 35,
+referencia oficial WinPE del 35, la lectura de superficies de pantalla del 36
+y el bugcheck del intento de limpieza del 37,
 están revisadas y fijadas por ruta, tamaño y SHA-256 en
 `check_publication.py`. Se retiraron los
 metadatos personales de cámara; se conservaron orientación y perfil de color,
@@ -65,7 +66,9 @@ a `docs/images/native-mmu-probe.jpg`, `docs/images/native-dxe-shell-lab-01.jpg`,
 `docs/images/native-winpe-crash-parameters-lab-33-bugcheck.jpg`
 `docs/images/native-winpe-crash-parameters-lab-33-bugcheck-detail.jpg`,
 `docs/images/native-winpe-clean-reference-lab-35-logo.jpg`
-y `docs/images/native-winpe-clean-reference-lab-35-bugcheck-detail.jpg`;
+`docs/images/native-winpe-clean-reference-lab-35-bugcheck-detail.jpg`
+`docs/images/native-display-profile-probe-36.jpg`
+y `docs/images/native-display-clean-boot-lab-37-bugcheck.jpg`;
 las demás imágenes y binarios siguen
 requiriendo revisión y no se aceptan automáticamente.
 
